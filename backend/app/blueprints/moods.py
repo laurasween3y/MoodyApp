@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from ..schemas.mood import MoodSchema
+from ..schemas.mood import MoodResponseSchema, MoodSchema
 
 blp = Blueprint(
     "moods",
@@ -14,7 +14,7 @@ blp = Blueprint(
 @blp.route("/")
 class MoodsResource(MethodView):
     @blp.arguments(MoodSchema)
-    @blp.response(201, MoodSchema)
+    @blp.response(201, MoodResponseSchema)
     def post(self, mood_data):
         """Accept a mood entry and echo it back.
 

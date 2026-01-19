@@ -11,3 +11,10 @@ class MoodSchema(Schema):
         allow_none=True,
         metadata={"description": "Optional note about the mood"},
     )
+
+
+class MoodResponseSchema(Schema):
+    """Response payload for a created mood entry."""
+
+    mood = fields.Str(metadata={"description": "The submitted mood"})
+    note = fields.Str(allow_none=True, metadata={"description": "Optional note about the mood"})
