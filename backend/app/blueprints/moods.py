@@ -1,7 +1,9 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from ..schemas.mood import MoodResponseSchema, MoodSchema
+from app.extensions import db
+from app.models.mood import Mood
+from ..schemas.mood import MoodCreateSchema, MoodResponseSchema
 
 blp = Blueprint(
     "moods",
@@ -13,12 +15,17 @@ blp = Blueprint(
 
 @blp.route("/")
 class MoodsResource(MethodView):
-    @blp.arguments(MoodSchema)
+    @blp.arguments(MoodCreateSchema)
     @blp.response(201, MoodResponseSchema)
     def post(self, mood_data):
-        """Accept a mood entry and echo it back.
+        """Create a mood entry and return it."""
 
-        This keeps the vertical slice minimal while demonstrating
-        request validation and response serialization.
-        """
-        return mood_data
+        mood = Mood()
+        mood.user_id = 1  # TEMP until auth is added
+        mood.mood = mood_data.get("mood")
+        mood.note = mood_data.get("note")
+
+        db.session.add(mood)
+        db.session.commit()
+
+        return mood
