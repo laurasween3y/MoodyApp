@@ -1,6 +1,30 @@
 {
   "paths": {
     "/moods/": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MoodResponse"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List all moods for the current user (temporary user_id=1).",
+        "tags": [
+          "moods"
+        ]
+      },
       "post": {
         "responses": {
           "422": {
@@ -54,6 +78,29 @@
           }
         },
         "summary": "Get today's mood for the current user (temporary user_id=1).",
+        "tags": [
+          "moods"
+        ]
+      }
+    },
+    "/moods/options": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoodOptions"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List allowed mood keys for the client UI.",
         "tags": [
           "moods"
         ]
@@ -123,24 +170,6 @@
         },
         "additionalProperties": false
       },
-      "MoodCreate": {
-        "type": "object",
-        "properties": {
-          "mood": {
-            "type": "string",
-            "description": "The current mood"
-          },
-          "note": {
-            "type": "string",
-            "description": "Optional note about the mood",
-            "nullable": true
-          }
-        },
-        "required": [
-          "mood"
-        ],
-        "additionalProperties": false
-      },
       "MoodResponse": {
         "type": "object",
         "properties": {
@@ -164,11 +193,71 @@
           }
         },
         "additionalProperties": false
+      },
+      "MoodCreate": {
+        "type": "object",
+        "properties": {
+          "mood": {
+            "type": "string",
+            "enum": [
+              "happy",
+              "sad",
+              "angry",
+              "excited",
+              "sick",
+              "tired",
+              "loved",
+              "anxious",
+              "peaceful",
+              "bored",
+              "silly",
+              "fine"
+            ],
+            "description": "The current mood (predefined options)"
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional note about the mood",
+            "nullable": true
+          }
+        },
+        "required": [
+          "mood"
+        ],
+        "additionalProperties": false
+      },
+      "MoodOptions": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "array",
+            "readOnly": true,
+            "description": "Available mood keys",
+            "items": {
+              "type": "string",
+              "enum": [
+                "happy",
+                "sad",
+                "angry",
+                "excited",
+                "sick",
+                "tired",
+                "loved",
+                "anxious",
+                "peaceful",
+                "bored",
+                "silly",
+                "fine"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
       }
     },
     "responses": {
-      "UNPROCESSABLE_CONTENT": {
-        "description": "Unprocessable Content",
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
         "content": {
           "application/json": {
             "schema": {
@@ -177,8 +266,8 @@
           }
         }
       },
-      "DEFAULT_ERROR": {
-        "description": "Default error response",
+      "UNPROCESSABLE_CONTENT": {
+        "description": "Unprocessable Content",
         "content": {
           "application/json": {
             "schema": {

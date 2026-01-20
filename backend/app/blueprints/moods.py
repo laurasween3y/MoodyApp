@@ -5,7 +5,12 @@ from flask_smorest import Blueprint, abort
 
 from app.extensions import db
 from app.models.mood import Mood
-from ..schemas.mood import MoodCreateSchema, MoodResponseSchema
+from ..schemas.mood import (
+    MOOD_OPTIONS,
+    MoodCreateSchema,
+    MoodOptionsSchema,
+    MoodResponseSchema,
+)
 
 blp = Blueprint(
     "moods",
@@ -17,6 +22,17 @@ blp = Blueprint(
 
 @blp.route("/")
 class MoodsResource(MethodView):
+    @blp.response(200, MoodResponseSchema(many=True))
+    def get(self):
+        """List all moods for the current user (temporary user_id=1)."""
+
+        moods = (
+            Mood.query.filter_by(user_id=1)
+            .order_by(Mood.date.desc(), Mood.id.desc())
+            .all()
+        )
+        return moods
+
     @blp.arguments(MoodCreateSchema)
     @blp.response(201, MoodResponseSchema)
     def post(self, mood_data):
@@ -49,3 +65,12 @@ class TodayMoodResource(MethodView):
             abort(404, message="No mood submitted for today")
 
         return mood
+
+
+@blp.route("/options")
+class MoodOptionsResource(MethodView):
+    @blp.response(200, MoodOptionsSchema)
+    def get(self):
+        """List allowed mood keys for the client UI."""
+
+        return {"options": MOOD_OPTIONS}

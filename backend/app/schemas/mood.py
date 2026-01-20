@@ -1,8 +1,28 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
+
+
+MOOD_OPTIONS = [
+    "happy",
+    "sad",
+    "angry",
+    "excited",
+    "sick",
+    "tired",
+    "loved",
+    "anxious",
+    "peaceful",
+    "bored",
+    "silly",
+    "fine",
+]
 
 
 class MoodCreateSchema(Schema):
-    mood = fields.Str(required=True, metadata={"description": "The current mood"})
+    mood = fields.Str(
+        required=True,
+        validate=validate.OneOf(MOOD_OPTIONS),
+        metadata={"description": "The current mood (predefined options)"},
+    )
     note = fields.Str(allow_none=True, metadata={"description": "Optional note about the mood"})
 
 
@@ -19,3 +39,11 @@ class MoodResponseSchema(Schema):
     mood = fields.Str(metadata={"description": "The submitted mood"})
     note = fields.Str(allow_none=True, metadata={"description": "Optional note about the mood"})
     date = fields.Date(dump_only=True)
+
+
+class MoodOptionsSchema(Schema):
+    options = fields.List(
+        fields.Str(validate=validate.OneOf(MOOD_OPTIONS)),
+        dump_only=True,
+        metadata={"description": "Available mood keys"},
+    )
