@@ -1,79 +1,47 @@
-.page {
+.layout {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
   background: #f6f7fb;
-  color: #1f2933;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.card {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  width: min(560px, 90vw);
+.top-nav {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: #111827;
+  color: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+nav {
+  display: flex;
   gap: 1rem;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+nav a {
+  color: #e5e7eb;
+  text-decoration: none;
   font-weight: 600;
-  color: #111827;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
 }
 
-input {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-button {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  border: none;
-  background: #2563eb;
+nav a.active,
+nav a:hover {
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
-  cursor: pointer;
-  font-weight: 600;
 }
 
-button[disabled] {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.alert {
-  background: #fef2f2;
-  color: #991b1b;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-}
-
-.panel {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-}
-
-.muted {
-  color: #6b7280;
+.content {
+  flex: 1;
 }

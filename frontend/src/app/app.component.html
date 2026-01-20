@@ -1,44 +1,18 @@
-<main class="page">
-  <section class="card">
-    <h1>Moody demo client</h1>
-    <p>Uses the generated Angular client to call the Flask API.</p>
+<div class="layout">
+  <header class="top-nav">
+    <div class="brand">Moody</div>
+    <nav>
+      <a routerLink="/home" routerLinkActive="active">Home</a>
+      <a routerLink="/mood" routerLinkActive="active">Mood</a>
+      <a routerLink="/journal" routerLinkActive="active">Journal</a>
+      <a routerLink="/planner" routerLinkActive="active">Planner</a>
+      <a routerLink="/habits" routerLinkActive="active">Habits</a>
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+      <a routerLink="/register" routerLinkActive="active">Register</a>
+    </nav>
+  </header>
 
-    <form (ngSubmit)="saveMood()" #moodForm="ngForm" class="form">
-      <label>
-        Mood
-        <input name="mood" [(ngModel)]="mood" required placeholder="happy" />
-      </label>
-
-      <label>
-        Note (optional)
-        <input name="note" [(ngModel)]="note" placeholder="A short note" />
-      </label>
-
-      <div class="actions">
-        <button type="submit" [disabled]="loading || !moodForm.form.valid">
-          {{ loading ? 'Saving…' : 'Save mood' }}
-        </button>
-        <button type="button" (click)="fetchToday()" [disabled]="loading">
-          Refresh today
-        </button>
-      </div>
-    </form>
-
-    <div *ngIf="error" class="alert">{{ error }}</div>
-
-    <div class="panel" *ngIf="lastCreated">
-      <h2>Last created</h2>
-      <p><strong>Mood:</strong> {{ lastCreated.mood }}</p>
-      <p><strong>Note:</strong> {{ lastCreated.note || '—' }}</p>
-    </div>
-
-    <div class="panel" *ngIf="today">
-      <h2>Today</h2>
-      <p><strong>Mood:</strong> {{ today.mood }}</p>
-      <p><strong>Note:</strong> {{ today.note || '—' }}</p>
-      <p><strong>Date:</strong> {{ today.date }}</p>
-    </div>
-
-    <div *ngIf="!today && !error" class="muted">No mood for today yet.</div>
-  </section>
-</main>
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
