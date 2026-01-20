@@ -1,5 +1,7 @@
+from datetime import date
+
 from flask.views import MethodView
-from flask_smorest import Blueprint
+from flask_smorest import Blueprint, abort
 
 from app.extensions import db
 from app.models.mood import Mood
@@ -27,5 +29,23 @@ class MoodsResource(MethodView):
 
         db.session.add(mood)
         db.session.commit()
+
+        return mood
+
+
+@blp.route("/today")
+class TodayMoodResource(MethodView):
+    @blp.response(200, MoodResponseSchema)
+    def get(self):
+        """Get today's mood for the current user (temporary user_id=1)."""
+
+        mood = (
+            Mood.query.filter_by(user_id=1, date=date.today())
+            .order_by(Mood.id.desc())
+            .first()
+        )
+
+        if mood is None:
+            abort(404, message="No mood submitted for today")
 
         return mood
