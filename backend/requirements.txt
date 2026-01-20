@@ -3,3 +3,4 @@ flask-smorest
 marshmallow
 flask-sqlalchemy
 psycopg2-binary
+flask-cors

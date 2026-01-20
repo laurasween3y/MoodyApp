@@ -1,0 +1,192 @@
+{
+  "paths": {
+    "/moods/": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_CONTENT"
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoodResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoodCreate"
+              }
+            }
+          }
+        },
+        "summary": "Create a mood entry and return it.",
+        "tags": [
+          "moods"
+        ]
+      }
+    },
+    "/moods/today": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoodResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get today's mood for the current user (temporary user_id=1).",
+        "tags": [
+          "moods"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Moody API",
+    "version": "v1"
+  },
+  "tags": [
+    {
+      "name": "moods",
+      "description": "Submit and view moods"
+    }
+  ],
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error name"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Errors",
+            "additionalProperties": {}
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "first_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "previous_page": {
+            "type": "integer"
+          },
+          "next_page": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MoodCreate": {
+        "type": "object",
+        "properties": {
+          "mood": {
+            "type": "string",
+            "description": "The current mood"
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional note about the mood",
+            "nullable": true
+          }
+        },
+        "required": [
+          "mood"
+        ],
+        "additionalProperties": false
+      },
+      "MoodResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "mood": {
+            "type": "string",
+            "description": "The submitted mood"
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional note about the mood",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "UNPROCESSABLE_CONTENT": {
+        "description": "Unprocessable Content",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
