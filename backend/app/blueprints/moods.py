@@ -49,6 +49,47 @@ class MoodsResource(MethodView):
         return mood
 
 
+@blp.route("/<int:mood_id>")
+class MoodDetailResource(MethodView):
+    @blp.response(200, MoodResponseSchema)
+    def get(self, mood_id):
+        """Get a single mood by id for the current user."""
+
+        mood = Mood.query.filter_by(user_id=1, id=mood_id).first()
+        if mood is None:
+            abort(404, message="Mood not found")
+
+        return mood
+
+    @blp.arguments(MoodCreateSchema)
+    @blp.response(200, MoodResponseSchema)
+    def patch(self, update_data, mood_id):
+        """Update a mood's mood/note fields."""
+
+        mood = Mood.query.filter_by(user_id=1, id=mood_id).first()
+        if mood is None:
+            abort(404, message="Mood not found")
+
+        mood.mood = update_data.get("mood", mood.mood)
+        mood.note = update_data.get("note")
+        db.session.commit()
+
+        return mood
+
+    @blp.response(204)
+    def delete(self, mood_id):
+        """Delete a mood for the current user."""
+
+        mood = Mood.query.filter_by(user_id=1, id=mood_id).first()
+        if mood is None:
+            abort(404, message="Mood not found")
+
+        db.session.delete(mood)
+        db.session.commit()
+
+        return "", 204
+
+
 @blp.route("/today")
 class TodayMoodResource(MethodView):
     @blp.response(200, MoodResponseSchema)
