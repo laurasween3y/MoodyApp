@@ -15,6 +15,5 @@ export class LoginPageComponent {
 
   submit() {
     // TODO: wire to auth API
-    console.log('login attempt', this.email);
   }
 }

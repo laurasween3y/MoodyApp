@@ -79,6 +79,12 @@ textarea {
   margin-top: 0.5rem;
 }
 
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
 button {
   padding: 0.6rem 1rem;
   border-radius: 8px;
@@ -92,6 +98,10 @@ button {
 button[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+button.danger {
+  background: #dc2626;
 }
 
 .alert {

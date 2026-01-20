@@ -24,14 +24,17 @@
 
     <div class="actions">
       <button type="button" (click)="saveMood()" [disabled]="loading || !selectedMood">
-        {{ loading ? 'Saving…' : 'Save mood' }}
+        {{ loading ? 'Saving…' : (editingMoodId ? 'Update mood' : 'Save mood') }}
       </button>
+      <button type="button" (click)="resetForm()" [disabled]="loading">Clear</button>
       <button type="button" (click)="refreshData()" [disabled]="loading">
         Refresh data
       </button>
     </div>
 
     <div *ngIf="error" class="alert">{{ error }}</div>
+
+    <div *ngIf="editingMoodId" class="muted">Editing mood #{{ editingMoodId }}</div>
 
     <div class="panel" *ngIf="today">
       <h2>Today</h2>
@@ -58,6 +61,10 @@
           </header>
           <img *ngIf="moodIcon(mood.mood)" [src]="moodIcon(mood.mood)" [alt]="mood.mood" />
           <p class="note">{{ mood.note || '—' }}</p>
+          <div class="row-actions">
+            <button type="button" (click)="startEdit(mood)" [disabled]="loading">Edit</button>
+            <button type="button" class="danger" (click)="deleteMood(mood)" [disabled]="loading">Delete</button>
+          </div>
         </article>
       </div>
     </div>

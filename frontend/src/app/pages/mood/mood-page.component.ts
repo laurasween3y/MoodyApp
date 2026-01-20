@@ -15,6 +15,7 @@ import { MoodResponse, MoodsService } from '../../api';
 export class MoodPageComponent implements OnInit {
   note = '';
   selectedMood?: string;
+  editingMoodId?: number;
 
   moods = [
     { key: 'happy', label: 'Happy', icon: 'assets/moods/happy.png' },
@@ -60,13 +61,23 @@ export class MoodPageComponent implements OnInit {
     }
     this.loading = true;
     try {
-      await firstValueFrom(
-        this.moodsService.moodsPost({ mood: this.selectedMood, note: this.note || undefined })
-      );
-      this.note = '';
+      if (this.editingMoodId) {
+        await firstValueFrom(
+          this.moodsService.moodsMoodIdPatch(this.editingMoodId, {
+            mood: this.selectedMood,
+            note: this.note || undefined,
+          })
+        );
+      } else {
+        await firstValueFrom(
+          this.moodsService.moodsPost({ mood: this.selectedMood, note: this.note || undefined })
+        );
+      }
+
+      this.resetForm();
       await this.refreshData(false);
     } catch (err) {
-      this.error = 'Failed to save mood';
+      this.error = this.editingMoodId ? 'Failed to update mood' : 'Failed to save mood';
       console.error(err);
     } finally {
       this.loading = false;
@@ -88,6 +99,34 @@ export class MoodPageComponent implements OnInit {
       console.error(err);
       this.allMoods = [];
     }
+  }
+
+  async deleteMood(mood: MoodResponse) {
+    this.loading = true;
+    try {
+      await firstValueFrom(this.moodsService.moodsMoodIdDelete(mood.id!));
+      if (this.editingMoodId === mood.id) {
+        this.resetForm();
+      }
+      await this.refreshData(false);
+    } catch (err) {
+      this.error = 'Failed to delete mood';
+      console.error(err);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  startEdit(mood: MoodResponse) {
+    this.editingMoodId = mood.id;
+    this.selectedMood = mood.mood;
+    this.note = mood.note || '';
+  }
+
+  resetForm() {
+    this.editingMoodId = undefined;
+    this.selectedMood = undefined;
+    this.note = '';
   }
 
   moodIcon(key?: string) {

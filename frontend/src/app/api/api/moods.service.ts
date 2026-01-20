@@ -21,9 +21,6 @@ import { MoodCreate } from '../model/mood-create';
 // @ts-ignore
 import { MoodResponse } from '../model/mood-response';
 // @ts-ignore
-import { Observable as __Observable } from 'rxjs';
-
-// @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
@@ -79,6 +76,96 @@ export class MoodsService extends BaseService {
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update a mood by id.
+     * @endpoint patch /moods/{mood_id}
+     * @param mood_id
+     * @param moodCreate
+     */
+    public moodsMoodIdPatch(mood_id: number, moodCreate: MoodCreate, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MoodResponse>;
+    public moodsMoodIdPatch(mood_id: number, moodCreate: MoodCreate, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MoodResponse>>;
+    public moodsMoodIdPatch(mood_id: number, moodCreate: MoodCreate, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MoodResponse>>;
+    public moodsMoodIdPatch(mood_id: number, moodCreate: MoodCreate, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        if (mood_id === null || mood_id === undefined) {
+            throw new Error('Required parameter mood_id was null or undefined when calling moodsMoodIdPatch.');
+        }
+
+        if (moodCreate === null || moodCreate === undefined) {
+            throw new Error('Required parameter moodCreate was null or undefined when calling moodsMoodIdPatch.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? false;
+
+        let localVarPath = `/moods/${encodeURIComponent(String(mood_id))}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<MoodResponse>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>'json',
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress,
+                body: moodCreate
+            }
+        );
+    }
+
+    /**
+     * Delete a mood by id.
+     * @endpoint delete /moods/{mood_id}
+     * @param mood_id
+     */
+    public moodsMoodIdDelete(mood_id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public moodsMoodIdDelete(mood_id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public moodsMoodIdDelete(mood_id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public moodsMoodIdDelete(mood_id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        if (mood_id === null || mood_id === undefined) {
+            throw new Error('Required parameter mood_id was null or undefined when calling moodsMoodIdDelete.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? false;
+
+        let localVarPath = `/moods/${encodeURIComponent(String(mood_id))}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>'json',
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
                 observe: observe,

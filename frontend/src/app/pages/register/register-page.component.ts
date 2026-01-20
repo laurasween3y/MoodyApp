@@ -16,6 +16,5 @@ export class RegisterPageComponent {
 
   submit() {
     // TODO: wire to auth API
-    console.log('register attempt', this.email);
   }
 }
