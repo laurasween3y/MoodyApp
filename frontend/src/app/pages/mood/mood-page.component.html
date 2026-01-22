@@ -1,7 +1,13 @@
 <main class="page">
   <section class="card">
-    <h1>Mood tracker</h1>
-    <p class="muted">Uses the generated Angular client to call the Flask API.</p>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Daily check-in</p>
+        <h1>Mood tracker</h1>
+        <p class="muted">Pause, notice, and note how you feel. Your entries stay private to you.</p>
+      </div>
+      <div class="pill" *ngIf="editingMoodId">Editing entry #{{ editingMoodId }}</div>
+    </header>
 
     <div class="mood-grid" role="list">
       <button
@@ -27,32 +33,36 @@
         {{ loading ? 'Saving…' : (editingMoodId ? 'Update mood' : 'Save mood') }}
       </button>
       <button type="button" (click)="resetForm()" [disabled]="loading">Clear</button>
-      <button type="button" (click)="refreshData()" [disabled]="loading">
+      <button type="button" class="ghost" (click)="refreshData()" [disabled]="loading">
         Refresh data
       </button>
     </div>
 
     <div *ngIf="error" class="alert">{{ error }}</div>
 
-    <div *ngIf="editingMoodId" class="muted">Editing mood #{{ editingMoodId }}</div>
-
-    <div class="panel" *ngIf="today">
-      <h2>Today</h2>
+    <div class="panel" *ngIf="today; else noToday">
+      <div class="panel-head">
+        <h2>Today</h2>
+        <span class="chip">{{ today.date }}</span>
+      </div>
       <div class="today-mood">
         <img *ngIf="moodIcon(today.mood)" [src]="moodIcon(today.mood)" [alt]="today.mood" />
         <div>
-          <p><strong>Mood:</strong> {{ today.mood }}</p>
-          <p><strong>Note:</strong> {{ today.note || '—' }}</p>
-          <p><strong>Date:</strong> {{ today.date }}</p>
+          <p class="label">Mood</p>
+          <p class="value">{{ today.mood }}</p>
+          <p class="label">Note</p>
+          <p class="value">{{ today.note || '—' }}</p>
         </div>
       </div>
     </div>
 
-    <div *ngIf="!today && !error" class="muted">No mood for today yet.</div>
+    <ng-template #noToday>
+      <div class="empty muted">No mood for today yet.</div>
+    </ng-template>
 
     <div class="panel">
       <h2>All moods</h2>
-      <div *ngIf="allMoods.length === 0" class="muted">No moods saved yet.</div>
+      <div *ngIf="allMoods.length === 0" class="muted empty">No moods saved yet.</div>
       <div class="calendar-grid" *ngIf="allMoods.length > 0">
         <article class="day" *ngFor="let mood of allMoods">
           <header>
@@ -62,8 +72,12 @@
           <img *ngIf="moodIcon(mood.mood)" [src]="moodIcon(mood.mood)" [alt]="mood.mood" />
           <p class="note">{{ mood.note || '—' }}</p>
           <div class="row-actions">
-            <button type="button" (click)="startEdit(mood)" [disabled]="loading">Edit</button>
-            <button type="button" class="danger" (click)="deleteMood(mood)" [disabled]="loading">Delete</button>
+            <button type="button" class="icon-btn" (click)="startEdit(mood)" [disabled]="loading" aria-label="Edit mood">
+              ✏️
+            </button>
+            <button type="button" class="icon-btn danger" (click)="deleteMood(mood)" [disabled]="loading" aria-label="Delete mood">
+              🗑️
+            </button>
           </div>
         </article>
       </div>
