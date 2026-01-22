@@ -11,7 +11,11 @@ def create_app() -> Flask:
     app.config.from_object(Config)
 
     # Allow local dev frontend (Angular on 4200) to call the API
-    CORS(app, resources={r"/moods/*": {"origins": ["http://localhost:4200", "http://127.0.0.1:4200"]}})
+    cors_resources = {
+        r"/moods/*": {"origins": ["http://localhost:4200", "http://127.0.0.1:4200"]},
+        r"/auth/*": {"origins": ["http://localhost:4200", "http://127.0.0.1:4200"]},
+    }
+    CORS(app, resources=cors_resources)
 
     # Flask-Smorest / OpenAPI configuration
     app.config["API_TITLE"] = "Moody API"
@@ -25,8 +29,17 @@ def create_app() -> Flask:
     api = Api(app)
     db.init_app(app)
 
+    # Import models before create_all so tables are registered
+    from app import models  # noqa: F401
+
+    # Create tables automatically for simple deployments
+    with app.app_context():
+        db.create_all()
+
     from app.blueprints.moods import blp as MoodsBlueprint
+    from app.blueprints.auth import blp as AuthBlueprint
 
     api.register_blueprint(MoodsBlueprint)
+    api.register_blueprint(AuthBlueprint)
 
     return app

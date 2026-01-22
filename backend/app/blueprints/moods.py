@@ -1,10 +1,12 @@
 from datetime import date
 
+from flask import g, request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
 from app.extensions import db
 from app.models.mood import Mood
+from app.auth_utils import get_current_user
 from ..schemas.mood import (
     MOOD_OPTIONS,
     MoodCreateSchema,
@@ -20,6 +22,14 @@ blp = Blueprint(
 )
 
 
+@blp.before_request
+def require_auth():
+    if request.method == "OPTIONS":
+        return None
+
+    g.current_user = get_current_user()
+
+
 @blp.route("/")
 class MoodsResource(MethodView):
     @blp.response(200, MoodResponseSchema(many=True))
@@ -27,7 +37,7 @@ class MoodsResource(MethodView):
         """List all moods for the current user (temporary user_id=1)."""
 
         moods = (
-            Mood.query.filter_by(user_id=1)
+            Mood.query.filter_by(user_id=g.current_user.id)
             .order_by(Mood.date.desc(), Mood.id.desc())
             .all()
         )
@@ -39,7 +49,7 @@ class MoodsResource(MethodView):
         """Create a mood entry and return it."""
 
         mood = Mood()
-        mood.user_id = 1  # TEMP until auth is added
+        mood.user_id = g.current_user.id
         mood.mood = mood_data.get("mood")
         mood.note = mood_data.get("note")
 
@@ -55,7 +65,7 @@ class MoodDetailResource(MethodView):
     def get(self, mood_id):
         """Get a single mood by id for the current user."""
 
-        mood = Mood.query.filter_by(user_id=1, id=mood_id).first()
+        mood = Mood.query.filter_by(user_id=g.current_user.id, id=mood_id).first()
         if mood is None:
             abort(404, message="Mood not found")
 
@@ -66,7 +76,7 @@ class MoodDetailResource(MethodView):
     def patch(self, update_data, mood_id):
         """Update a mood's mood/note fields."""
 
-        mood = Mood.query.filter_by(user_id=1, id=mood_id).first()
+        mood = Mood.query.filter_by(user_id=g.current_user.id, id=mood_id).first()
         if mood is None:
             abort(404, message="Mood not found")
 
@@ -80,7 +90,7 @@ class MoodDetailResource(MethodView):
     def delete(self, mood_id):
         """Delete a mood for the current user."""
 
-        mood = Mood.query.filter_by(user_id=1, id=mood_id).first()
+        mood = Mood.query.filter_by(user_id=g.current_user.id, id=mood_id).first()
         if mood is None:
             abort(404, message="Mood not found")
 
@@ -97,7 +107,7 @@ class TodayMoodResource(MethodView):
         """Get today's mood for the current user (temporary user_id=1)."""
 
         mood = (
-            Mood.query.filter_by(user_id=1, date=date.today())
+            Mood.query.filter_by(user_id=g.current_user.id, date=date.today())
             .order_by(Mood.id.desc())
             .first()
         )
