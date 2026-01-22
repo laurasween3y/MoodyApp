@@ -24,7 +24,7 @@ blp = Blueprint(
 
 def _sign_jwt(user_id: int) -> str:
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),
         "iat": datetime.utcnow(),
         "exp": datetime.utcnow() + timedelta(hours=24),
     }

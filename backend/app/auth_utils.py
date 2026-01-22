@@ -22,6 +22,11 @@ def get_current_user() -> User:
     if not user_id:
         abort(401, message="Invalid token payload")
 
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        abort(401, message="Invalid token payload")
+
     user = User.query.get(user_id)
     if user is None:
         abort(401, message="User not found")
