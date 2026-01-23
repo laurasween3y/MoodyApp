@@ -1,3 +1,5 @@
+from datetime import date
+
 from marshmallow import Schema, fields, validate
 
 
@@ -24,6 +26,21 @@ class MoodCreateSchema(Schema):
         metadata={"description": "The current mood (predefined options)"},
     )
     note = fields.Str(allow_none=True, metadata={"description": "Optional note about the mood"})
+    date = fields.Date(
+        required=False,
+        load_default=date.today,
+        metadata={"description": "The calendar date for the mood (defaults to today)"},
+    )
+
+
+class MoodUpdateSchema(Schema):
+    mood = fields.Str(
+        required=False,
+        validate=validate.OneOf(MOOD_OPTIONS),
+        metadata={"description": "The current mood (predefined options)"},
+    )
+    note = fields.Str(allow_none=True, required=False, metadata={"description": "Optional note"})
+    date = fields.Date(required=False, metadata={"description": "The calendar date for the mood"})
 
 
 class MoodDBSchema(Schema):

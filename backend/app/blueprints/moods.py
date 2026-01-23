@@ -12,6 +12,7 @@ from ..schemas.mood import (
     MoodCreateSchema,
     MoodOptionsSchema,
     MoodResponseSchema,
+    MoodUpdateSchema,
 )
 
 blp = Blueprint(
@@ -48,10 +49,26 @@ class MoodsResource(MethodView):
     def post(self, mood_data):
         """Create a mood entry and return it."""
 
+        mood_date = mood_data.get("date") or date.today()
+
+        existing = (
+            Mood.query.filter_by(user_id=g.current_user.id, date=mood_date)
+            .order_by(Mood.id.desc())
+            .first()
+        )
+
+        if existing:
+            existing.mood = mood_data.get("mood", existing.mood)
+            if "note" in mood_data:
+                existing.note = mood_data.get("note")
+            db.session.commit()
+            return existing, 200
+
         mood = Mood()
         mood.user_id = g.current_user.id
         mood.mood = mood_data.get("mood")
         mood.note = mood_data.get("note")
+        mood.date = mood_date
 
         db.session.add(mood)
         db.session.commit()
@@ -71,7 +88,7 @@ class MoodDetailResource(MethodView):
 
         return mood
 
-    @blp.arguments(MoodCreateSchema)
+    @blp.arguments(MoodUpdateSchema)
     @blp.response(200, MoodResponseSchema)
     def patch(self, update_data, mood_id):
         """Update a mood's mood/note fields."""
@@ -80,8 +97,20 @@ class MoodDetailResource(MethodView):
         if mood is None:
             abort(404, message="Mood not found")
 
-        mood.mood = update_data.get("mood", mood.mood)
-        mood.note = update_data.get("note")
+        if "mood" in update_data:
+            mood.mood = update_data.get("mood", mood.mood)
+
+        if "note" in update_data:
+            mood.note = update_data.get("note")
+
+        if "date" in update_data:
+            new_date = update_data.get("date")
+            if new_date != mood.date:
+                conflict = Mood.query.filter_by(user_id=g.current_user.id, date=new_date).first()
+                if conflict and conflict.id != mood.id:
+                    abort(409, message="Mood already exists for that date")
+                mood.date = new_date
+
         db.session.commit()
 
         return mood
