@@ -3,7 +3,27 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isFuture,
+  isSameMonth,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+} from 'date-fns';
+
 import { MoodResponse, MoodsService } from '../../api';
+
+type CalendarDay = {
+  date: Date;
+  iso: string;
+  inCurrentMonth: boolean;
+  mood?: MoodResponse;
+};
 
 @Component({
   selector: 'app-mood-page',
@@ -15,6 +35,7 @@ import { MoodResponse, MoodsService } from '../../api';
 export class MoodPageComponent implements OnInit {
   note = '';
   selectedMood?: string;
+  selectedDateISO?: string;
   editingMoodId?: number;
 
   moods = [
@@ -34,6 +55,10 @@ export class MoodPageComponent implements OnInit {
 
   today?: MoodResponse;
   allMoods: MoodResponse[] = [];
+  moodByDate = new Map<string, MoodResponse>();
+  calendarDays: CalendarDay[] = [];
+  currentMonth = new Date();
+  weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   loading = false;
   error?: string;
 
@@ -48,6 +73,7 @@ export class MoodPageComponent implements OnInit {
     this.error = undefined;
     try {
       await Promise.all([this.fetchToday(), this.fetchAll()]);
+      this.buildCalendarDays();
     } finally {
       if (manageLoading) this.loading = false;
     }
@@ -59,19 +85,19 @@ export class MoodPageComponent implements OnInit {
       this.error = 'Pick a mood to continue';
       return;
     }
+    const payload: any = {
+      mood: this.selectedMood,
+      note: this.note || undefined,
+      date: this.selectedDateISO || format(new Date(), 'yyyy-MM-dd'),
+    };
     this.loading = true;
     try {
       if (this.editingMoodId) {
         await firstValueFrom(
-          this.moodsService.moodsMoodIdPatch(this.editingMoodId, {
-            mood: this.selectedMood,
-            note: this.note || undefined,
-          })
+          this.moodsService.moodsMoodIdPatch(this.editingMoodId, payload)
         );
       } else {
-        await firstValueFrom(
-          this.moodsService.moodsPost({ mood: this.selectedMood, note: this.note || undefined })
-        );
+        await firstValueFrom(this.moodsService.moodsPost(payload));
       }
 
       this.resetForm();
@@ -95,9 +121,13 @@ export class MoodPageComponent implements OnInit {
   async fetchAll() {
     try {
       this.allMoods = await firstValueFrom(this.moodsService.moodsGet());
+      this.buildMoodMap();
     } catch (err) {
       console.error(err);
       this.allMoods = [];
+      this.moodByDate.clear();
+    } finally {
+      this.buildCalendarDays();
     }
   }
 
@@ -126,10 +156,57 @@ export class MoodPageComponent implements OnInit {
   resetForm() {
     this.editingMoodId = undefined;
     this.selectedMood = undefined;
+    this.selectedDateISO = undefined;
     this.note = '';
   }
 
   moodIcon(key?: string) {
     return this.moods.find(m => m.key === key)?.icon;
+  }
+
+  isFutureDate(day: Date) {
+    return isFuture(day);
+  }
+
+  get selectedMoodEntry(): MoodResponse | undefined {
+    if (!this.selectedDateISO) return undefined;
+    return this.moodByDate.get(this.selectedDateISO);
+  }
+
+  changeMonth(delta: number) {
+    this.currentMonth = addMonths(this.currentMonth, delta);
+    this.buildCalendarDays();
+  }
+
+  openDay(day: CalendarDay) {
+    if (isFuture(day.date)) return;
+
+    this.selectedDateISO = day.iso;
+    this.editingMoodId = day.mood?.id;
+    this.selectedMood = day.mood?.mood;
+    this.note = day.mood?.note || '';
+  }
+
+  private buildMoodMap() {
+    this.moodByDate.clear();
+    this.allMoods.forEach(m => {
+      const iso = typeof m.date === 'string' ? m.date : format(m.date as any, 'yyyy-MM-dd');
+      this.moodByDate.set(iso, m);
+    });
+  }
+
+  private buildCalendarDays() {
+    const start = startOfWeek(startOfMonth(this.currentMonth), { weekStartsOn: 0 });
+    const end = endOfWeek(endOfMonth(this.currentMonth), { weekStartsOn: 0 });
+
+    this.calendarDays = eachDayOfInterval({ start, end }).map(day => {
+      const iso = format(day, 'yyyy-MM-dd');
+      return {
+        date: day,
+        iso,
+        inCurrentMonth: isSameMonth(day, this.currentMonth),
+        mood: this.moodByDate.get(iso),
+      };
+    });
   }
 }
