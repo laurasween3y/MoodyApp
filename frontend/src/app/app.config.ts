@@ -1,10 +1,11 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, isDevMode } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
 import { ApiModule, Configuration } from './api';
 import { routes } from './app.routes';
 import { authInterceptor } from './auth.interceptor';
+import { provideServiceWorker } from '@angular/service-worker';
 
 const apiConfigFactory = () => new Configuration({ basePath: 'http://localhost:5000' });
 
@@ -13,5 +14,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     importProvidersFrom(ApiModule.forRoot(apiConfigFactory)),
     provideRouter(routes),
-  ]
+    provideServiceWorker('ngsw-worker.js', {
+        enabled: !isDevMode(),
+        registrationStrategy: 'registerWhenStable:30000'
+    })
+]
 };

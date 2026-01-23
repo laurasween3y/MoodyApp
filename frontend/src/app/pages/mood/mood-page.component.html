@@ -4,7 +4,7 @@
       <div>
         <p class="eyebrow">Daily check-in</p>
         <h1>Mood tracker</h1>
-        <p class="muted">Pause, notice, and note how you feel. Your entries stay private to you.</p>
+        <p class="muted">Take a breath. How are you feeling today?</p>
       </div>
       <div class="pill" *ngIf="selectedDateISO">{{ selectedDateISO | date:'EEE, MMM d' }}</div>
     </header>
@@ -25,7 +25,7 @@
 
     <label class="note">
       Optional note
-      <textarea name="note" [(ngModel)]="note" placeholder="Add a short note..."></textarea>
+      <textarea name="note" [(ngModel)]="note" placeholder="Anything you want to remember about this day…"></textarea>
     </label>
 
     <div class="actions">
@@ -57,7 +57,7 @@
     </div>
 
     <ng-template #noToday>
-      <div class="empty muted">No mood for today yet.</div>
+      <div class="empty muted">You haven’t checked in today — that’s okay 💛</div>
     </ng-template>
 
     <div class="panel">
@@ -95,7 +95,7 @@
       <div class="panel selected-panel" *ngIf="selectedDateISO">
         <div class="panel-head">
           <div>
-            <p class="eyebrow">Selected day</p>
+            <p class="eyebrow">Reflection</p>
             <h3 class="selected-date">{{ selectedDateISO | date:'EEEE, MMM d' }}</h3>
           </div>
           <div class="chip" *ngIf="selectedMoodEntry">{{ selectedMoodEntry.mood }}</div>

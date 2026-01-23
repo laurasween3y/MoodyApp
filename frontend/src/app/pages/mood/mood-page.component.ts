@@ -37,6 +37,7 @@ export class MoodPageComponent implements OnInit {
   selectedMood?: string;
   selectedDateISO?: string;
   editingMoodId?: number;
+  private readonly cacheKey = 'moody_cached_moods';
 
   moods = [
     { key: 'happy', label: 'Happy', icon: 'assets/moods/happy.png' },
@@ -122,10 +123,19 @@ export class MoodPageComponent implements OnInit {
     try {
       this.allMoods = await firstValueFrom(this.moodsService.moodsGet());
       this.buildMoodMap();
+      this.saveCachedMoods(this.allMoods);
     } catch (err) {
       console.error(err);
-      this.allMoods = [];
-      this.moodByDate.clear();
+      const cached = this.loadCachedMoods();
+      if (cached.length) {
+        this.allMoods = cached;
+        this.buildMoodMap();
+        this.today = this.moodByDate.get(format(new Date(), 'yyyy-MM-dd'));
+        this.error = 'Offline: showing cached moods';
+      } else {
+        this.allMoods = [];
+        this.moodByDate.clear();
+      }
     } finally {
       this.buildCalendarDays();
     }
@@ -193,6 +203,25 @@ export class MoodPageComponent implements OnInit {
       const iso = typeof m.date === 'string' ? m.date : format(m.date as any, 'yyyy-MM-dd');
       this.moodByDate.set(iso, m);
     });
+  }
+
+  private saveCachedMoods(moods: MoodResponse[]) {
+    try {
+      localStorage.setItem(this.cacheKey, JSON.stringify(moods));
+    } catch (err) {
+      console.warn('Unable to cache moods locally', err);
+    }
+  }
+
+  private loadCachedMoods(): MoodResponse[] {
+    try {
+      const raw = localStorage.getItem(this.cacheKey);
+      if (!raw) return [];
+      return JSON.parse(raw) as MoodResponse[];
+    } catch (err) {
+      console.warn('Unable to read cached moods', err);
+      return [];
+    }
   }
 
   private buildCalendarDays() {

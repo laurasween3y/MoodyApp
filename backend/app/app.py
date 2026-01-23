@@ -12,8 +12,22 @@ def create_app() -> Flask:
 
     # Allow local dev frontend (Angular on 4200) to call the API
     cors_resources = {
-        r"/moods/*": {"origins": ["http://localhost:4200", "http://127.0.0.1:4200"]},
-        r"/auth/*": {"origins": ["http://localhost:4200", "http://127.0.0.1:4200"]},
+        r"/moods/*": {
+            "origins": [
+                "http://localhost:4200",
+                "http://127.0.0.1:4200",
+                "http://localhost:8080",
+                "http://127.0.0.1:8080",
+            ]
+        },
+        r"/auth/*": {
+            "origins": [
+                "http://localhost:4200",
+                "http://127.0.0.1:4200",
+                "http://localhost:8080",
+                "http://127.0.0.1:8080",
+            ]
+        },
     }
     CORS(app, resources=cors_resources)
 
