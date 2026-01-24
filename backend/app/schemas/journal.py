@@ -6,17 +6,20 @@ from marshmallow import Schema, fields
 class JournalCreateSchema(Schema):
     title = fields.Str(required=True, metadata={"description": "Journal title"})
     description = fields.Str(required=False, allow_none=True)
+    cover_url = fields.Str(required=False, allow_none=True)
 
 
 class JournalUpdateSchema(Schema):
     title = fields.Str(required=False)
     description = fields.Str(required=False, allow_none=True)
+    cover_url = fields.Str(required=False, allow_none=True)
 
 
 class JournalResponseSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
     description = fields.Str(allow_none=True)
+    cover_url = fields.Str(allow_none=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 

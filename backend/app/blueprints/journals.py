@@ -1,6 +1,8 @@
-from flask import g, request
+from flask import g, request, current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from werkzeug.utils import secure_filename
+import os
 
 from app.extensions import db
 from app.auth_utils import get_current_user
@@ -49,6 +51,8 @@ class JournalsResource(MethodView):
         journal.user_id = g.current_user.id
         journal.title = data["title"].strip()
         journal.description = data.get("description")
+        if "cover_url" in data:
+            journal.cover_url = data.get("cover_url")
 
         # Prevent duplicates by title for the same user
         existing = Journal.query.filter_by(user_id=g.current_user.id, title=journal.title).first()
@@ -86,6 +90,9 @@ class JournalDetailResource(MethodView):
         if "description" in data:
             journal.description = data.get("description")
 
+        if "cover_url" in data:
+            journal.cover_url = data.get("cover_url")
+
         db.session.commit()
         return journal
 
@@ -98,6 +105,33 @@ class JournalDetailResource(MethodView):
         db.session.delete(journal)
         db.session.commit()
         return "", 204
+
+
+@blp.route("/<int:journal_id>/cover")
+class JournalCoverResource(MethodView):
+    @blp.response(200, JournalResponseSchema)
+    def post(self, journal_id):
+        journal = Journal.query.filter_by(user_id=g.current_user.id, id=journal_id).first()
+        if journal is None:
+            abort(404, message="Journal not found")
+
+        if "file" not in request.files:
+            abort(400, message="No file provided")
+
+        file = request.files["file"]
+        if file.filename == "":
+            abort(400, message="Empty filename")
+
+        filename = secure_filename(file.filename or "cover")
+        name, ext = os.path.splitext(filename)
+        final_name = f"journal_{journal_id}_{g.current_user.id}{ext}"
+        upload_path = os.path.join(current_app.config["UPLOAD_FOLDER"], final_name)
+        file.save(upload_path)
+
+        base_url = request.url_root.rstrip("/")
+        journal.cover_url = f"{base_url}/uploads/{final_name}"
+        db.session.commit()
+        return journal
 
 
 @blp.route("/<int:journal_id>/entries")

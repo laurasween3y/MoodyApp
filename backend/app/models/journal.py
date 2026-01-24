@@ -10,6 +10,7 @@ class Journal(db.Model):
     user_id = db.Column(db.Integer, nullable=False, index=True)
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
+    cover_url = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False

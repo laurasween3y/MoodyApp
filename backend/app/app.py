@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_smorest import Api
 from flask_cors import CORS
+from flask import send_from_directory
+import os
 
 from app.config import Config
 from app.extensions import db
@@ -9,6 +11,11 @@ from app.extensions import db
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # File uploads (journal covers)
+    upload_folder = os.path.join(app.root_path, "uploads")
+    os.makedirs(upload_folder, exist_ok=True)
+    app.config["UPLOAD_FOLDER"] = upload_folder
 
     # Allow local dev frontend (Angular on 4200) to call the API
     allowed_origins = [
@@ -22,6 +29,7 @@ def create_app() -> Flask:
         r"/moods/*": {"origins": allowed_origins},
         r"/auth/*": {"origins": allowed_origins},
         r"/journals/*": {"origins": allowed_origins},
+        r"/uploads/*": {"origins": allowed_origins},
     }
     CORS(app, resources=cors_resources)
 
@@ -51,5 +59,10 @@ def create_app() -> Flask:
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
     api.register_blueprint(JournalsBlueprint)
+
+    # Serve uploaded files
+    @app.route("/uploads/<path:filename>")
+    def uploaded_file(filename):
+        return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
     return app
