@@ -13,6 +13,7 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent {
   loggedIn$: Observable<boolean>;
+  showMobileMenu = false;
 
   constructor(private auth: AuthService, private router: Router) {
     this.loggedIn$ = this.auth.isLoggedIn$();
@@ -21,5 +22,9 @@ export class AppComponent {
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleMenu() {
+    this.showMobileMenu = !this.showMobileMenu;
   }
 }

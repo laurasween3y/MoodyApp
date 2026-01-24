@@ -1,13 +1,23 @@
 <div class="layout">
   <header class="top-nav">
-    <div class="brand">Moody</div>
-    <nav *ngIf="(loggedIn$ | async); else loggedOutNav">
+    <div class="brand">
+      <div class="logo">M</div>
+      <div class="title">Moody</div>
+    </div>
+
+    <button class="menu-toggle" aria-label="Toggle menu" (click)="toggleMenu()">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <nav [class.open]="showMobileMenu" *ngIf="(loggedIn$ | async); else loggedOutNav">
       <a routerLink="/home" routerLinkActive="active">Home</a>
       <a routerLink="/mood" routerLinkActive="active">Mood</a>
       <a routerLink="/journal" routerLinkActive="active">Journal</a>
       <a routerLink="/planner" routerLinkActive="active">Planner</a>
       <a routerLink="/habits" routerLinkActive="active">Habits</a>
-      <button type="button" class="link" (click)="logout()">Logout</button>
+      <button type="button" class="link logout" (click)="logout()">Logout</button>
     </nav>
     <ng-template #loggedOutNav>
       <nav>
