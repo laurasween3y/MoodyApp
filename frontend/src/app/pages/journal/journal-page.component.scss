@@ -1,21 +1,352 @@
 .page {
   min-height: 100vh;
+  padding: 1.5rem;
+  background: radial-gradient(circle at 20% 20%, #e8fff5, #e0f7ef 40%, #d6f3e7 100%);
+  color: #0b2b1f;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.layout {
   display: grid;
-  place-items: center;
-  background: #f6f7fb;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.25rem;
+  align-items: stretch;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-area {
+  width: 100%;
 }
 
 .card {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  width: min(640px, 92vw);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 18px 48px rgba(11, 43, 31, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.content {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: #5a7d71;
+  margin: 0;
+}
+
+.count {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 1px solid #a7f3d0;
+}
+
+.journal-form,
+.entry-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid #c8e7da;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+button:hover:not([disabled]) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(16, 185, 129, 0.32);
+}
+
+button.ghost {
+  background: rgba(16, 185, 129, 0.08);
+  color: #0f766e;
+  box-shadow: none;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+button.danger {
+  background: linear-gradient(135deg, #fca5a5, #f87171);
+  box-shadow: 0 10px 18px rgba(248, 113, 113, 0.22);
+}
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.journal-card {
+  border: 1px solid transparent;
+  padding: 1rem;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(236, 253, 245, 0.8), rgba(255, 255, 255, 0.95));
+  box-shadow: 0 12px 28px rgba(11, 43, 31, 0.08);
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.journal-card .cover {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ecfeff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.journal-card .cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover.placeholder {
+  font-size: 1.4rem;
+}
+
+.journal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(11, 43, 31, 0.1);
+}
+
+.journal-card.active {
+  border-color: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2), 0 16px 32px rgba(11, 43, 31, 0.1);
+}
+
+.journal-meta h3 {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+}
+
+.journal-meta .muted {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.journal-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 0.6rem;
+}
+
+.file-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.08);
+  color: #0f766e;
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.file-input input {
+  display: none;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 0.5rem;
+}
+.empty-state {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.empty-state h2 {
+  font-size: 1.6rem;
+}
+
+.empty-state button {
+  max-width: 320px;
+  align-self: center;
+}
+
+.card.sidebar {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 28px rgba(11, 43, 31, 0.06);
+  padding: 1.6rem;
+}
+
+.journal-list-wrap {
+  background: rgba(236, 253, 245, 0.5);
+  padding: 0.6rem;
+  border-radius: 14px;
+}
+
+.entry .content {
+  line-height: 1.5;
+  max-width: 65ch;
+}
+
+.entry-actions button {
+  font-size: 0.85rem;
+  padding: 0.45rem 0.7rem;
+}
+
+.cover-large {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 36px rgba(11, 43, 31, 0.12);
+}
+
+.cover-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-large.placeholder {
+  font-size: 2.6rem;
+}
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.entry {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.entry header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.entry .label {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.entry h3 {
+  margin: 0.1rem 0;
+}
+
+.entry .content {
+  margin: 0.5rem 0 0;
+  white-space: pre-wrap;
+  color: #1f2937;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
 .muted {
   color: #6b7280;
+}
+
+.alert {
+  margin-top: 1rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,0 +1,36 @@
+<section class="page">
+  <div class="card">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">{{ isCreate ? 'New entry' : 'Edit entry' }}</p>
+        <h1>{{ isCreate ? 'Create entry' : 'Edit entry' }}</h1>
+      </div>
+      <button class="ghost" type="button" (click)="goBack()">Back to journal</button>
+    </div>
+
+    <form (ngSubmit)="saveEntry()" class="entry-form">
+      <label class="field">
+        <span>Title (optional)</span>
+        <input type="text" [(ngModel)]="entryTitle" name="entryTitle" placeholder="My thoughts" />
+      </label>
+
+      <label class="field">
+        <span>Date</span>
+        <input type="date" [(ngModel)]="entryDate" name="entryDate" />
+      </label>
+
+      <label class="field">
+        <span>Content</span>
+        <textarea rows="8" [(ngModel)]="entryContent" name="entryContent" placeholder="Write your thoughts..."></textarea>
+      </label>
+
+      <div class="actions">
+        <button type="submit" [disabled]="loading">{{ isCreate ? 'Create entry' : 'Save changes' }}</button>
+        <button type="button" class="ghost" (click)="goBack()">Cancel</button>
+        <button *ngIf="!isCreate" type="button" class="danger" (click)="deleteEntry()">Delete</button>
+      </div>
+    </form>
+
+    <p *ngIf="error" class="alert">{{ error }}</p>
+  </div>
+</section>
