@@ -11,23 +11,17 @@ def create_app() -> Flask:
     app.config.from_object(Config)
 
     # Allow local dev frontend (Angular on 4200) to call the API
+    allowed_origins = [
+        "http://localhost:4200",
+        "http://127.0.0.1:4200",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+    ]
+
     cors_resources = {
-        r"/moods/*": {
-            "origins": [
-                "http://localhost:4200",
-                "http://127.0.0.1:4200",
-                "http://localhost:8080",
-                "http://127.0.0.1:8080",
-            ]
-        },
-        r"/auth/*": {
-            "origins": [
-                "http://localhost:4200",
-                "http://127.0.0.1:4200",
-                "http://localhost:8080",
-                "http://127.0.0.1:8080",
-            ]
-        },
+        r"/moods/*": {"origins": allowed_origins},
+        r"/auth/*": {"origins": allowed_origins},
+        r"/journals/*": {"origins": allowed_origins},
     }
     CORS(app, resources=cors_resources)
 
@@ -52,8 +46,10 @@ def create_app() -> Flask:
 
     from app.blueprints.moods import blp as MoodsBlueprint
     from app.blueprints.auth import blp as AuthBlueprint
+    from app.blueprints.journals import blp as JournalsBlueprint
 
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
+    api.register_blueprint(JournalsBlueprint)
 
     return app
