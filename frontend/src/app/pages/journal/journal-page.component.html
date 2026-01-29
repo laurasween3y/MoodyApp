@@ -38,7 +38,7 @@
               <button class="danger" type="button" (click)="$event.stopPropagation(); deleteEntry(entry)">Delete</button>
             </div>
           </header>
-          <p class="content">{{ entry.content }}</p>
+          <p class="content">{{ previewText(entry) }}</p>
         </article>
       </div>
       <ng-template #noEntries>

@@ -26,13 +26,19 @@ class JournalResponseSchema(Schema):
 
 class JournalEntryCreateSchema(Schema):
     title = fields.Str(required=False, allow_none=True)
-    content = fields.Str(required=True)
+    content_json = fields.Dict(required=True)
+    background = fields.Str(required=False, load_default="lined")
+    font_family = fields.Str(required=False, load_default="Inter")
+    font_size = fields.Int(required=False, load_default=16)
     entry_date = fields.Date(required=False, load_default=date.today)
 
 
 class JournalEntryUpdateSchema(Schema):
     title = fields.Str(required=False, allow_none=True)
-    content = fields.Str(required=False)
+    content_json = fields.Dict(required=False)
+    background = fields.Str(required=False)
+    font_family = fields.Str(required=False)
+    font_size = fields.Int(required=False)
     entry_date = fields.Date(required=False)
 
 
@@ -40,7 +46,10 @@ class JournalEntryResponseSchema(Schema):
     id = fields.Int(dump_only=True)
     journal_id = fields.Int()
     title = fields.Str(allow_none=True)
-    content = fields.Str()
+    content_json = fields.Dict()
+    background = fields.Str()
+    font_family = fields.Str()
+    font_size = fields.Int()
     entry_date = fields.Date()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)

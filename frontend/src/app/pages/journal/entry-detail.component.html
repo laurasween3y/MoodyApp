@@ -9,20 +9,90 @@
     </div>
 
     <form (ngSubmit)="saveEntry()" class="entry-form">
-      <label class="field">
-        <span>Title (optional)</span>
-        <input type="text" [(ngModel)]="entryTitle" name="entryTitle" placeholder="My thoughts" />
+      <div class="meta">
+        <label class="field">
+          <span>Title (optional)</span>
+          <input type="text" [(ngModel)]="entryTitle" name="entryTitle" placeholder="My thoughts" />
+        </label>
+
+        <label class="field">
+          <span>Date</span>
+          <input type="date" [(ngModel)]="entryDate" name="entryDate" />
+        </label>
+      </div>
+
+      <div class="toolbar">
+        <div class="group">
+          <button type="button" (click)="toggleBold()" [class.active]="editorReady && editor?.isActive('bold')">B</button>
+          <button type="button" (click)="toggleItalic()" [class.active]="editorReady && editor?.isActive('italic')">I</button>
+          <button type="button" (click)="toggleUnderline()" [class.active]="editorReady && editor?.isActive('underline')">U</button>
+        </div>
+        <div class="group">
+          <button type="button" (click)="toggleBullet()" [class.active]="editorReady && editor?.isActive('bulletList')">• List</button>
+          <button type="button" (click)="toggleOrdered()" [class.active]="editorReady && editor?.isActive('orderedList')">1. List</button>
+        </div>
+        <div class="group">
+          <label class="inline">Font
+            <select [(ngModel)]="fontFamily" name="fontFamily" [ngModelOptions]="{standalone: true}" (ngModelChange)="setFontFamily($event)">
+              <option *ngFor="let f of fontFamilies" [value]="f">{{ f }}</option>
+            </select>
+          </label>
+          <label class="inline">Size
+            <select [(ngModel)]="fontSize" name="fontSize" [ngModelOptions]="{standalone: true}" (ngModelChange)="setFontSize($event)">
+              <option *ngFor="let s of fontSizes" [value]="s">{{ s }} px</option>
+            </select>
+          </label>
+        </div>
+        <div class="group">
+          <label class="inline">Text color
+            <input type="color" [(ngModel)]="textColor" name="textColor" [ngModelOptions]="{standalone: true}" (ngModelChange)="setColor($event)" />
+          </label>
+          <label class="inline">Highlight
+            <input type="color" [(ngModel)]="highlightColor" name="highlightColor" [ngModelOptions]="{standalone: true}" (ngModelChange)="setHighlight($event)" />
+          </label>
+        </div>
+        <div class="group">
+          <label class="inline file-input">Image
+            <input type="file" accept="image/*" (change)="insertImage($event)" />
+          </label>
+          <button type="button" (click)="toggleDrawing()">Drawing</button>
+        </div>
+        <div class="group">
+          <button type="button" (click)="undo()">Undo</button>
+          <button type="button" (click)="redo()">Redo</button>
+        </div>
+      </div>
+
+      <label class="inline">Paper style
+        <select [(ngModel)]="selectedBackground" name="background" [ngModelOptions]="{standalone: true}" (ngModelChange)="onBackgroundChange($event)">
+          <option *ngFor="let bg of backgrounds" [value]="bg.value">{{ bg.label }}</option>
+        </select>
       </label>
 
-      <label class="field">
-        <span>Date</span>
-        <input type="date" [(ngModel)]="entryDate" name="entryDate" />
-      </label>
+      <div class="editor-shell" [ngClass]="selectedBackground">
+        <div #editorHost class="editor-host"></div>
+      </div>
 
-      <label class="field">
-        <span>Content</span>
-        <textarea rows="8" [(ngModel)]="entryContent" name="entryContent" placeholder="Write your thoughts..."></textarea>
-      </label>
+      <div class="drawing-panel" *ngIf="showDrawing">
+        <div class="drawing-head">
+          <span>Sketch pad</span>
+          <div class="drawing-actions">
+            <button type="button" class="ghost" (click)="clearDrawing()">Clear</button>
+            <button type="button" class="ghost" (click)="showDrawing = false">Close</button>
+            <button type="button" (click)="saveDrawingToEditor()">Insert drawing</button>
+          </div>
+        </div>
+        <div class="drawing-surface">
+          <canvas
+            #drawingCanvas
+            (pointerdown)="startDraw($event)"
+            (pointermove)="draw($event)"
+            (pointerup)="endDraw($event)"
+            (pointerleave)="endDraw($event)"
+          ></canvas>
+        </div>
+        <p class="muted">Tip: use mouse or touch to draw. Insert will add it as an image.</p>
+      </div>
 
       <div class="actions">
         <button type="submit" [disabled]="loading">{{ isCreate ? 'Create entry' : 'Save changes' }}</button>

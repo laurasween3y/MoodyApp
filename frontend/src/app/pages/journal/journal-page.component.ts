@@ -24,12 +24,6 @@ export class JournalPageComponent implements OnInit {
   editingJournalId?: number;
   showCreateForm = false;
 
-  // Entry form
-  entryTitle = '';
-  entryContent = '';
-  entryDate = new Date().toISOString().slice(0, 10);
-  editingEntryId?: number;
-
   loading = false;
   entryLoading = false;
   error?: string;
@@ -225,6 +219,20 @@ export class JournalPageComponent implements OnInit {
     } finally {
       this.entryLoading = false;
     }
+  }
+
+  previewText(entry: JournalEntry): string {
+    const text = this.extractText(entry.content_json);
+    return text || 'No content yet';
+  }
+
+  private extractText(node: any): string {
+    if (!node) return '';
+    if (typeof node === 'string') return node;
+    if (Array.isArray(node)) return node.map(n => this.extractText(n)).join(' ');
+    if (node.text) return node.text;
+    if (node.content) return this.extractText(node.content);
+    return '';
   }
 }
 

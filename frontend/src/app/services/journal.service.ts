@@ -15,7 +15,10 @@ export interface JournalEntry {
   id: number;
   journal_id: number;
   title?: string | null;
-  content: string;
+  content_json: any;
+  background: string;
+  font_family: string;
+  font_size: number;
   entry_date: string;
   created_at?: string;
   updated_at?: string;
@@ -64,14 +67,31 @@ export class JournalService {
     return this.http.get<JournalEntry>(`${this.apiBase}/journals/${journalId}/entries/${entryId}`);
   }
 
-  createEntry(journalId: number, payload: { title?: string | null; content: string; entry_date?: string }): Observable<JournalEntry> {
+  createEntry(
+    journalId: number,
+    payload: {
+      title?: string | null;
+      content_json: any;
+      background?: string;
+      font_family?: string;
+      font_size?: number;
+      entry_date?: string;
+    }
+  ): Observable<JournalEntry> {
     return this.http.post<JournalEntry>(`${this.apiBase}/journals/${journalId}/entries`, payload);
   }
 
   updateEntry(
     journalId: number,
     entryId: number,
-    payload: Partial<{ title?: string | null; content: string; entry_date?: string }>
+    payload: Partial<{
+      title?: string | null;
+      content_json: any;
+      background?: string;
+      font_family?: string;
+      font_size?: number;
+      entry_date?: string;
+    }>
   ): Observable<JournalEntry> {
     return this.http.patch<JournalEntry>(`${this.apiBase}/journals/${journalId}/entries/${entryId}`, payload);
   }

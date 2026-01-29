@@ -160,7 +160,10 @@ class JournalEntriesResource(MethodView):
         entry.journal_id = journal.id
         entry.user_id = g.current_user.id
         entry.title = data.get("title")
-        entry.content = data.get("content")
+        entry.content_json = data.get("content_json") or {}
+        entry.background = data.get("background", "lined")
+        entry.font_family = data.get("font_family", "Inter")
+        entry.font_size = data.get("font_size", 16)
         entry.entry_date = data.get("entry_date")
 
         db.session.add(entry)
@@ -182,8 +185,14 @@ class JournalEntryDetailResource(MethodView):
 
         if "title" in data:
             entry.title = data.get("title")
-        if "content" in data and data.get("content"):
-            entry.content = data.get("content")
+        if "content_json" in data and data.get("content_json") is not None:
+            entry.content_json = data.get("content_json")
+        if "background" in data and data.get("background"):
+            entry.background = data.get("background")
+        if "font_family" in data and data.get("font_family"):
+            entry.font_family = data.get("font_family")
+        if "font_size" in data and data.get("font_size"):
+            entry.font_size = data.get("font_size")
         if "entry_date" in data:
             entry.entry_date = data.get("entry_date")
 

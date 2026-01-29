@@ -37,7 +37,12 @@ class JournalEntry(db.Model):
     )
     user_id = db.Column(db.Integer, nullable=False, index=True)
     title = db.Column(db.String(200))
-    content = db.Column(db.Text, nullable=False)
+    # TipTap / ProseMirror JSON payload for the document
+    content_json = db.Column(db.JSON, nullable=False, default=dict)
+    # Presentation metadata (kept separate from content)
+    background = db.Column(db.String(32), nullable=False, default="lined")
+    font_family = db.Column(db.String(64), nullable=False, default="Inter")
+    font_size = db.Column(db.Integer, nullable=False, default=16)
     entry_date = db.Column(db.Date, default=date.today, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
