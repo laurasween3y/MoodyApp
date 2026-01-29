@@ -29,6 +29,7 @@ def create_app() -> Flask:
         r"/moods/*": {"origins": allowed_origins},
         r"/auth/*": {"origins": allowed_origins},
         r"/journals/*": {"origins": allowed_origins},
+        r"/habits/*": {"origins": allowed_origins},
         r"/uploads/*": {"origins": allowed_origins},
     }
     CORS(app, resources=cors_resources)
@@ -55,10 +56,12 @@ def create_app() -> Flask:
     from app.blueprints.moods import blp as MoodsBlueprint
     from app.blueprints.auth import blp as AuthBlueprint
     from app.blueprints.journals import blp as JournalsBlueprint
+    from app.blueprints.habits import blp as HabitsBlueprint
 
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
     api.register_blueprint(JournalsBlueprint)
+    api.register_blueprint(HabitsBlueprint)
 
     # Serve uploaded files
     @app.route("/uploads/<path:filename>")

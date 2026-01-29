@@ -1,6 +1,103 @@
 <section class="page">
   <div class="card">
-    <h1>Habit builder</h1>
-    <p class="muted">Placeholder for routines and streak tracking.</p>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Habit builder</p>
+        <h1>Build the small things that add up</h1>
+        <p class="muted">Create habits, set how often you want to do them, and tick them off like a tidy to-do list.</p>
+      </div>
+      <div class="celebration" *ngIf="celebrationMessage">{{ celebrationMessage }}</div>
+    </header>
+
+    <div class="alert error" *ngIf="error">{{ error }}</div>
+    <div class="alert" *ngIf="loading">Loading habits…</div>
+
+    <form class="habit-form" (ngSubmit)="addHabit()" novalidate>
+      <div class="field">
+        <label for="habit-name">Habit</label>
+        <input
+          id="habit-name"
+          name="title"
+          type="text"
+          placeholder="e.g., Drink 8 glasses of water"
+          [(ngModel)]="form.title"
+          required
+        />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="frequency">Frequency</label>
+          <select
+            id="frequency"
+            name="frequency"
+            [(ngModel)]="form.frequency"
+            (ngModelChange)="onFrequencyChange($event)"
+          >
+            <option value="daily">Daily (7x/week)</option>
+            <option value="weekly">Weekly (1x/week)</option>
+            <option value="custom">Custom per week</option>
+          </select>
+        </div>
+
+        <div class="field" *ngIf="form.frequency === 'custom'">
+          <label for="target">Times per week</label>
+          <input
+            id="target"
+            name="targetPerWeek"
+            type="number"
+            min="1"
+            max="14"
+            [(ngModel)]="form.targetPerWeek"
+          />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" [disabled]="!form.title.trim()">{{ editingHabitId ? 'Update habit' : 'Add habit' }}</button>
+        <button type="button" class="ghost" *ngIf="editingHabitId" (click)="resetForm()">Cancel edit</button>
+      </div>
+    </form>
+
+    <section *ngIf="habits.length; else emptyState" class="habits">
+      <div class="habit" *ngFor="let habit of habits">
+        <div class="habit-main">
+          <label class="checkbox-row">
+            <input type="checkbox" [checked]="completedToday(habit)" (change)="toggleCompletion(habit)" [disabled]="loading" />
+            <div>
+              <div class="title-row">
+                <span class="title">{{ habit.title }}</span>
+                <span class="badge">
+                  {{ habit.frequency === 'daily' ? 'Daily' : habit.frequency === 'weekly' ? 'Weekly' : habit.target_per_week + 'x/week' }}
+                </span>
+              </div>
+              <ng-container *ngIf="habit as h">
+                <ng-container *ngIf="weeklyProgress(h) as prog">
+                  <div class="progress">
+                    <div class="progress-bar" [style.width.%]="prog.percent"></div>
+                  </div>
+                  <p class="meta">
+                    <span>{{ prog.count }}/{{ prog.target }} this week</span>
+                    <span *ngIf="completedToday(h)">Checked off today 🎉</span>
+                  </p>
+                </ng-container>
+              </ng-container>
+            </div>
+          </label>
+        </div>
+
+        <div class="habit-actions">
+          <button type="button" (click)="startEdit(habit)" [disabled]="loading">Edit</button>
+          <button type="button" class="ghost" (click)="deleteHabit(habit)" [disabled]="loading">Delete</button>
+        </div>
+      </div>
+    </section>
+
+    <ng-template #emptyState>
+      <div class="empty">
+        <h3>No habits yet</h3>
+        <p class="muted">Add your first habit to start tracking and celebrating progress.</p>
+      </div>
+    </ng-template>
   </div>
 </section>
