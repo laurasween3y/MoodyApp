@@ -1,12 +1,89 @@
 <section class="page">
-  <div class="card">
-    <h1>Welcome to Moody</h1>
-    <p class="muted">Your hub for moods, journaling, planning, and building habits.</p>
-    <ul>
-      <li>Track how you feel on the Mood page.</li>
-      <li>Write reflections in Journal.</li>
-      <li>Plan your day in Planner.</li>
-      <li>Build routines in Habits.</li>
-    </ul>
+  <div class="grid">
+    <div class="card hero">
+      <div>
+        <p class="eyebrow">Dashboard</p>
+        <h1>Welcome back</h1>
+        <p class="muted">A gentle snapshot of your day and week.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn" routerLink="/journal">Open journal</a>
+        <a class="btn ghost" routerLink="/planner">View planner</a>
+      </div>
+    </div>
+
+    <div class="card mood-card">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">Mood</p>
+          <h2>Today</h2>
+        </div>
+        <a class="link" routerLink="/mood">Log mood</a>
+      </div>
+      <ng-container *ngIf="todayMood; else noMood">
+        <div class="mood-chip">
+          <img *ngIf="moodIcon(todayMood.mood)" [src]="moodIcon(todayMood.mood)" [alt]="todayMood.mood" />
+          <span class="label">{{ moodLabel(todayMood.mood) }}</span>
+          <span class="note" *ngIf="todayMood.note">“{{ todayMood.note }}”</span>
+        </div>
+      </ng-container>
+      <ng-template #noMood>
+        <p class="muted">No mood logged yet. <a routerLink="/mood">Log one now</a>.</p>
+      </ng-template>
+    </div>
+
+    <div class="card events-card">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">This week</p>
+          <h2>{{ weekRangeLabel() }}</h2>
+        </div>
+        <a class="link" routerLink="/planner">Planner</a>
+      </div>
+      <div *ngIf="weekEvents.length; else noEvents" class="list">
+        <article class="item" *ngFor="let ev of weekEvents">
+          <div class="item-title">{{ ev.title }}</div>
+          <div class="item-meta">{{ ev.event_date | date:'EEE, MMM d' }} · {{ ev.start_time || 'All day' }}</div>
+          <div class="item-note" *ngIf="ev.description">{{ ev.description }}</div>
+        </article>
+      </div>
+      <ng-template #noEvents>
+        <p class="muted">No events scheduled this week.</p>
+      </ng-template>
+    </div>
+
+    <div class="card habits-card">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">Habits</p>
+          <h2>Today</h2>
+        </div>
+        <a class="link" routerLink="/habits">Manage</a>
+      </div>
+      <div *ngIf="habitsDue.length; else noHabits" class="list">
+        <article class="item" *ngFor="let h of habitsDue">
+          <div class="item-row">
+            <div>
+              <div class="item-title">{{ h.title }}</div>
+              <div class="item-meta">
+                <span *ngIf="h.frequency === 'daily'">Daily</span>
+                <span *ngIf="h.frequency === 'weekly'">{{ h.target_per_week }}× per week</span>
+                <span *ngIf="h.frequency === 'custom'">Custom</span>
+                <span class="dot" *ngIf="h.remainingThisWeek !== undefined"></span>
+                <span *ngIf="h.remainingThisWeek !== undefined">{{ h.remainingThisWeek }} left this week</span>
+              </div>
+            </div>
+            <button type="button" class="small" [class.ghost]="h.isDoneToday" (click)="toggleHabit(h)">
+              {{ h.isDoneToday ? 'Completed' : 'Mark done' }}
+            </button>
+          </div>
+          <div class="item-note" *ngIf="h.dueToday && !h.isDoneToday">Due today</div>
+          <div class="item-note success" *ngIf="h.isDoneToday">Done for today</div>
+        </article>
+      </div>
+      <ng-template #noHabits>
+        <p class="muted">No habits yet. <a routerLink="/habits">Create one</a>.</p>
+      </ng-template>
+    </div>
   </div>
 </section>

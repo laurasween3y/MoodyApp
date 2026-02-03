@@ -10,7 +10,7 @@ import { RegisterPageComponent } from './pages/register/register-page.component'
 import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'mood' },
+  { path: '', pathMatch: 'full', redirectTo: 'home' },
   { path: 'home', component: HomePageComponent, title: 'Home', canActivate: [authGuard] },
   { path: 'mood', component: MoodPageComponent, title: 'Mood', canActivate: [authGuard] },
   { path: 'journal', component: JournalPageComponent, title: 'Journal', canActivate: [authGuard] },
