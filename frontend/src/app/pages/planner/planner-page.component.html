@@ -1,6 +1,123 @@
 <section class="page">
   <div class="card">
-    <h1>Planner</h1>
-    <p class="muted">Placeholder for tasks, events, and scheduling.</p>
+    <header class="hero">
+      <div>
+  <p class="eyebrow">Planner</p>
+  <h1>Keep your days soft, tidy, and calm</h1>
+  <p class="muted">A gentle planner with a monthly calendar view. Plan events, jot notes, and set reminders.</p>
+      </div>
+      <div class="view-toggle" role="group" aria-label="Choose planner view">
+  <button type="button" [class.active]="view === 'planner'" (click)="view = 'planner'">Planner</button>
+        <button type="button" [class.active]="view === 'calendar'" (click)="view = 'calendar'">Calendar</button>
+      </div>
+    </header>
+
+    <div class="alert" *ngIf="loading">Loading planner…</div>
+    <div class="alert error" *ngIf="error">{{ error }}</div>
+
+    <section class="planner-grid">
+      <div class="left">
+        <form class="event-form" (ngSubmit)="saveEvent()" novalidate>
+          <div class="form-head">
+            <h3>{{ editingId ? 'Edit event' : 'Add an event' }}</h3>
+            <button type="button" class="ghost" *ngIf="editingId" (click)="resetForm()">Cancel</button>
+          </div>
+
+          <div class="field">
+            <label for="title">Title</label>
+            <input id="title" name="title" type="text" [(ngModel)]="form.title" placeholder="Coffee with Alex" required />
+          </div>
+
+          <div class="field">
+            <label for="description">Notes</label>
+            <textarea id="description" name="description" rows="2" [(ngModel)]="form.description" placeholder="Where, what to bring, goals for the session"></textarea>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="date">Date</label>
+              <input id="date" name="event_date" type="date" [(ngModel)]="form.event_date" required />
+            </div>
+            <div class="field">
+              <label for="start">Start</label>
+              <input id="start" name="start_time" type="time" [(ngModel)]="form.start_time" />
+            </div>
+            <div class="field">
+              <label for="end">End</label>
+              <input id="end" name="end_time" type="time" [(ngModel)]="form.end_time" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="reminder">Reminder</label>
+            <select id="reminder" name="reminder_minutes_before" [(ngModel)]="form.reminder_minutes_before">
+              <option *ngFor="let opt of reminderOptions" [ngValue]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+
+          <div class="actions">
+            <button type="submit" [disabled]="loading || !form.title.trim()">{{ editingId ? 'Save changes' : 'Add event' }}</button>
+            <button type="button" class="ghost" (click)="resetForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="right" *ngIf="view === 'planner'">
+        <div *ngIf="groupedEvents.length; else emptyState" class="planner-view">
+          <div class="day" *ngFor="let group of groupedEvents">
+            <div class="day-heading">
+              <span class="day-date">{{ group.iso | date:'fullDate' }}</span>
+            </div>
+            <div class="events">
+              <article class="event" *ngFor="let ev of group.events" [class.holiday]="ev.isHoliday">
+                <div class="event-times">{{ timeLabel(ev) }}</div>
+                <div class="event-main">
+                  <div class="event-title">{{ ev.title }}</div>
+                  <div class="event-note" *ngIf="ev.description">{{ ev.description }}</div>
+                  <div class="chips">
+                    <span class="chip holiday" *ngIf="ev.isHoliday">Holiday</span>
+                    <span class="chip" *ngIf="ev.reminder_minutes_before">Reminder: {{ ev.reminder_minutes_before }} min before</span>
+                  </div>
+                </div>
+                <div class="event-actions" *ngIf="!ev.isHoliday">
+                  <button type="button" (click)="startEdit(ev)">Edit</button>
+                  <button type="button" class="ghost" (click)="deleteEvent(ev)">Delete</button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right" *ngIf="view === 'calendar'">
+        <div class="calendar-header">
+          <button type="button" class="ghost" (click)="changeMonth(-1)">Prev</button>
+          <div class="month-label">{{ currentMonth | date:'MMMM yyyy' }}</div>
+          <button type="button" class="ghost" (click)="changeMonth(1)">Next</button>
+        </div>
+        <div class="calendar-grid">
+          <div class="weekday" *ngFor="let day of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">{{ day }}</div>
+          <div
+            class="calendar-cell"
+            *ngFor="let day of calendarDays"
+            [class.dim]="!day.inMonth"
+            (click)="openDay(day)"
+          >
+            <div class="cell-date">{{ day.date | date:'d' }}</div>
+            <div class="cell-events">
+              <div class="pill" *ngFor="let ev of day.events | slice:0:3" [class.holiday]="ev.isHoliday">{{ ev.title }}</div>
+              <div class="more" *ngIf="day.events.length > 3">+{{ day.events.length - 3 }} more</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <ng-template #emptyState>
+      <div class="empty">
+        <h3>No events yet</h3>
+        <p class="muted">Add an event to start filling your planner.</p>
+      </div>
+    </ng-template>
   </div>
 </section>

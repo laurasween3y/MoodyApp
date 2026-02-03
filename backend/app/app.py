@@ -30,6 +30,7 @@ def create_app() -> Flask:
         r"/auth/*": {"origins": allowed_origins},
         r"/journals/*": {"origins": allowed_origins},
         r"/habits/*": {"origins": allowed_origins},
+        r"/planner/*": {"origins": allowed_origins},
         r"/uploads/*": {"origins": allowed_origins},
     }
     CORS(app, resources=cors_resources)
@@ -46,10 +47,9 @@ def create_app() -> Flask:
     api = Api(app)
     db.init_app(app)
 
-    # Import models before create_all so tables are registered
-    from app import models  # noqa: F401
+    from app import models  
 
-    # Create tables automatically for simple deployments
+
     with app.app_context():
         db.create_all()
 
@@ -57,13 +57,14 @@ def create_app() -> Flask:
     from app.blueprints.auth import blp as AuthBlueprint
     from app.blueprints.journals import blp as JournalsBlueprint
     from app.blueprints.habits import blp as HabitsBlueprint
+    from app.blueprints.planner import blp as PlannerBlueprint
 
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
     api.register_blueprint(JournalsBlueprint)
     api.register_blueprint(HabitsBlueprint)
+    api.register_blueprint(PlannerBlueprint)
 
-    # Serve uploaded files
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):
         return send_from_directory(app.config["UPLOAD_FOLDER"], filename)

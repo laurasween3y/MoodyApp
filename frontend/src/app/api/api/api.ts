@@ -1,3 +1,5 @@
 export * from './moods.service';
+export * from './planner.service';
 import { MoodsService } from './moods.service';
-export const APIS = [MoodsService];
+import { PlannerService } from './planner.service';
+export const APIS = [MoodsService, PlannerService];
