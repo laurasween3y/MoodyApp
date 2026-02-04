@@ -1,19 +1,30 @@
 <section class="auth">
-  <div class="card">
-    <h1>Create account</h1>
-    <form (ngSubmit)="submit()" novalidate>
-      <label>Name
-        <input type="text" [(ngModel)]="name" name="name" required />
-      </label>
-      <label>Email
-        <input type="email" [(ngModel)]="email" name="email" required />
-      </label>
-      <label>Password
-        <input type="password" [(ngModel)]="password" name="password" required minlength="6" />
-      </label>
-      <button type="submit">Sign up</button>
-    </form>
-    <p class="message" *ngIf="message">{{ message }}</p>
-    <p class="error" *ngIf="error">{{ error }}</p>
+  <div class="shell">
+    <div class="hero">
+      <p class="eyebrow">Moody</p>
+      <h1>Create your cozy space</h1>
+      <p class="muted">Sign up to log moods, build habits, and keep a gentle planner.</p>
+      <p class="switch">Already have an account? <a routerLink="/login">Log in</a></p>
+    </div>
+
+    <div class="card">
+      <h2>Sign up</h2>
+      <p class="muted">Start fresh today.</p>
+      <form (ngSubmit)="submit()" novalidate>
+        <label>Name
+          <input type="text" [(ngModel)]="name" name="name" required placeholder="Your name" />
+        </label>
+        <label>Email
+          <input type="email" [(ngModel)]="email" name="email" required placeholder="you@example.com" />
+        </label>
+        <label>Password
+          <input type="password" [(ngModel)]="password" name="password" required minlength="6" placeholder="••••••••" />
+        </label>
+        <button type="submit">Create account</button>
+      </form>
+      <p class="message" *ngIf="message">{{ message }}</p>
+      <p class="error" *ngIf="error">{{ error }}</p>
+      <p class="switch">Have a login already? <a routerLink="/login">Sign in</a></p>
+    </div>
   </div>
 </section>
