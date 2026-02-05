@@ -28,6 +28,13 @@
           <button type="button" (click)="toggleUnderline()" [class.active]="editorReady && editor?.isActive('underline')">U</button>
         </div>
         <div class="group">
+          <label class="inline">Heading
+            <select [(ngModel)]="currentHeading" name="heading" [ngModelOptions]="{standalone: true}" (ngModelChange)="setHeading($event)">
+              <option *ngFor="let h of headings" [ngValue]="h.level">{{ h.label }}</option>
+            </select>
+          </label>
+        </div>
+        <div class="group">
           <button type="button" (click)="toggleBullet()" [class.active]="editorReady && editor?.isActive('bulletList')">• List</button>
           <button type="button" (click)="toggleOrdered()" [class.active]="editorReady && editor?.isActive('orderedList')">1. List</button>
         </div>
@@ -52,9 +59,8 @@
           </label>
         </div>
         <div class="group">
-          <label class="inline file-input">Image
-            <input type="file" accept="image/*" (change)="insertImage($event)" />
-          </label>
+          <input #imageInput type="file" accept="image/*" (change)="insertImage($event)" hidden />
+          <button type="button" (click)="imageInput.click()">Image</button>
           <button type="button" (click)="toggleDrawing()">Drawing</button>
         </div>
         <div class="group">

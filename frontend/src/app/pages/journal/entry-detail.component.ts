@@ -19,7 +19,7 @@ import { JournalEntry, JournalService } from '../../services/journal.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './entry-detail.component.html',
-  styleUrl: './entry-detail.component.scss'
+  styleUrls: ['./entry-detail.component.scss']
 })
 export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editorHost', { static: true }) editorHost!: ElementRef<HTMLDivElement>;
@@ -35,6 +35,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   fontSize = 16;
   textColor = '#111827';
   highlightColor = '#fef08a';
+  currentHeading = 0;
   showDrawing = false;
   isDrawing = false;
   drawCtx?: CanvasRenderingContext2D;
@@ -62,6 +63,14 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly fontSizes = [12, 14, 16, 18, 20, 22, 24];
 
+  readonly headings = [
+    { label: 'Paragraph', level: 0 },
+    { label: 'H1', level: 1 },
+    { label: 'H2', level: 2 },
+    { label: 'H3', level: 3 },
+  ];
+
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -83,13 +92,17 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       editable: true,
       autofocus: true,
       extensions: [
-  StarterKit,
+        StarterKit.configure({
+          heading: {
+            levels: [1, 2, 3],
+          },
+        }),
         Underline,
         TextStyle,
         Color.configure({ types: ['textStyle'] }),
         Highlight,
         FontFamily,
-  Image.configure({ inline: false, allowBase64: true }),
+        Image.configure({ inline: false, allowBase64: true }),
         Placeholder.configure({ placeholder: 'Write your thoughts…' }),
       ],
       content: null,
@@ -206,6 +219,13 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editor?.chain().focus().toggleUnderline().run();
   }
 
+  setHeading(level: 0 | 1 | 2 | 3) {
+    const chain = this.editor?.chain().focus();
+    if (!chain) return;
+    this.currentHeading = level;
+    level === 0 ? chain.setParagraph().run() : chain.toggleHeading({ level }).run();
+  }
+
   toggleBullet() {
     this.editor?.chain().focus().toggleBulletList().run();
   }
@@ -213,6 +233,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleOrdered() {
     this.editor?.chain().focus().toggleOrderedList().run();
   }
+
 
   setFontFamily(family: string) {
     this.fontFamily = family;
@@ -233,6 +254,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.highlightColor = color;
     this.editor?.chain().focus().toggleHighlight({ color }).run();
   }
+
 
   undo() {
     this.editor?.chain().focus().undo().run();
@@ -356,6 +378,10 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   private applyFontSettings() {
     if (!this.editor) return;
     const size = `${this.fontSize}px`;
+    const lineHeightPx = Math.round(this.fontSize * 1.75);
+    const gridSizePx = Math.round(this.fontSize * 1.5);
+    const dotSizePx = gridSizePx;
+    const baselinePx = Math.round(this.fontSize * 0.85); // slightly lower so text sits closer to lower guide
     this.editor
       .chain()
       .focus()
@@ -368,6 +394,14 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (host) {
       host.style.fontFamily = this.fontFamily;
       host.style.fontSize = size;
+      const shell = host.parentElement as HTMLElement | null;
+      if (shell) {
+        shell.style.setProperty('--journal-line', `${lineHeightPx}px`);
+        shell.style.setProperty('--journal-grid', `${gridSizePx}px`);
+        shell.style.setProperty('--journal-dots', `${dotSizePx}px`);
+        shell.style.setProperty('--journal-font-size', size);
+        shell.style.setProperty('--journal-baseline', `${baselinePx}px`);
+      }
     }
-  }
+  }  
 }
