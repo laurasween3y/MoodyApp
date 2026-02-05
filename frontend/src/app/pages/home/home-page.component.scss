@@ -33,6 +33,14 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
+.hero-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin-bottom: 0.35rem;
+  box-shadow: 0 10px 22px rgba(20, 83, 45, 0.18);
+}
+
 .hero-actions {
   display: flex;
   gap: 0.5rem;

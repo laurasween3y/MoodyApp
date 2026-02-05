@@ -1,0 +1,237 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Moody API", "version": "v1" },
+  "tags": [
+    { "name": "moods", "description": "Submit and view moods" },
+    { "name": "planner", "description": "Plan events and reminders" }
+  ],
+  "paths": {
+    "/moods/": {
+      "get": {
+        "summary": "List all moods for the current user (temporary user_id=1).",
+        "tags": ["moods"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MoodResponse" } } } }
+          },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "post": {
+        "summary": "Create a mood entry and return it.",
+        "tags": ["moods"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "422": { "$ref": "#/components/responses/UNPROCESSABLE_CONTENT" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/moods/{mood_id}": {
+      "parameters": [ { "in": "path", "name": "mood_id", "required": true, "schema": { "type": "integer", "minimum": 0 } } ],
+      "get": {
+        "summary": "Get a single mood by id for the current user.",
+        "tags": ["moods"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "patch": {
+        "summary": "Update a mood's mood/note fields.",
+        "tags": ["moods"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodCreate" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "422": { "$ref": "#/components/responses/UNPROCESSABLE_CONTENT" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a mood for the current user.",
+        "tags": ["moods"],
+        "responses": {
+          "204": { "description": "No Content" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/moods/today": {
+      "get": {
+        "summary": "Get today's mood for the current user (temporary user_id=1).",
+        "tags": ["moods"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/moods/options": {
+      "get": {
+        "summary": "List allowed mood keys for the client UI.",
+        "tags": ["moods"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodOptions" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/planner/events": {
+      "get": {
+        "summary": "List planner events (optionally filter by date)",
+        "tags": ["planner"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PlannerEventResponse" } } } }
+          },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "post": {
+        "summary": "Create a planner event",
+        "tags": ["planner"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventResponse" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/planner/events/{event_id}": {
+      "parameters": [ { "in": "path", "name": "event_id", "required": true, "schema": { "type": "integer", "minimum": 0 } } ],
+      "get": {
+        "summary": "Get a single planner event",
+        "tags": ["planner"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventResponse" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "put": {
+        "summary": "Update a planner event",
+        "tags": ["planner"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventUpdate" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventResponse" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a planner event",
+        "tags": ["planner"],
+        "responses": {
+          "204": { "description": "No Content" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "integer", "description": "Error code" },
+          "status": { "type": "string", "description": "Error name" },
+          "message": { "type": "string", "description": "Error message" },
+          "errors": { "type": "object", "description": "Errors", "additionalProperties": {} }
+        },
+        "additionalProperties": false
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer" },
+          "total_pages": { "type": "integer" },
+          "first_page": { "type": "integer" },
+          "last_page": { "type": "integer" },
+          "page": { "type": "integer" },
+          "previous_page": { "type": "integer" },
+          "next_page": { "type": "integer" }
+        },
+        "additionalProperties": false
+      },
+      "MoodResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "mood": { "type": "string", "description": "The submitted mood" },
+          "note": { "type": "string", "description": "Optional note about the mood", "nullable": true },
+          "date": { "type": "string", "format": "date", "readOnly": true }
+        },
+        "additionalProperties": false
+      },
+      "MoodCreate": {
+        "type": "object",
+        "properties": {
+          "mood": {
+            "type": "string",
+            "enum": ["happy","sad","angry","excited","sick","tired","loved","anxious","peaceful","bored","silly","fine"],
+            "description": "The current mood (predefined options)"
+          },
+          "note": { "type": "string", "description": "Optional note about the mood", "nullable": true }
+        },
+        "required": ["mood"],
+        "additionalProperties": false
+      },
+      "MoodOptions": {
+        "type": "object",
+        "properties": { "moods": { "type": "array", "items": { "type": "string" } } },
+        "additionalProperties": false
+      },
+      "PlannerEventCreate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "maxLength": 200, "minLength": 1 },
+          "description": { "type": "string", "nullable": true },
+          "event_date": { "type": "string", "format": "date", "description": "Date of the event" },
+          "start_time": { "type": "string", "format": "time", "nullable": true, "description": "Start time (HH:MM)" },
+          "end_time": { "type": "string", "format": "time", "nullable": true, "description": "End time (HH:MM)" },
+          "reminder_minutes_before": { "type": "integer", "nullable": true, "description": "Minutes before event to remind" }
+        },
+        "required": ["title"],
+        "additionalProperties": false
+      },
+      "PlannerEventUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "maxLength": 200, "minLength": 1 },
+          "description": { "type": "string", "nullable": true },
+          "event_date": { "type": "string", "format": "date", "description": "Date of the event" },
+          "start_time": { "type": "string", "format": "time", "nullable": true, "description": "Start time (HH:MM)" },
+          "end_time": { "type": "string", "format": "time", "nullable": true, "description": "End time (HH:MM)" },
+          "reminder_minutes_before": { "type": "integer", "nullable": true, "description": "Minutes before event to remind" }
+        },
+        "additionalProperties": false
+      },
+      "PlannerEventResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "event_date": { "type": "string", "format": "date" },
+          "start_time": { "type": "string", "format": "time", "nullable": true },
+          "end_time": { "type": "string", "format": "time", "nullable": true },
+          "reminder_minutes_before": { "type": "integer", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "UNPROCESSABLE_CONTENT": {
+        "description": "Unprocessable Content",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    }
+  }
+}

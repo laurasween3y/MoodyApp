@@ -25,6 +25,13 @@
   gap: 0.65rem;
 }
 
+.hero-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  box-shadow: 0 10px 24px rgba(20, 83, 45, 0.16);
+}
+
 .card {
   background: #fff;
   padding: 1.5rem;

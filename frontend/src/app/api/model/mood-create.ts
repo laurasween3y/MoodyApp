@@ -11,12 +11,30 @@
 
 export interface MoodCreate { 
     /**
-     * The current mood
+     * The current mood (predefined options)
      */
-    mood: string;
+    mood: MoodCreate.MoodEnum;
     /**
      * Optional note about the mood
      */
     note?: string | null;
 }
+export namespace MoodCreate {
+    export const MoodEnum = {
+        Happy: 'happy',
+        Sad: 'sad',
+        Angry: 'angry',
+        Excited: 'excited',
+        Sick: 'sick',
+        Tired: 'tired',
+        Loved: 'loved',
+        Anxious: 'anxious',
+        Peaceful: 'peaceful',
+        Bored: 'bored',
+        Silly: 'silly',
+        Fine: 'fine'
+    } as const;
+    export type MoodEnum = typeof MoodEnum[keyof typeof MoodEnum];
+}
+
 

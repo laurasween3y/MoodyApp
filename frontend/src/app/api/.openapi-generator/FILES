@@ -1,10 +1,10 @@
 .gitignore
-.openapi-generator-ignore
 README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
 api/moods.service.ts
+api/planner.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -12,8 +12,12 @@ index.ts
 model/model-error.ts
 model/models.ts
 model/mood-create.ts
+model/mood-options.ts
 model/mood-response.ts
 model/pagination-metadata.ts
+model/planner-event-create.ts
+model/planner-event-response.ts
+model/planner-event-update.ts
 param.ts
 provide-api.ts
 query.params.ts

@@ -54,8 +54,8 @@ export class PlannerPageComponent implements OnInit {
     this.loading = true;
     this.error = undefined;
     try {
-      const events = await firstValueFrom(this.plannerService.plannerEventsGet());
-      this.events = this.sortEvents(events || []);
+  const events = await firstValueFrom(this.plannerService.plannerEventsGet());
+  this.events = this.sortEvents(events || []);
       this.holidayEvents = this.buildHolidayEvents(this.currentMonth.getFullYear());
       this.buildCalendar();
     } catch (err) {
@@ -84,7 +84,7 @@ export class PlannerPageComponent implements OnInit {
     try {
       if (this.editingId) {
         const updated = await firstValueFrom(
-          this.plannerService.plannerEventsIdPut(this.editingId, payload)
+          this.plannerService.plannerEventsEventIdPut(this.editingId, payload)
         );
         this.events = this.sortEvents(
           this.events.map(e => (e.id === updated.id ? updated : e))
@@ -124,7 +124,7 @@ export class PlannerPageComponent implements OnInit {
     this.loading = true;
     this.error = undefined;
     try {
-      await firstValueFrom(this.plannerService.plannerEventsIdDelete(event.id));
+  await firstValueFrom(this.plannerService.plannerEventsEventIdDelete(event.id));
       this.events = this.events.filter(e => e.id !== event.id);
       if (this.editingId === event.id) this.resetForm();
       this.buildCalendar();
