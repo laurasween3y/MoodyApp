@@ -1,5 +1,11 @@
+export * from './auth.service';
+import { AuthService } from './auth.service';
+export * from './habits.service';
+import { HabitsService } from './habits.service';
+export * from './journals.service';
+import { JournalsService } from './journals.service';
 export * from './moods.service';
 import { MoodsService } from './moods.service';
 export * from './planner.service';
 import { PlannerService } from './planner.service';
-export const APIS = [MoodsService, PlannerService];
+export const APIS = [AuthService, HabitsService, JournalsService, MoodsService, PlannerService];

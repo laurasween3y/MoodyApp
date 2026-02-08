@@ -9,12 +9,12 @@
  */
 
 
-export interface PlannerEventCreate { 
-    title: string;
+export interface JournalResponse { 
+    readonly id?: number;
+    title?: string;
     description?: string | null;
-    event_date?: string;
-    start_time?: string | null;
-    end_time?: string | null;
-    reminder_minutes_before?: number | null;
+    cover_url?: string | null;
+    readonly created_at?: string;
+    readonly updated_at?: string;
 }
 

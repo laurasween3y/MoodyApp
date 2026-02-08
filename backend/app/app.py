@@ -50,8 +50,10 @@ def create_app() -> Flask:
     from app import models  
 
 
-    with app.app_context():
-        db.create_all()
+    # Optional auto-create for local dev only; keep off in production.
+    if os.getenv("AUTO_CREATE_DB", "").lower() in {"1", "true", "yes"}:
+        with app.app_context():
+            db.create_all()
 
     from app.blueprints.moods import blp as MoodsBlueprint
     from app.blueprints.auth import blp as AuthBlueprint

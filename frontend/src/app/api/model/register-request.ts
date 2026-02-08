@@ -9,10 +9,8 @@
  */
 
 
-export interface MoodResponse { 
-    readonly id?: number;
-    mood?: string;
-    note?: string | null;
-    readonly date?: string;
+export interface RegisterRequest { 
+    email: string;
+    password: string;
 }
 

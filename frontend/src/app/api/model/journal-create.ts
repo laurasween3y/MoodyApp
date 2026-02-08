@@ -9,12 +9,9 @@
  */
 
 
-export interface PlannerEventCreate { 
+export interface JournalCreate { 
     title: string;
     description?: string | null;
-    event_date?: string;
-    start_time?: string | null;
-    end_time?: string | null;
-    reminder_minutes_before?: number | null;
+    cover_url?: string | null;
 }
 

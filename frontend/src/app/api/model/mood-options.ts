@@ -10,6 +10,6 @@
 
 
 export interface MoodOptions { 
-    moods?: Array<string>;
+    options?: Array<string>;
 }
 

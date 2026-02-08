@@ -35,7 +35,7 @@ def require_auth():
 class MoodsResource(MethodView):
     @blp.response(200, MoodResponseSchema(many=True))
     def get(self):
-        """List all moods for the current user (temporary user_id=1)."""
+        """List all moods for the current user."""
 
         moods = (
             Mood.query.filter_by(user_id=g.current_user.id)
@@ -133,7 +133,7 @@ class MoodDetailResource(MethodView):
 class TodayMoodResource(MethodView):
     @blp.response(200, MoodResponseSchema)
     def get(self):
-        """Get today's mood for the current user (temporary user_id=1)."""
+        """Get today's mood for the current user."""
 
         mood = (
             Mood.query.filter_by(user_id=g.current_user.id, date=date.today())

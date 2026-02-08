@@ -122,6 +122,17 @@ class JournalCoverResource(MethodView):
         if file.filename == "":
             abort(400, message="Empty filename")
 
+        allowed_mimes = {"image/png", "image/jpeg", "image/webp"}
+        if file.mimetype not in allowed_mimes:
+            abort(415, message="Unsupported file type")
+
+        max_bytes = 5 * 1024 * 1024  # 5MB limit
+        file.stream.seek(0, os.SEEK_END)
+        size = file.stream.tell()
+        file.stream.seek(0)
+        if size > max_bytes:
+            abort(413, message="File too large (max 5MB)")
+
         filename = secure_filename(file.filename or "cover")
         name, ext = os.path.splitext(filename)
         final_name = f"journal_{journal_id}_{g.current_user.id}{ext}"

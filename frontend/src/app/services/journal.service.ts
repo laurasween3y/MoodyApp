@@ -1,102 +1,79 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import {
+  Configuration,
+  JournalCreate,
+  JournalEntryCreate,
+  JournalEntryResponse,
+  JournalEntryUpdate,
+  JournalResponse,
+  JournalUpdate,
+  JournalsService
+} from '../api';
 
-export interface Journal {
-  id: number;
-  title: string;
-  description?: string | null;
-  cover_url?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface JournalEntry {
-  id: number;
-  journal_id: number;
-  title?: string | null;
-  content_json: any;
-  background: string;
-  font_family: string;
-  font_size: number;
-  entry_date: string;
-  created_at?: string;
-  updated_at?: string;
-}
+export type Journal = JournalResponse;
+export type JournalEntry = JournalEntryResponse;
 
 @Injectable({ providedIn: 'root' })
 export class JournalService {
-  private readonly apiBase = 'http://localhost:5000';
+  constructor(private journalsApi: JournalsService, private apiConfig: Configuration) {}
 
-  constructor(private http: HttpClient) {}
-
-  getJournals(): Observable<Journal[]> {
-    return this.http.get<Journal[]>(`${this.apiBase}/journals/`).pipe(map(list => list.map(j => this.withResolvedCover(j))));
+  private get apiBase(): string {
+    const base = this.apiConfig?.basePath ?? 'http://localhost:5000';
+    return base.replace(/\/$/, '');
   }
 
-  createJournal(payload: { title: string; description?: string | null }): Observable<Journal> {
-    return this.http.post<Journal>(`${this.apiBase}/journals/`, payload).pipe(map(j => this.withResolvedCover(j)));
+  getJournals(): Observable<JournalResponse[]> {
+    return this.journalsApi.journalsGet().pipe(map((list) => list.map((j) => this.withResolvedCover(j))));
   }
 
-  updateJournal(id: number, payload: Partial<{ title: string; description?: string | null }>): Observable<Journal> {
-    return this.http.patch<Journal>(`${this.apiBase}/journals/${id}`, payload).pipe(map(j => this.withResolvedCover(j)));
+  createJournal(payload: JournalCreate): Observable<JournalResponse> {
+    return this.journalsApi.journalsPost(payload).pipe(map((j) => this.withResolvedCover(j)));
   }
 
-  uploadCover(id: number, file: File): Observable<Journal> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<Journal>(`${this.apiBase}/journals/${id}/cover`, formData).pipe(map(j => this.withResolvedCover(j)));
+  updateJournal(id: number, payload: JournalUpdate): Observable<JournalResponse> {
+    return this.journalsApi.journalsJournalIdPatch(id, payload).pipe(map((j) => this.withResolvedCover(j)));
+  }
+
+  uploadCover(id: number, file: File): Observable<JournalResponse> {
+    return this.journalsApi.journalsJournalIdCoverPost(id, file).pipe(map((j) => this.withResolvedCover(j)));
   }
 
   deleteJournal(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiBase}/journals/${id}`);
+    return this.journalsApi.journalsJournalIdDelete(id);
   }
 
-  private withResolvedCover(journal: Journal): Journal {
+  private withResolvedCover(journal: JournalResponse): JournalResponse {
     if (journal?.cover_url && journal.cover_url.startsWith('/')) {
       return { ...journal, cover_url: `${this.apiBase}${journal.cover_url}` };
     }
     return journal;
   }
 
-  getEntries(journalId: number): Observable<JournalEntry[]> {
-    return this.http.get<JournalEntry[]>(`${this.apiBase}/journals/${journalId}/entries`);
+  getEntries(journalId: number): Observable<JournalEntryResponse[]> {
+    return this.journalsApi.journalsJournalIdEntriesGet(journalId);
   }
 
-  getEntry(journalId: number, entryId: number): Observable<JournalEntry> {
-    return this.http.get<JournalEntry>(`${this.apiBase}/journals/${journalId}/entries/${entryId}`);
+  getEntry(journalId: number, entryId: number): Observable<JournalEntryResponse> {
+    return this.journalsApi.journalsJournalIdEntriesEntryIdGet(journalId, entryId);
   }
 
   createEntry(
     journalId: number,
-    payload: {
-      title?: string | null;
-      content_json: any;
-      background?: string;
-      font_family?: string;
-      font_size?: number;
-      entry_date?: string;
-    }
-  ): Observable<JournalEntry> {
-    return this.http.post<JournalEntry>(`${this.apiBase}/journals/${journalId}/entries`, payload);
+    payload: JournalEntryCreate
+  ): Observable<JournalEntryResponse> {
+    return this.journalsApi.journalsJournalIdEntriesPost(journalId, payload);
   }
 
   updateEntry(
     journalId: number,
     entryId: number,
-    payload: Partial<{
-      title?: string | null;
-      content_json: any;
-      background?: string;
-      font_family?: string;
-      font_size?: number;
-      entry_date?: string;
-    }>
-  ): Observable<JournalEntry> {
-    return this.http.patch<JournalEntry>(`${this.apiBase}/journals/${journalId}/entries/${entryId}`, payload);
+    payload: JournalEntryUpdate
+  ): Observable<JournalEntryResponse> {
+    return this.journalsApi.journalsJournalIdEntriesEntryIdPatch(journalId, entryId, payload);
   }
 
   deleteEntry(journalId: number, entryId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiBase}/journals/${journalId}/entries/${entryId}`);
+    return this.journalsApi.journalsJournalIdEntriesEntryIdDelete(journalId, entryId);
   }
 }

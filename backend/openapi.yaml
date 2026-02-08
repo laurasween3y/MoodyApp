@@ -2,6 +2,625 @@
   "openapi": "3.0.3",
   "info": { "title": "Moody API", "version": "v1" },
   "tags": [
+    { "name": "auth", "description": "Authentication" },
+    { "name": "moods", "description": "Submit and view moods" },
+    { "name": "journals", "description": "Create journals and write entries" },
+    { "name": "habits", "description": "Create, update, and complete habits" },
+    { "name": "planner", "description": "Plan events and reminders" }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": ["auth"],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterResponse" } } } },
+          "409": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate and return a JWT",
+        "tags": ["auth"],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } } } },
+          "401": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+
+    "/moods/": {
+      "get": {
+        "summary": "List moods for the current user",
+        "tags": ["moods"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MoodResponse" } } } } },
+          "401": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "post": {
+        "summary": "Create a mood entry",
+        "tags": ["moods"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "422": { "$ref": "#/components/responses/UNPROCESSABLE_CONTENT" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/moods/{mood_id}": {
+      "parameters": [ { "in": "path", "name": "mood_id", "required": true, "schema": { "type": "integer", "minimum": 1 } } ],
+      "get": {
+        "summary": "Get a mood by id",
+        "tags": ["moods"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "patch": {
+        "summary": "Update a mood",
+        "tags": ["moods"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodCreate" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "422": { "$ref": "#/components/responses/UNPROCESSABLE_CONTENT" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a mood",
+        "tags": ["moods"],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/moods/today": {
+      "get": {
+        "summary": "Get today's mood for the current user",
+        "tags": ["moods"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/moods/options": {
+      "get": {
+        "summary": "List allowed mood keys",
+        "tags": ["moods"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoodOptions" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+
+    "/journals/": {
+      "get": {
+        "summary": "List journals for the current user",
+        "tags": ["journals"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/JournalResponse" } } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "post": {
+        "summary": "Create a journal",
+        "tags": ["journals"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalResponse" } } } },
+          "409": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/journals/{journal_id}": {
+      "parameters": [ { "in": "path", "name": "journal_id", "required": true, "schema": { "type": "integer", "minimum": 1 } } ],
+      "get": {
+        "summary": "Get a journal",
+        "tags": ["journals"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "patch": {
+        "summary": "Update a journal",
+        "tags": ["journals"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalUpdate" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a journal",
+        "tags": ["journals"],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/journals/{journal_id}/cover": {
+      "parameters": [ { "in": "path", "name": "journal_id", "required": true, "schema": { "type": "integer", "minimum": 1 } } ],
+      "post": {
+        "summary": "Upload a journal cover image",
+        "tags": ["journals"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": { "type": "object", "properties": { "file": { "type": "string", "format": "binary" } }, "required": ["file"] }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalResponse" } } } },
+          "400": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/journals/{journal_id}/entries": {
+      "parameters": [ { "in": "path", "name": "journal_id", "required": true, "schema": { "type": "integer", "minimum": 1 } } ],
+      "get": {
+        "summary": "List entries for a journal",
+        "tags": ["journals"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/JournalEntryResponse" } } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "post": {
+        "summary": "Create a journal entry",
+        "tags": ["journals"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalEntryCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalEntryResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/journals/{journal_id}/entries/{entry_id}": {
+      "parameters": [
+        { "in": "path", "name": "journal_id", "required": true, "schema": { "type": "integer", "minimum": 1 } },
+        { "in": "path", "name": "entry_id", "required": true, "schema": { "type": "integer", "minimum": 1 } }
+      ],
+      "get": {
+        "summary": "Get a journal entry",
+        "tags": ["journals"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalEntryResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "patch": {
+        "summary": "Update a journal entry",
+        "tags": ["journals"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalEntryUpdate" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JournalEntryResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a journal entry",
+        "tags": ["journals"],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+
+    "/habits/": {
+      "get": {
+        "summary": "List habits for the current user",
+        "tags": ["habits"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/HabitResponse" } } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "post": {
+        "summary": "Create a habit",
+        "tags": ["habits"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitResponse" } } } },
+          "422": { "$ref": "#/components/responses/UNPROCESSABLE_CONTENT" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/habits/{habit_id}": {
+      "parameters": [ { "in": "path", "name": "habit_id", "required": true, "schema": { "type": "integer", "minimum": 1 } } ],
+      "get": {
+        "summary": "Get a habit",
+        "tags": ["habits"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "patch": {
+        "summary": "Update a habit",
+        "tags": ["habits"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitUpdate" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a habit",
+        "tags": ["habits"],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/habits/{habit_id}/completions/{date_str}": {
+      "parameters": [
+        { "in": "path", "name": "habit_id", "required": true, "schema": { "type": "integer", "minimum": 1 } },
+        { "in": "path", "name": "date_str", "required": true, "schema": { "type": "string" } }
+      ],
+      "put": {
+        "summary": "Mark a habit complete for a date",
+        "tags": ["habits"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitResponse" } } } },
+          "400": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Remove a completion for a date",
+        "tags": ["habits"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitResponse" } } } },
+          "400": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/habits/{habit_id}/toggle": {
+      "parameters": [ { "in": "path", "name": "habit_id", "required": true, "schema": { "type": "integer", "minimum": 1 } } ],
+      "post": {
+        "summary": "Toggle completion for a date (defaults to today)",
+        "tags": ["habits"],
+        "requestBody": { "required": false, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitToggle" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HabitResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+
+    "/planner/events": {
+      "get": {
+        "summary": "List planner events (optionally filter by date)",
+        "tags": ["planner"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PlannerEventResponse" } } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "post": {
+        "summary": "Create a planner event",
+        "tags": ["planner"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventResponse" } } } },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    },
+    "/planner/events/{event_id}": {
+      "parameters": [ { "in": "path", "name": "event_id", "required": true, "schema": { "type": "integer", "minimum": 1 } } ],
+      "get": {
+        "summary": "Get a planner event",
+        "tags": ["planner"],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "put": {
+        "summary": "Update a planner event",
+        "tags": ["planner"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventUpdate" } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlannerEventResponse" } } } },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a planner event",
+        "tags": ["planner"],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "$ref": "#/components/responses/DEFAULT_ERROR" },
+          "default": { "$ref": "#/components/responses/DEFAULT_ERROR" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "integer" },
+          "status": { "type": "string" },
+          "message": { "type": "string" },
+          "errors": { "type": "object", "additionalProperties": {} }
+        },
+        "additionalProperties": false
+      },
+
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 6 }
+        },
+        "required": ["email", "password"],
+        "additionalProperties": false
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": { "access_token": { "type": "string" } },
+        "additionalProperties": false
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 6 }
+        },
+        "required": ["email", "password"],
+        "additionalProperties": false
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": { "message": { "type": "string" } },
+        "additionalProperties": false
+      },
+
+      "MoodResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "mood": { "type": "string" },
+          "note": { "type": "string", "nullable": true },
+          "date": { "type": "string", "format": "date", "readOnly": true }
+        },
+        "additionalProperties": false
+      },
+      "MoodCreate": {
+        "type": "object",
+        "properties": {
+          "mood": { "type": "string", "enum": ["happy","sad","angry","excited","sick","tired","loved","anxious","peaceful","bored","silly","fine"] },
+          "note": { "type": "string", "nullable": true },
+          "date": { "type": "string", "format": "date" }
+        },
+        "required": ["mood"],
+        "additionalProperties": false
+      },
+      "MoodOptions": {
+        "type": "object",
+        "properties": { "options": { "type": "array", "items": { "type": "string" } } },
+        "additionalProperties": false
+      },
+
+      "JournalCreate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "cover_url": { "type": "string", "nullable": true }
+        },
+        "required": ["title"],
+        "additionalProperties": false
+      },
+      "JournalUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "cover_url": { "type": "string", "nullable": true }
+        },
+        "additionalProperties": false
+      },
+      "JournalResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "cover_url": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time", "readOnly": true },
+          "updated_at": { "type": "string", "format": "date-time", "readOnly": true }
+        },
+        "additionalProperties": false
+      },
+
+      "JournalEntryCreate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "nullable": true },
+          "content_json": { "type": "object" },
+          "background": { "type": "string", "default": "lined" },
+          "font_family": { "type": "string", "default": "Inter" },
+          "font_size": { "type": "integer", "default": 16 },
+          "entry_date": { "type": "string", "format": "date" }
+        },
+        "required": ["content_json"],
+        "additionalProperties": false
+      },
+      "JournalEntryUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "nullable": true },
+          "content_json": { "type": "object" },
+          "background": { "type": "string" },
+          "font_family": { "type": "string" },
+          "font_size": { "type": "integer" },
+          "entry_date": { "type": "string", "format": "date" }
+        },
+        "additionalProperties": false
+      },
+      "JournalEntryResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "journal_id": { "type": "integer" },
+          "title": { "type": "string", "nullable": true },
+          "content_json": { "type": "object" },
+          "background": { "type": "string" },
+          "font_family": { "type": "string" },
+          "font_size": { "type": "integer" },
+          "entry_date": { "type": "string", "format": "date" },
+          "created_at": { "type": "string", "format": "date-time", "readOnly": true },
+          "updated_at": { "type": "string", "format": "date-time", "readOnly": true }
+        },
+        "additionalProperties": false
+      },
+
+      "HabitCreate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "minLength": 1, "maxLength": 180 },
+          "frequency": { "type": "string", "enum": ["daily", "weekly", "custom"], "default": "daily" },
+          "target_per_week": { "type": "integer", "default": 7 }
+        },
+        "required": ["title"],
+        "additionalProperties": false
+      },
+      "HabitUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "minLength": 1, "maxLength": 180 },
+          "frequency": { "type": "string", "enum": ["daily", "weekly", "custom"] },
+          "target_per_week": { "type": "integer" }
+        },
+        "additionalProperties": false
+      },
+      "HabitToggle": {
+        "type": "object",
+        "properties": { "date": { "type": "string", "format": "date" } },
+        "additionalProperties": false
+      },
+      "HabitResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "title": { "type": "string" },
+          "frequency": { "type": "string" },
+          "target_per_week": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time", "readOnly": true },
+          "updated_at": { "type": "string", "format": "date-time", "readOnly": true },
+          "completions": { "type": "array", "items": { "type": "string", "format": "date" } }
+        },
+        "additionalProperties": false
+      },
+
+      "PlannerEventCreate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "maxLength": 200, "minLength": 1 },
+          "description": { "type": "string", "nullable": true },
+          "event_date": { "type": "string", "format": "date" },
+          "start_time": { "type": "string", "format": "time", "nullable": true },
+          "end_time": { "type": "string", "format": "time", "nullable": true },
+          "reminder_minutes_before": { "type": "integer", "nullable": true }
+        },
+        "required": ["title"],
+        "additionalProperties": false
+      },
+      "PlannerEventUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "maxLength": 200, "minLength": 1 },
+          "description": { "type": "string", "nullable": true },
+          "event_date": { "type": "string", "format": "date" },
+          "start_time": { "type": "string", "format": "time", "nullable": true },
+          "end_time": { "type": "string", "format": "time", "nullable": true },
+          "reminder_minutes_before": { "type": "integer", "nullable": true }
+        },
+        "additionalProperties": false
+      },
+      "PlannerEventResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "event_date": { "type": "string", "format": "date" },
+          "start_time": { "type": "string", "format": "time", "nullable": true },
+          "end_time": { "type": "string", "format": "time", "nullable": true },
+          "reminder_minutes_before": { "type": "integer", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "DEFAULT_ERROR": {
+        "description": "Error",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "UNPROCESSABLE_CONTENT": {
+        "description": "Unprocessable Content",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    }
+  }
+}{
+  "openapi": "3.0.3",
+  "info": { "title": "Moody API", "version": "v1" },
+  "tags": [
     { "name": "moods", "description": "Submit and view moods" },
     { "name": "planner", "description": "Plan events and reminders" }
   ],

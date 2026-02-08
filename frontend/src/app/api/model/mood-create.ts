@@ -10,14 +10,9 @@
 
 
 export interface MoodCreate { 
-    /**
-     * The current mood (predefined options)
-     */
     mood: MoodCreate.MoodEnum;
-    /**
-     * Optional note about the mood
-     */
     note?: string | null;
+    date?: string;
 }
 export namespace MoodCreate {
     export const MoodEnum = {

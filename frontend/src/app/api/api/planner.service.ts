@@ -96,7 +96,7 @@ export class PlannerService extends BaseService {
     }
 
     /**
-     * Get a single planner event
+     * Get a planner event
      * @endpoint get /planner/events/{event_id}
      * @param eventId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

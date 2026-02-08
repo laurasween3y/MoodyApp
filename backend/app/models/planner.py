@@ -7,7 +7,7 @@ class PlannerEvent(db.Model):
     __tablename__ = "planner_events"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     event_date = db.Column(db.Date, nullable=False, index=True)

@@ -9,10 +9,12 @@
  */
 
 
-export interface MoodResponse { 
-    readonly id?: number;
-    mood?: string;
-    note?: string | null;
-    readonly date?: string;
+export interface JournalEntryUpdate { 
+    title?: string | null;
+    content_json?: object;
+    background?: string;
+    font_family?: string;
+    font_size?: number;
+    entry_date?: string;
 }
 

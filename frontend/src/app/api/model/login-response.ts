@@ -9,10 +9,7 @@
  */
 
 
-export interface MoodResponse { 
-    readonly id?: number;
-    mood?: string;
-    note?: string | null;
-    readonly date?: string;
+export interface LoginResponse { 
+    access_token?: string;
 }
 

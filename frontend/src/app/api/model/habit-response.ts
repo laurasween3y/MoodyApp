@@ -9,10 +9,13 @@
  */
 
 
-export interface MoodResponse { 
+export interface HabitResponse { 
     readonly id?: number;
-    mood?: string;
-    note?: string | null;
-    readonly date?: string;
+    title?: string;
+    frequency?: string;
+    target_per_week?: number;
+    readonly created_at?: string;
+    readonly updated_at?: string;
+    completions?: Array<string>;
 }
 

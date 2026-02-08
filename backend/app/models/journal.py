@@ -7,7 +7,7 @@ class Journal(db.Model):
     __tablename__ = "journals"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
     cover_url = db.Column(db.String(255))
@@ -35,7 +35,7 @@ class JournalEntry(db.Model):
     journal_id = db.Column(
         db.Integer, db.ForeignKey("journals.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    user_id = db.Column(db.Integer, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     title = db.Column(db.String(200))
     # TipTap / ProseMirror JSON payload for the document
     content_json = db.Column(db.JSON, nullable=False, default=dict)

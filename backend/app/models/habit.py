@@ -7,7 +7,7 @@ class Habit(db.Model):
     __tablename__ = "habits"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     title = db.Column(db.String(180), nullable=False)
     frequency = db.Column(db.String(32), nullable=False, default="daily")
     target_per_week = db.Column(db.Integer, nullable=False, default=7)
@@ -39,11 +39,11 @@ class HabitCompletion(db.Model):
         nullable=False,
         index=True,
     )
-    user_id = db.Column(db.Integer, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     date = db.Column(db.Date, nullable=False, default=date.today)
 
     habit = db.relationship("Habit", back_populates="completions")
 
     __table_args__ = (
-        db.UniqueConstraint("habit_id", "date", name="uq_habit_completion_per_day"),
+        db.UniqueConstraint("habit_id", "user_id", "date", name="uq_habit_completion_per_user_day"),
     )

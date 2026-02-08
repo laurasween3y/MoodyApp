@@ -1,53 +1,50 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
+import { HabitCreate, HabitResponse, HabitToggle, HabitUpdate, HabitsService } from '../api';
 
-export type Frequency = 'daily' | 'weekly' | 'custom';
-
-export interface Habit {
-  id: number;
-  title: string;
-  frequency: Frequency;
-  target_per_week: number;
-  created_at?: string;
-  updated_at?: string;
-  completions: string[];
-}
+export type Frequency = HabitCreate['frequency'];
+export type Habit = HabitResponse;
 
 @Injectable({ providedIn: 'root' })
 export class HabitService {
-  private readonly apiBase = 'http://localhost:5000';
+  constructor(private habitsApi: HabitsService) {}
 
-  constructor(private http: HttpClient) {}
-
-  getHabits(): Observable<Habit[]> {
-    return this.http.get<Habit[]>(`${this.apiBase}/habits/`);
+  getHabits(): Observable<HabitResponse[]> {
+    return this.habitsApi.habitsGet().pipe(
+      map((list: HabitResponse[]) => list.map((h: HabitResponse) => this.normalizeHabit(h)))
+    );
   }
 
-  createHabit(payload: { title: string; frequency: Frequency; target_per_week: number }): Observable<Habit> {
-    return this.http.post<Habit>(`${this.apiBase}/habits/`, payload);
+  createHabit(payload: HabitCreate): Observable<HabitResponse> {
+    return this.habitsApi.habitsPost(payload).pipe(map((h: HabitResponse) => this.normalizeHabit(h)));
   }
 
-  updateHabit(
-    id: number,
-    payload: Partial<{ title: string; frequency: Frequency; target_per_week: number }>
-  ): Observable<Habit> {
-    return this.http.patch<Habit>(`${this.apiBase}/habits/${id}`, payload);
+  updateHabit(id: number, payload: HabitUpdate): Observable<HabitResponse> {
+    return this.habitsApi.habitsHabitIdPatch(id, payload).pipe(map((h: HabitResponse) => this.normalizeHabit(h)));
   }
 
   deleteHabit(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiBase}/habits/${id}`);
+    return this.habitsApi.habitsHabitIdDelete(id);
   }
 
-  toggleCompletion(id: number, dateIso: string): Observable<Habit> {
-    return this.http.post<Habit>(`${this.apiBase}/habits/${id}/toggle`, { date: dateIso });
+  toggleCompletion(id: number, dateIso: string): Observable<HabitResponse> {
+    const body: HabitToggle = { date: dateIso };
+    return this.habitsApi.habitsHabitIdTogglePost(id, body).pipe(map((h: HabitResponse) => this.normalizeHabit(h)));
   }
 
-  setCompletion(id: number, dateIso: string): Observable<Habit> {
-    return this.http.put<Habit>(`${this.apiBase}/habits/${id}/completions/${dateIso}`, {});
+  setCompletion(id: number, dateIso: string): Observable<HabitResponse> {
+    return this.habitsApi.habitsHabitIdCompletionsDateStrPut(id, dateIso).pipe(
+      map((h: HabitResponse) => this.normalizeHabit(h))
+    );
   }
 
-  unsetCompletion(id: number, dateIso: string): Observable<Habit> {
-    return this.http.delete<Habit>(`${this.apiBase}/habits/${id}/completions/${dateIso}`);
+  unsetCompletion(id: number, dateIso: string): Observable<HabitResponse> {
+    return this.habitsApi.habitsHabitIdCompletionsDateStrDelete(id, dateIso).pipe(
+      map((h: HabitResponse) => this.normalizeHabit(h))
+    );
+  }
+
+  private normalizeHabit(habit: HabitResponse): HabitResponse {
+    return { ...habit, completions: habit.completions ?? [] };
   }
 }

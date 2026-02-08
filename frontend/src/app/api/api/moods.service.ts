@@ -40,7 +40,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * List all moods for the current user (temporary user_id&#x3D;1).
+     * List moods for the current user
      * @endpoint get /moods/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -92,7 +92,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Delete a mood for the current user.
+     * Delete a mood
      * @endpoint delete /moods/{mood_id}
      * @param moodId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -148,7 +148,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Get a single mood by id for the current user.
+     * Get a mood by id
      * @endpoint get /moods/{mood_id}
      * @param moodId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -204,7 +204,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Update a mood\&#39;s mood/note fields.
+     * Update a mood
      * @endpoint patch /moods/{mood_id}
      * @param moodId 
      * @param moodCreate 
@@ -274,7 +274,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * List allowed mood keys for the client UI.
+     * List allowed mood keys
      * @endpoint get /moods/options
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -326,7 +326,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Create a mood entry and return it.
+     * Create a mood entry
      * @endpoint post /moods/
      * @param moodCreate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -392,7 +392,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Get today\&#39;s mood for the current user (temporary user_id&#x3D;1).
+     * Get today\&#39;s mood for the current user
      * @endpoint get /moods/today
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
