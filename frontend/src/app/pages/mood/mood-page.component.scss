@@ -244,39 +244,39 @@ textarea::placeholder {
 }
 
 button {
-  padding: 0.65rem 1.1rem;
-  border-radius: 12px;
-  border: none;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
   background: #a8e6c6;
   color: #143c2c;
   cursor: pointer;
   font-weight: 700;
-  box-shadow: 0 8px 18px rgba(52, 211, 153, 0.2);
+  box-shadow: 0 8px 16px rgba(35, 50, 58, 0.08);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 button:hover:not([disabled]) {
   transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(52, 211, 153, 0.25);
+  box-shadow: 0 12px 20px rgba(35, 50, 58, 0.12);
 }
 
 button.ghost {
-  background: rgba(168, 230, 198, 0.18);
+  background: transparent;
   color: #1f2f2a;
   box-shadow: none;
-  border: 1px solid rgba(168, 230, 198, 0.5);
+  border: 1px solid rgba(168, 230, 198, 0.6);
 }
 
 button.primary {
-  background: linear-gradient(135deg, #34d399, #86efac);
-  color: #0f2a1f;
-  border-radius: 16px;
-  box-shadow: 0 14px 30px rgba(52, 211, 153, 0.25);
+  background: #a8e6c6;
+  color: #143c2c;
+  border-radius: 999px;
+  box-shadow: 0 8px 16px rgba(35, 50, 58, 0.08);
 }
 
 button.primary:hover:not([disabled]) {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 32px rgba(52, 211, 153, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(35, 50, 58, 0.12);
 }
 
 button[disabled] {

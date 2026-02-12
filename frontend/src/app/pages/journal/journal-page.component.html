@@ -1,73 +1,18 @@
 <section class="page">
   <div class="layout">
-    <div class="content-area">
-      <div class="content card" *ngIf="selectedJournal; else selectPrompt">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Entries</p>
-          <h2>{{ selectedJournal.title }}</h2>
-        </div>
-        <div class="actions">
-          <span class="count">{{ entries.length }} entries</span>
-          <button type="button" (click)="goToNewEntry()">+ New Entry</button>
-        </div>
-      </div>
 
-      <div class="hero">
-        <div class="cover-large" *ngIf="selectedJournal.cover_url; else coverPlaceholder">
-          <img [src]="selectedJournal.cover_url" alt="Journal cover" />
-        </div>
-        <ng-template #coverPlaceholder>
-          <div class="cover-large placeholder">📓</div>
-        </ng-template>
-        <div class="entry-cta">
-          <p class="muted">Browse entries or start a new one.</p>
-          <button type="button" (click)="goToNewEntry()">Write new entry</button>
-        </div>
-      </div>
-
-      <div class="entries" *ngIf="entries.length; else noEntries">
-        <article class="entry" *ngFor="let entry of entries" (click)="goToEntry(entry)">
-          <header>
-            <div>
-              <p class="label">{{ entry.entry_date | date }}</p>
-              <h3>{{ entry.title || 'Untitled entry' }}</h3>
-            </div>
-            <div class="entry-actions">
-              <button class="ghost" type="button" (click)="$event.stopPropagation(); goToEntry(entry)">Open</button>
-              <button class="danger" type="button" (click)="$event.stopPropagation(); deleteEntry(entry)">Delete</button>
-            </div>
-          </header>
-          <p class="content">{{ previewText(entry) }}</p>
-        </article>
-      </div>
-      <ng-template #noEntries>
-        <p class="muted">No entries yet. Start writing above.</p>
-      </ng-template>
-    </div>
-    </div>
-    <ng-template #selectPrompt>
-      <div class="card empty-state">
-        <h2>Welcome to your journals</h2>
-        <p class="muted">
-          Select an existing journal or create a new one to begin writing.
-        </p>
-        <button type="button" (click)="showCreateForm = true">
-          + Create your first journal
-        </button>
-      </div>
-    </ng-template>
-
-    <div class="aside">
-      <div class="card sidebar">
-        <div class="section-head">
+    <ng-container *ngIf="journals.length; else emptyState">
+      <div class="card collections">
+        <div class="collections-head">
           <div>
             <p class="eyebrow">Your journals</p>
-            <h2>Collections</h2>
+            <h1>Collections</h1>
           </div>
           <div class="actions">
             <span class="count">{{ journals.length }} total</span>
-            <button type="button" class="ghost icon" (click)="showCreateForm = !showCreateForm">{{ showCreateForm ? 'Close' : '+' }}</button>
+            <button type="button" (click)="showCreateForm = !showCreateForm">
+              {{ showCreateForm ? 'Close' : '+ New journal' }}
+            </button>
           </div>
         </div>
 
@@ -96,36 +41,119 @@
           </div>
         </div>
 
-        <div class="journal-list-wrap">
-          <div class="journal-list" *ngIf="journals.length; else noJournals">
-            <div
-              class="journal-card"
-              *ngFor="let journal of journals"
-              [class.active]="journal.id === selectedJournalId"
-              (click)="goToJournal(journal.id)"
-            >
-              <div class="cover" *ngIf="journal.cover_url; else placeholderCover">
-                <img [src]="journal.cover_url" alt="Journal cover" />
-              </div>
-              <ng-template #placeholderCover>
-                <div class="cover placeholder">📓</div>
+        <div class="journal-grid" *ngIf="journals.length; else noJournals">
+          <div
+            class="journal-card"
+            *ngFor="let journal of journals"
+            [class.active]="journal.id === selectedJournalId"
+            (click)="goToJournal(journal.id)"
+          >
+            <div class="cover" *ngIf="journal.cover_url; else placeholderCover">
+              <img [src]="journal.cover_url" alt="Journal cover" />
+            </div>
+            <ng-template #placeholderCover>
+              <div class="cover placeholder">📓</div>
               </ng-template>
               <div class="journal-meta">
                 <h3>{{ journal.title }}</h3>
                 <p class="muted">{{ journal.description || 'No description' }}</p>
               </div>
               <div class="journal-actions" (click)="$event.stopPropagation()">
-                <button class="ghost" type="button" (click)="startEditJournal(journal)">Edit</button>
-                <button class="danger" type="button" (click)="deleteJournal(journal)">Delete</button>
+                <button
+                  class="ghost"
+                  type="button"
+                  (click)="startEditJournal(journal)"
+                  aria-label="Edit journal"
+                  title="Edit journal"
+                >
+                  ✏️
+                </button>
+                <button
+                  class="danger"
+                  type="button"
+                  (click)="deleteJournal(journal)"
+                  aria-label="Delete journal"
+                  title="Delete journal"
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           </div>
-          <ng-template #noJournals>
-            <p class="muted">Create your first journal to begin writing.</p>
+        <ng-template #noJournals>
+          <p class="muted">Create your first journal to begin writing.</p>
+        </ng-template>
+      </div>
+
+      <div class="card detail" *ngIf="selectedJournal">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Entries</p>
+            <h2>{{ selectedJournal.title }}</h2>
+          </div>
+          <div class="actions">
+            <span class="count">{{ entries.length }} entries</span>
+            <button type="button" (click)="goToNewEntry()">+ New Entry</button>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div class="cover-large" *ngIf="selectedJournal.cover_url; else coverPlaceholder">
+            <img [src]="selectedJournal.cover_url" alt="Journal cover" />
+          </div>
+          <ng-template #coverPlaceholder>
+            <div class="cover-large placeholder">📓</div>
           </ng-template>
         </div>
+
+        <div class="entries" *ngIf="entries.length; else noEntries">
+          <article class="entry" *ngFor="let entry of entries" (click)="goToEntry(entry)">
+            <header>
+              <div>
+                <p class="label">{{ entry.entry_date | date }}</p>
+                <h3>{{ entry.title || 'Untitled entry' }}</h3>
+              </div>
+              <div class="entry-actions">
+                <button
+                  class="ghost"
+                  type="button"
+                  (click)="$event.stopPropagation(); goToEntry(entry)"
+                  aria-label="Edit entry"
+                  title="Edit entry"
+                >
+                  ✏️
+                </button>
+                <button
+                  class="danger"
+                  type="button"
+                  (click)="$event.stopPropagation(); deleteEntry(entry)"
+                  aria-label="Delete entry"
+                  title="Delete entry"
+                >
+                  🗑️
+                </button>
+              </div>
+            </header>
+            <p class="content">{{ previewText(entry) }}</p>
+          </article>
+        </div>
+        <ng-template #noEntries>
+          <p class="muted">No entries yet. Start writing above.</p>
+        </ng-template>
       </div>
-    </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="card empty-state">
+        <h2>Welcome to your journals</h2>
+        <p class="muted">
+          Select an existing journal or create a new one to begin writing.
+        </p>
+        <button type="button" class="primary" (click)="showCreateForm = true">
+          + Create your first journal
+        </button>
+      </div>
+    </ng-template>
   </div>
   <p *ngIf="error" class="alert">{{ error }}</p>
 </section>
