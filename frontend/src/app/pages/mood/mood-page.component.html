@@ -9,18 +9,21 @@
       <div class="pill" *ngIf="selectedDateISO">{{ selectedDateISO | date:'EEE, MMM d' }}</div>
     </header>
 
-    <div class="mood-grid" role="list">
-      <button
-        *ngFor="let mood of moods"
-        type="button"
-        role="listitem"
-        (click)="selectedMood = mood.key"
-        [class.selected]="selectedMood === mood.key"
-        [disabled]="loading"
-      >
-        <img [src]="mood.icon" [alt]="mood.label" />
-        <span>{{ mood.label }}</span>
-      </button>
+    <div class="panel mood-selection">
+      <h2 class="section-title">Choose your mood</h2>
+      <div class="mood-grid" role="list">
+        <button
+          *ngFor="let mood of moods"
+          type="button"
+          role="listitem"
+          (click)="selectedMood = mood.key"
+          [class.selected]="selectedMood === mood.key"
+          [disabled]="loading"
+        >
+          <img [src]="mood.icon" [alt]="mood.label" />
+          <span>{{ mood.label }}</span>
+        </button>
+      </div>
     </div>
 
     <label class="note">
@@ -29,7 +32,7 @@
     </label>
 
     <div class="actions">
-      <button type="button" (click)="saveMood()" [disabled]="loading || !selectedMood">
+      <button type="button" class="primary" (click)="saveMood()" [disabled]="loading || !selectedMood">
         {{ loading ? 'Saving…' : (editingMoodId ? 'Update mood' : 'Save mood') }}
       </button>
       <button type="button" (click)="resetForm()" [disabled]="loading">Clear</button>
@@ -60,12 +63,12 @@
       <div class="empty muted">You haven’t checked in today — that’s okay 💛</div>
     </ng-template>
 
-    <div class="panel">
+    <div class="panel calendar-panel">
       <div class="panel-head calendar-head">
         <div class="month-nav">
-          <button type="button" class="ghost icon-btn" (click)="changeMonth(-1)" [disabled]="loading">◀</button>
+          <button type="button" class="ghost icon-btn" (click)="changeMonth(-1)" [disabled]="loading">←</button>
           <h2>{{ currentMonth | date:'MMMM yyyy' }}</h2>
-          <button type="button" class="ghost icon-btn" (click)="changeMonth(1)" [disabled]="loading">▶</button>
+          <button type="button" class="ghost icon-btn" (click)="changeMonth(1)" [disabled]="loading">→</button>
         </div>
         <button type="button" class="ghost" *ngIf="selectedDateISO" (click)="resetForm()">Clear selection</button>
       </div>
