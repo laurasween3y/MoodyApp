@@ -60,7 +60,11 @@
     </form>
 
     <section *ngIf="habits.length; else emptyState" class="habits">
-      <div class="habit" *ngFor="let habit of habits">
+      <div
+        class="habit"
+        *ngFor="let habit of habits"
+        [class.completed]="completedToday(habit)"
+      >
         <div class="habit-main">
           <label class="checkbox-row">
             <input type="checkbox" [checked]="completedToday(habit)" (change)="toggleCompletion(habit)" [disabled]="loading" />
@@ -70,11 +74,19 @@
                 <span class="badge">
                   {{ habit.frequency === 'daily' ? 'Daily' : habit.frequency === 'weekly' ? 'Weekly' : habit.target_per_week + 'x/week' }}
                 </span>
+                <span class="streak" *ngIf="streakFor(habit) as s">🔥 {{ s }} day streak</span>
               </div>
               <ng-container *ngIf="habit as h">
                 <ng-container *ngIf="weeklyProgress(h) as prog">
                   <div class="progress">
-                    <div class="progress-bar" [style.width.%]="prog.percent"></div>
+                    <div class="progress-bar" [style.width.%]="prog.percent" [class.full]="prog.percent >= 100"></div>
+                  </div>
+                  <div class="week-dots">
+                    <span
+                      class="dot"
+                      *ngFor="let done of completionDots(h)"
+                      [class.done]="done"
+                    ></span>
                   </div>
                   <p class="meta">
                     <span>{{ prog.count }}/{{ prog.target }} this week</span>
@@ -87,16 +99,16 @@
         </div>
 
         <div class="habit-actions">
-          <button type="button" (click)="startEdit(habit)" [disabled]="loading">Edit</button>
-          <button type="button" class="ghost" (click)="deleteHabit(habit)" [disabled]="loading">Delete</button>
+          <button type="button" (click)="startEdit(habit)" [disabled]="loading" aria-label="Edit habit">✏️</button>
+          <button type="button" class="danger" (click)="deleteHabit(habit)" [disabled]="loading" aria-label="Delete habit">🗑️</button>
         </div>
       </div>
     </section>
 
     <ng-template #emptyState>
       <div class="empty">
-        <h3>No habits yet</h3>
-        <p class="muted">Add your first habit to start tracking and celebrating progress.</p>
+        <h3>Let’s build something small 🌱</h3>
+        <p class="muted">Tiny actions repeated daily become who you are.</p>
       </div>
     </ng-template>
   </div>

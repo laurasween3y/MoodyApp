@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, startOfMonth, startOfWeek } from 'date-fns';
+import { eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, startOfMonth, startOfWeek } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
 
 import { PlannerEventResponse, PlannerEventCreate, PlannerService } from '../../api';
@@ -207,6 +207,10 @@ export class PlannerPageComponent implements OnInit {
   private toTimeInput(val?: string | null) {
     if (!val) return '';
     return val.substring(0, 5);
+  }
+
+  isToday(d: Date) {
+    return isSameDay(d, new Date());
   }
 
   timeLabel(ev: PlannerEventResponse) {

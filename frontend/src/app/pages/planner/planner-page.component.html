@@ -91,9 +91,9 @@
 
       <div class="right" *ngIf="view === 'calendar'">
         <div class="calendar-header">
-          <button type="button" class="ghost" (click)="changeMonth(-1)">Prev</button>
+          <button type="button" class="ghost nav-btn" (click)="changeMonth(-1)">←</button>
           <div class="month-label">{{ currentMonth | date:'MMMM yyyy' }}</div>
-          <button type="button" class="ghost" (click)="changeMonth(1)">Next</button>
+          <button type="button" class="ghost nav-btn" (click)="changeMonth(1)">→</button>
         </div>
         <div class="calendar-grid">
           <div class="weekday" *ngFor="let day of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">{{ day }}</div>
@@ -101,6 +101,7 @@
             class="calendar-cell"
             *ngFor="let day of calendarDays"
             [class.dim]="!day.inMonth"
+            [class.today]="isToday(day.date)"
             (click)="openDay(day)"
           >
             <div class="cell-date">{{ day.date | date:'d' }}</div>

@@ -123,20 +123,20 @@ select:focus {
 }
 
 button {
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  padding: 0.65rem 1rem;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #34d399, #5fe3bf);
-  color: #053321;
-  font-weight: 800;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
-  box-shadow: 0 12px 22px rgba(52, 211, 153, 0.25);
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  background: #a8e6c6;
+  color: #143c2c;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+  box-shadow: 0 8px 16px rgba(35, 50, 58, 0.08);
 }
 
 button:hover {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 14px 26px rgba(52, 211, 153, 0.32);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(35, 50, 58, 0.12);
 }
 
 button:disabled {
@@ -147,28 +147,39 @@ button:disabled {
 }
 
 button.ghost {
-  background: #ecfdf3;
-  color: #0f5132;
+  background: transparent;
+  color: #1f2f2a;
   box-shadow: none;
-  border: 1px solid #cceedd;
+  border: 1px solid rgba(168, 230, 198, 0.6);
 }
 
 .habits {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
 .habit {
-  background: #f8fffa;
+  background: #ffffff;
   border: 1px solid #d5f2e1;
-  border-radius: 16px;
-  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  padding: 1rem 1.1rem;
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
   align-items: center;
-  box-shadow: 0 10px 20px rgba(15, 81, 50, 0.05);
+  box-shadow: 0 14px 30px rgba(15, 81, 50, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.habit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(15, 81, 50, 0.1);
+}
+
+.habit.completed {
+  border: 2px solid #34d399;
+  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.12);
 }
 
 .habit-main {
@@ -195,15 +206,17 @@ button.ghost {
 }
 
 .checkbox-row input[type='checkbox']:checked {
-  background: #34d399;
+  background: linear-gradient(135deg, #34d399, #7ce0b8);
   border-color: #22c38b;
-  box-shadow: 0 8px 18px rgba(52, 211, 153, 0.35);
+  box-shadow: 0 10px 24px rgba(52, 211, 153, 0.4);
+  transform: scale(1.08);
 }
 
 .checkbox-row input[type='checkbox']:checked::after {
   content: '✓';
   color: #fff;
   font-weight: 800;
+  animation: pop 0.2s ease;
 }
 
 .title-row {
@@ -220,29 +233,40 @@ button.ghost {
 }
 
 .badge {
-  background: #dafeef;
-  color: #0f5132;
-  padding: 0.2rem 0.65rem;
+  background: #a8e6c6;
+  color: #0f2f2a;
+  padding: 0.25rem 0.8rem;
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  border: 1px solid #b7f0d9;
+  border: 1px solid transparent;
+  box-shadow: 0 8px 16px rgba(35, 50, 58, 0.08);
 }
 
 .progress {
-  height: 9px;
-  background: #e6f6ed;
+  height: 10px;
+  background: #eafaf2;
   border-radius: 999px;
   overflow: hidden;
   margin: 0.35rem 0;
-  border: 1px solid #d0f0de;
+  border: none;
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #34d399, #7ce0b8);
+  background: linear-gradient(90deg, #34d399, #86efac);
   width: 0;
   transition: width 0.3s ease;
+  box-shadow: 0 4px 14px rgba(52, 211, 153, 0.35);
+}
+
+.progress-bar.full {
+  animation: glow 1.2s ease infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 6px rgba(52, 211, 153, 0.4); }
+  to { box-shadow: 0 0 14px rgba(52, 211, 153, 0.7); }
 }
 
 .meta {
@@ -256,6 +280,81 @@ button.ghost {
 .habit-actions {
   display: flex;
   gap: 0.4rem;
+  align-items: center;
+}
+
+.habit-actions button {
+  padding: 0.65rem 0.95rem;
+  border-radius: 999px;
+}
+
+.streak {
+  font-size: 0.85rem;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.week-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1fae5;
+}
+
+.dot.done {
+  background: #34d399;
+}
+
+.habit-form {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  background: linear-gradient(180deg, #f9fffc, #f3fbf6);
+  border: 1px solid #d5f2e1;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.habit-form::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  width: 70px;
+  height: 16px;
+  background: repeating-linear-gradient(
+    45deg,
+    #fbcfe8,
+    #fbcfe8 6px,
+    #fde68a 6px,
+    #fde68a 12px
+  );
+  border-radius: 4px;
+  opacity: 0.7;
+}
+
+.empty {
+  text-align: center;
+  padding: 1.25rem;
+  background: #f9fffc;
+  border: 1px dashed #bfe8d7;
+  border-radius: 16px;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.7); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 .empty {

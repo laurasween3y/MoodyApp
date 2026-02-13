@@ -32,6 +32,44 @@ export class HabitsPageComponent implements OnInit {
     this.loadHabits();
   }
 
+  streakFor(habit: Habit): number {
+    // naive streak: count consecutive completions ending today
+    const todayIso = this.todayIso();
+    const completions = new Set(habit.completions || []);
+    let streak = 0;
+    let cursor = new Date();
+    while (true) {
+      const iso = this.formatIso(cursor);
+      if (completions.has(iso)) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  completionDots(habit: Habit): boolean[] {
+    // show last 7 days completion (Sun->Sat like a small bar)
+    const dots: boolean[] = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      dots.push((habit.completions || []).includes(this.formatIso(d)));
+    }
+    return dots;
+  }
+
+  private todayIso(): string {
+    return this.formatIso(new Date());
+  }
+
+  private formatIso(d: Date): string {
+    return d.toISOString().slice(0, 10);
+  }
+
   async loadHabits() {
     this.loading = true;
     this.error = undefined;
