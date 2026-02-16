@@ -20,6 +20,10 @@ export class LoginPageComponent {
 
   submit() {
     this.error = '';
+    if (!this.email.trim() || !this.password) {
+      this.error = 'Please enter your email and password.';
+      return;
+    }
     this.auth.login({ email: this.email, password: this.password }).subscribe({
       next: () => this.router.navigate(['/mood']),
       error: (err) => {

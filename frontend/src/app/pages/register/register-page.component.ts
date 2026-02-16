@@ -12,7 +12,6 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './register-page.component.scss'
 })
 export class RegisterPageComponent {
-  name = '';
   email = '';
   password = '';
   message = '';

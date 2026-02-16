@@ -1,7 +1,7 @@
 <section class="auth">
   <div class="shell">
     <div class="hero">
-  <img class="hero-logo" src="assets/logo/moodylogo.png" alt="Moody" />
+      <img class="hero-logo" src="assets/logo/moodylogo.png" alt="Moody" />
       <p class="eyebrow">Moody</p>
       <h1>Create your cozy space</h1>
       <p class="muted">Sign up to log moods, build habits, and keep a gentle planner.</p>
@@ -12,9 +12,6 @@
       <h2>Sign up</h2>
       <p class="muted">Start fresh today.</p>
       <form (ngSubmit)="submit()" novalidate>
-        <label>Name
-          <input type="text" [(ngModel)]="name" name="name" required placeholder="Your name" />
-        </label>
         <label>Email
           <input type="email" [(ngModel)]="email" name="email" required placeholder="you@example.com" />
         </label>
