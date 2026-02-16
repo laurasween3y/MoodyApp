@@ -93,7 +93,7 @@
         <div *ngIf="habitsDue.length; else noHabits" class="snippet snippet--habits">
           <div class="snippet-content">
             <div class="list">
-              <article class="item" *ngFor="let h of habitsDue">
+              <article class="item" *ngFor="let h of habitsDue" [class.done]="h.isDoneToday">
                 <div class="item-row">
                   <div>
                     <div class="item-title">{{ h.title }}</div>
@@ -105,16 +105,18 @@
                       <span *ngIf="h.remainingThisWeek !== undefined">{{ h.remainingThisWeek }} left this week</span>
                     </div>
                   </div>
-                  <a
-                    class="btn"
-                    (click)="toggleHabit(h)"
-                    [attr.aria-label]="h.isDoneToday ? 'Habit completed' : 'Mark habit done'"
+                  <button
+                    type="button"
+                    class="btn small"
+                    (click)="$event.stopPropagation(); toggleHabit(h)"
+                    [disabled]="habitBusy.has(h.id)"
+                    [attr.aria-label]="h.isDoneToday ? 'Mark as not done' : 'Mark habit done'"
                   >
-                    ✓
-                  </a>
+                    {{ habitBusy.has(h.id) ? '...' : (h.isDoneToday ? 'Undo' : 'Done') }}
+                  </button>
                 </div>
-                <div class="item-note" *ngIf="h.dueToday && !h.isDoneToday">Due today</div>
-                <div class="item-note success" *ngIf="h.isDoneToday">Done for today</div>
+                <div class="item-note" *ngIf="!h.isDoneToday && h.dueToday">Due today</div>
+                <div class="item-note success" *ngIf="h.isDoneToday">Completed today</div>
               </article>
             </div>
           </div>

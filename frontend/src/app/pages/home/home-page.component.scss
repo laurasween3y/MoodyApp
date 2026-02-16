@@ -262,6 +262,13 @@ h2 {
   background: #fff;
   display: grid;
   gap: 0.3rem;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.item.done {
+  background: #f0fff6;
+  border-color: #b7ebc6;
+  color: #4b5563;
 }
 
 .snippet {
@@ -348,6 +355,11 @@ h2 {
 
 .item-note.success {
   color: #0f5132;
+}
+
+.btn.small {
+  padding: 0.4rem 0.9rem;
+  font-weight: 700;
 }
 
 .dot {
