@@ -1,0 +1,92 @@
+<section class="profile-page" *ngIf="!loading; else loadingTpl">
+  <div class="header">
+    <div>
+      <p class="eyebrow">Profile</p>
+      <h1>{{ displayName }}</h1>
+      <p class="tagline">Keep your details up to date and track your progress.</p>
+    </div>
+    <a class="ghost-link" routerLink="/home">Back to dashboard</a>
+  </div>
+
+  <div class="grid">
+    <div class="card profile-card">
+      <div class="profile-meta">
+        <div class="avatar placeholder">{{ displayName[0] || '?' }}</div>
+        <div>
+          <div class="name">{{ displayName }}</div>
+          <div class="email">{{ profile?.email }}</div>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" class="form">
+        <label>
+          <span>Email</span>
+          <input type="email" formControlName="email" placeholder="you@example.com" />
+        </label>
+        <label>
+          <span>Username</span>
+          <input type="text" formControlName="username" placeholder="moodyfan" />
+        </label>
+        <label>
+          <span>New password</span>
+          <input type="password" formControlName="password" placeholder="Leave blank to keep current" />
+        </label>
+
+        <div class="actions">
+          <button type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save changes' }}</button>
+        </div>
+        <p class="error" *ngIf="error">{{ error }}</p>
+      </form>
+    </div>
+
+    <div class="card streaks" *ngIf="streaks">
+      <div class="card-header">
+        <div>
+          <p class="eyebrow">Streaks</p>
+          <h2>Keep the momentum</h2>
+        </div>
+      </div>
+      <div class="streak-grid">
+        <div class="streak" *ngFor="let item of [
+          { label: 'Mood', current: streaks.mood_current, longest: streaks.mood_longest },
+          { label: 'Habits', current: streaks.habit_current, longest: streaks.habit_longest },
+          { label: 'Journal', current: streaks.journal_current, longest: streaks.journal_longest },
+          { label: 'Planner', current: streaks.planner_current, longest: streaks.planner_longest },
+        ]">
+          <div class="streak-label">{{ item.label }}</div>
+          <div class="streak-current">{{ item.current }} days</div>
+          <div class="streak-longest">Longest: {{ item.longest }} days</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card achievements" *ngIf="achievementsAll.length">
+      <div class="card-header">
+        <div>
+          <p class="eyebrow">Achievements</p>
+          <h2>Badges you've earned (and what's next)</h2>
+        </div>
+      </div>
+      <div class="achievements-grid">
+        <div class="achievement" *ngFor="let ach of achievementsAll" [class.locked]="ach.locked">
+          <div class="icon-wrap">
+            <img [src]="ach.icon" [alt]="ach.title" />
+          </div>
+          <div class="text">
+            <div class="title">{{ ach.title }}</div>
+            <div class="desc">{{ ach.description }}</div>
+            <div class="progress">{{ ach.progress_current }}/{{ ach.progress_target }}</div>
+            <div class="status" *ngIf="!ach.locked; else lockedTpl">Unlocked</div>
+            <ng-template #lockedTpl>
+              <div class="status">Locked</div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #loadingTpl>
+  <div class="loading">Loading profile…</div>
+</ng-template>

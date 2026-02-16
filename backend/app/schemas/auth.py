@@ -14,7 +14,7 @@ class LoginSchema(Schema):
         unknown = EXCLUDE
 
     email = fields.Email(required=True)
-    password = fields.Str(required=True)
+    password = fields.Str(required=True, validate=validate.Length(min=1))
 
 
 class RegisterResponseSchema(Schema):
