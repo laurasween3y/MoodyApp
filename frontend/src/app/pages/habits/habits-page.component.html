@@ -60,49 +60,43 @@
     </form>
 
     <section *ngIf="habits.length; else emptyState" class="habits">
-      <div
-        class="habit"
-        *ngFor="let habit of habits"
-        [class.completed]="completedToday(habit)"
-      >
-        <div class="habit-header">
-          <label class="habit-check">
+      <div class="habit" *ngFor="let habit of habits">
+        <div class="habit-main">
+          <label class="checkbox-row">
             <input type="checkbox" [checked]="completedToday(habit)" (change)="toggleCompletion(habit)" [disabled]="loading" />
-          </label>
-
-          <div class="habit-title">
-            <div class="title-row">
-              <span class="title">{{ habit.title }}</span>
-              <span class="badge">
-                {{ habit.frequency === 'daily' ? 'Daily' : habit.frequency === 'weekly' ? 'Weekly' : habit.target_per_week + 'x/week' }}
-              </span>
-              <ng-container *ngIf="streakFor(habit) as s">
-                <span class="streak" *ngIf="s > 0">🔥 {{ s }} day streak</span>
+            <div>
+              <div class="title-row">
+                <span class="title">{{ habit.title }}</span>
+                <span class="badge">
+                  {{ habit.frequency === 'daily' ? 'Daily' : habit.frequency === 'weekly' ? 'Weekly' : habit.target_per_week + 'x/week' }}
+                </span>
+              </div>
+              <ng-container *ngIf="habit as h">
+                <ng-container *ngIf="weeklyProgress(h) as prog">
+                  <div class="progress">
+                    <div class="progress-bar" [style.width.%]="prog.percent"></div>
+                  </div>
+                  <p class="meta">
+                    <span>{{ prog.count }}/{{ prog.target }} this week</span>
+                    <span *ngIf="completedToday(h)">Checked off today 🎉</span>
+                  </p>
+                </ng-container>
               </ng-container>
             </div>
-          </div>
-
-          <div class="habit-actions">
-            <button type="button" (click)="startEdit(habit)" [disabled]="loading" aria-label="Edit habit">✏️</button>
-            <button type="button" class="danger" (click)="deleteHabit(habit)" [disabled]="loading" aria-label="Delete habit">🗑️</button>
-          </div>
+          </label>
         </div>
 
-        <ng-container *ngIf="habit as h">
-          <ng-container *ngIf="weeklyProgress(h) as prog">
-            <div class="progress">
-              <div class="progress-bar" [style.width.%]="prog.percent" [class.full]="prog.percent >= 100"></div>
-            </div>
-            <p class="meta">{{ prog.count }}/{{ prog.target }} this week</p>
-          </ng-container>
-        </ng-container>
+        <div class="habit-actions">
+          <button type="button" (click)="startEdit(habit)" [disabled]="loading">Edit</button>
+          <button type="button" class="ghost" (click)="deleteHabit(habit)" [disabled]="loading">Delete</button>
+        </div>
       </div>
     </section>
 
     <ng-template #emptyState>
       <div class="empty">
-        <h3>Let’s build something small 🌱</h3>
-        <p class="muted">Tiny actions repeated daily become who you are.</p>
+        <h3>No habits yet</h3>
+        <p class="muted">Add your first habit to start tracking and celebrating progress.</p>
       </div>
     </ng-template>
   </div>
