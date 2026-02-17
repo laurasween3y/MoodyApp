@@ -6,9 +6,34 @@
     { "name": "moods", "description": "Submit and view moods" },
     { "name": "journals", "description": "Create journals and write entries" },
     { "name": "habits", "description": "Create, update, and complete habits" },
-    { "name": "planner", "description": "Plan events and reminders" }
+    { "name": "planner", "description": "Plan events and reminders" },
+    { "name": "gamification", "description": "Streaks and achievements" }
   ],
   "paths": {
+    "/gamification/streaks": {
+      "get": {
+        "summary": "Get streaks for the current user",
+        "tags": ["gamification"],
+        "responses": {
+          "200": {
+            "description": "User streaks",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Streak" } } } }
+          }
+        }
+      }
+    },
+    "/gamification/achievements": {
+      "get": {
+        "summary": "Get unlocked achievements for the current user",
+        "tags": ["gamification"],
+        "responses": {
+          "200": {
+            "description": "User achievements",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Achievement" } } } }
+          }
+        }
+      }
+    },
     "/auth/register": {
       "post": {
         "summary": "Register a new user",
@@ -605,6 +630,28 @@
         },
         "additionalProperties": false
       }
+    },
+    "schemas": {
+      "Streak": {
+        "type": "object",
+        "properties": {
+          "module": { "type": "string" },
+          "current_streak": { "type": "integer" },
+          "longest_streak": { "type": "integer" },
+          "last_action_date": { "type": "string", "format": "date", "nullable": true }
+        },
+        "additionalProperties": false
+      },
+      "Achievement": {
+        "type": "object",
+        "properties": {
+          "module": { "type": "string" },
+          "achievement_key": { "type": "string" },
+          "unlocked_at": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": false
+      },
+      "DEFAULT_ERROR": { "$ref": "#/components/responses/DEFAULT_ERROR/content/application~1json/schema" }
     },
     "responses": {
       "DEFAULT_ERROR": {

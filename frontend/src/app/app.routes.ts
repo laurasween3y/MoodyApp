@@ -8,6 +8,7 @@ import { MoodPageComponent } from './pages/mood/mood-page.component';
 import { PlannerPageComponent } from './pages/planner/planner-page.component';
 import { RegisterPageComponent } from './pages/register/register-page.component';
 import { authGuard } from './auth.guard';
+import { ProfilePageComponent } from './pages/profile/profile-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'journal/:journalId/entries/:entryId', component: EntryDetailComponent, title: 'Entry', canActivate: [authGuard] },
   { path: 'planner', component: PlannerPageComponent, title: 'Planner', canActivate: [authGuard] },
   { path: 'habits', component: HabitsPageComponent, title: 'Habits', canActivate: [authGuard] },
+  { path: 'profile', component: ProfilePageComponent, title: 'Profile', canActivate: [authGuard] },
   { path: 'login', component: LoginPageComponent, title: 'Login' },
   { path: 'register', component: RegisterPageComponent, title: 'Register' },
   { path: '**', redirectTo: 'mood' },

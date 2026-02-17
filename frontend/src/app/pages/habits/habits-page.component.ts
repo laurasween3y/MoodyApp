@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { endOfWeek, isSameWeek, startOfWeek } from 'date-fns';
+import { endOfWeek, format, isSameWeek, startOfWeek } from 'date-fns';
 
 import { Frequency, Habit, HabitService } from '../../services/habit.service';
 
@@ -34,7 +34,6 @@ export class HabitsPageComponent implements OnInit {
 
   streakFor(habit: Habit): number {
     // naive streak: count consecutive completions ending today
-    const todayIso = this.todayIso();
     const completions = new Set(habit.completions || []);
     let streak = 0;
     let cursor = new Date();
@@ -50,24 +49,8 @@ export class HabitsPageComponent implements OnInit {
     return streak;
   }
 
-  completionDots(habit: Habit): boolean[] {
-    // show last 7 days completion (Sun->Sat like a small bar)
-    const dots: boolean[] = [];
-    const today = new Date();
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      dots.push((habit.completions || []).includes(this.formatIso(d)));
-    }
-    return dots;
-  }
-
-  private todayIso(): string {
-    return this.formatIso(new Date());
-  }
-
   private formatIso(d: Date): string {
-    return d.toISOString().slice(0, 10);
+    return format(d, 'yyyy-MM-dd');
   }
 
   async loadHabits() {
@@ -111,7 +94,7 @@ export class HabitsPageComponent implements OnInit {
   }
 
   startEdit(habit: Habit) {
-  this.editingHabitId = habit.id;
+    this.editingHabitId = habit.id;
     this.form = {
       title: habit.title,
       frequency: habit.frequency,
@@ -120,7 +103,7 @@ export class HabitsPageComponent implements OnInit {
   }
 
   async updateHabit() {
-  if (!this.editingHabitId) return;
+    if (!this.editingHabitId) return;
     this.loading = true;
     try {
       const updated = await firstValueFrom(
@@ -157,18 +140,14 @@ export class HabitsPageComponent implements OnInit {
   }
 
   async toggleCompletion(habit: Habit) {
-    const todayIso = this.todayISO();
-    const alreadyDone = habit.completions.includes(todayIso);
-
     this.loading = true;
     try {
-      const updated = alreadyDone
-        ? await firstValueFrom(this.habitsService.unsetCompletion(Number(habit.id), todayIso))
-        : await firstValueFrom(this.habitsService.setCompletion(Number(habit.id), todayIso));
+      const updated = await firstValueFrom(
+        this.habitsService.toggleCompletion(Number(habit.id), this.todayISO())
+      );
 
       this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
-
-      if (!alreadyDone && this.isHabitMet(updated)) {
+      if (this.isHabitMet(updated)) {
         this.triggerCelebration(habit.title);
       }
     } catch (err) {
@@ -211,7 +190,7 @@ export class HabitsPageComponent implements OnInit {
   }
 
   private todayISO() {
-    return new Date().toISOString().slice(0, 10);
+    return format(new Date(), 'yyyy-MM-dd');
   }
 
   private completionsThisWeek(habit: Habit) {

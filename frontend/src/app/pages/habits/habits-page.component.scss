@@ -74,7 +74,7 @@
   gap: 1rem;
   background: #f5fffb;
   border: 1px dashed #cdeedd;
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 1rem;
 }
 
@@ -106,7 +106,7 @@ input,
 select {
   padding: 0.75rem 0.85rem;
   border: 1px solid #c7e9d5;
-  border-radius: 12px;
+  border-radius: 16px;
   background: #fff;
   transition: border 0.2s, box-shadow 0.2s, transform 0.1s;
 }
@@ -164,158 +164,152 @@ button.ghost {
 }
 
 .habit {
-  background: #ffffff;
-  border: 1px solid #d5f2e1;
-  border-radius: 18px;
-  padding: 1rem 1.1rem;
+  background: #f9fdfb;
+  border: 1px solid rgba(52, 211, 153, 0.18);
+  border-radius: 16px;
+  padding: 1.1rem;
   display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  align-items: center;
-  box-shadow: 0 14px 30px rgba(15, 81, 50, 0.08);
+  flex-direction: column;
+  gap: 0.8rem;
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.06);
   transition: transform 0.12s ease, box-shadow 0.15s ease;
 }
 
 .habit:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 32px rgba(15, 81, 50, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(16, 185, 129, 0.08);
 }
 
 .habit.completed {
-  border: 2px solid #34d399;
-  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.12);
+  background: #f3fbf6;
+  border-color: rgba(52, 211, 153, 0.32);
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.06);
 }
 
-.habit-main {
-  flex: 1;
-}
-
-.checkbox-row {
+.habit-header {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.9rem;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.habit-check {
+  display: flex;
   align-items: center;
 }
 
-.checkbox-row input[type='checkbox'] {
-  width: 22px;
-  height: 22px;
-  border-radius: 8px;
-  border: 2px solid #b7e4ce;
+.habit-check input[type='checkbox'] {
+  width: 24px;
+  height: 24px;
+  border-radius: 16px;
+  border: 2px solid #cfead8;
   appearance: none;
+  -webkit-appearance: none;
   display: grid;
   place-items: center;
-  background: #fff;
+  background: #ffffff;
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.08);
   transition: all 0.18s ease;
+  margin: 0;
+  position: relative;
 }
 
-.checkbox-row input[type='checkbox']:checked {
-  background: linear-gradient(135deg, #34d399, #7ce0b8);
-  border-color: #22c38b;
-  box-shadow: 0 10px 24px rgba(52, 211, 153, 0.4);
-  transform: scale(1.08);
+.habit-check input[type='checkbox']:checked {
+  background: #a8e6c6;
+  border-color: #8fd8b6;
 }
 
-.checkbox-row input[type='checkbox']:checked::after {
-  content: '✓';
-  color: #fff;
-  font-weight: 800;
-  animation: pop 0.2s ease;
+.habit-check input[type='checkbox']:checked::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 12px;
+  border-right: 2px solid #1f2f2a;
+  border-bottom: 2px solid #1f2f2a;
+  transform: translate(-50%, -60%) rotate(45deg);
+  top: 50%;
+  left: 50%;
+}
+
+.habit-title {
+  min-width: 0;
 }
 
 .title-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
 }
 
 .title {
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1.05rem;
   color: #0f172a;
   line-height: 1.2;
 }
 
 .badge {
-  background: #a8e6c6;
+  background: #eef8f3;
   color: #0f2f2a;
-  padding: 0.25rem 0.8rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  border: 1px solid transparent;
-  box-shadow: 0 8px 16px rgba(35, 50, 58, 0.08);
+  padding: 0.25rem 0.6rem;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid #d7efe3;
+}
+
+.streak {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 16px;
+  font-weight: 600;
+  color: #925f0a;
+  background: #fff8e6;
+  border: 1px solid #f1ddb0;
 }
 
 .progress {
-  height: 10px;
-  background: #eafaf2;
-  border-radius: 999px;
+  height: 8px;
+  width: 100%;
+  background: #e9f6ef;
+  border-radius: 16px;
   overflow: hidden;
-  margin: 0.35rem 0;
-  border: none;
+  border: 1px solid rgba(52, 211, 153, 0.2);
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #34d399, #86efac);
-  width: 0;
-  transition: width 0.3s ease;
-  box-shadow: 0 4px 14px rgba(52, 211, 153, 0.35);
-}
-
-.progress-bar.full {
-  animation: glow 1.2s ease infinite alternate;
-}
-
-@keyframes glow {
-  from { box-shadow: 0 0 6px rgba(52, 211, 153, 0.4); }
-  to { box-shadow: 0 0 14px rgba(52, 211, 153, 0.7); }
+  background: linear-gradient(90deg, #7bdcb5, #34d399);
+  border-radius: 16px;
+  transition: width 0.2s ease;
 }
 
 .meta {
-  display: flex;
-  gap: 0.75rem;
-  color: #4b5b52;
-  font-size: 0.92rem;
   margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
 .habit-actions {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
 .habit-actions button {
-  padding: 0.65rem 0.95rem;
-  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 16px;
+  background: #f3fbf6;
+  border: 1px solid #d7efe3;
+  box-shadow: none;
 }
 
-.streak {
-  font-size: 0.85rem;
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-weight: 700;
-  color: #92400e;
-}
-
-.week-dots {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #d1fae5;
-}
-
-.dot.done {
-  background: #34d399;
+.habit-actions .danger {
+  background: #fff5f5;
+  border-color: #f2d7d7;
 }
 
 .habit-form {
@@ -355,20 +349,6 @@ button.ghost {
   border-radius: 16px;
 }
 
-@keyframes pop {
-  0% { transform: scale(0.7); }
-  70% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-.empty {
-  text-align: center;
-  padding: 1.25rem;
-  background: #f8fafc;
-  border: 1px dashed #e5e7eb;
-  border-radius: 12px;
-}
-
 @media (max-width: 720px) {
   .hero {
     flex-direction: column;
@@ -390,8 +370,8 @@ button.ghost {
     border-color: #ffd5d5;
   }
 
-  .habit {
-    flex-direction: column;
+  .habit-header {
+    grid-template-columns: auto 1fr;
     align-items: flex-start;
   }
 
@@ -399,5 +379,4 @@ button.ghost {
     width: 100%;
     justify-content: flex-end;
   }
-
 }

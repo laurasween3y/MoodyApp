@@ -1,5 +1,31 @@
 <section class="page">
   <div class="layout">
+    <ng-template #journalForm>
+      <div class="journal-form" #createFormRef>
+        <input
+          type="text"
+          placeholder="New journal title"
+          [(ngModel)]="journalTitle"
+          name="journalTitle"
+        />
+        <textarea
+          rows="2"
+          placeholder="Description (optional)"
+          [(ngModel)]="journalDescription"
+          name="journalDescription"
+        ></textarea>
+        <label class="file-input">
+          <input type="file" accept="image/*" (change)="onCoverSelected($event)" />
+          <span>{{ journalCoverFile?.name || 'Choose cover image (optional)' }}</span>
+        </label>
+        <div class="actions">
+          <button type="button" (click)="editingJournalId ? saveJournalEdits() : createJournal()" [disabled]="loading">
+            {{ editingJournalId ? 'Save' : 'Add journal' }}
+          </button>
+          <button *ngIf="editingJournalId" type="button" class="ghost" (click)="cancelJournalEdit()">Cancel</button>
+        </div>
+      </div>
+    </ng-template>
 
     <ng-container *ngIf="journals.length; else emptyState">
       <div class="card collections">
@@ -16,30 +42,7 @@
           </div>
         </div>
 
-        <div class="journal-form" *ngIf="showCreateForm">
-          <input
-            type="text"
-            placeholder="New journal title"
-            [(ngModel)]="journalTitle"
-            name="journalTitle"
-          />
-          <textarea
-            rows="2"
-            placeholder="Description (optional)"
-            [(ngModel)]="journalDescription"
-            name="journalDescription"
-          ></textarea>
-          <label class="file-input">
-            <input type="file" accept="image/*" (change)="onCoverSelected($event)" />
-            <span>{{ journalCoverFile?.name || 'Choose cover image (optional)' }}</span>
-          </label>
-          <div class="actions">
-            <button type="button" (click)="editingJournalId ? saveJournalEdits() : createJournal()" [disabled]="loading">
-              {{ editingJournalId ? 'Save' : 'Add journal' }}
-            </button>
-            <button *ngIf="editingJournalId" type="button" class="ghost" (click)="cancelJournalEdit()">Cancel</button>
-          </div>
-        </div>
+        <ng-container *ngIf="showCreateForm" [ngTemplateOutlet]="journalForm"></ng-container>
 
         <div class="journal-grid" *ngIf="journals.length; else noJournals">
           <div
@@ -149,9 +152,10 @@
         <p class="muted">
           Select an existing journal or create a new one to begin writing.
         </p>
-        <button type="button" class="primary" (click)="showCreateForm = true">
+        <button type="button" class="btn" (click)="openCreateForm()">
           + Create your first journal
         </button>
+        <ng-container *ngIf="showCreateForm" [ngTemplateOutlet]="journalForm"></ng-container>
       </div>
     </ng-template>
   </div>

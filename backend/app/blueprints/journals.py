@@ -7,6 +7,7 @@ import os
 from app.extensions import db
 from app.auth_utils import get_current_user
 from app.models import Journal, JournalEntry
+from app.services.gamification import evaluate_journal
 from app.schemas.journal import (
     JournalCreateSchema,
     JournalEntryCreateSchema,
@@ -29,6 +30,14 @@ def require_auth():
     if request.method == "OPTIONS":
         return None
     g.current_user = get_current_user()
+
+
+def _commit_or_abort(message: str) -> None:
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        abort(500, message=message)
 
 
 @blp.route("/")
@@ -60,7 +69,7 @@ class JournalsResource(MethodView):
             abort(409, message="A journal with that title already exists")
 
         db.session.add(journal)
-        db.session.commit()
+        _commit_or_abort("Could not create journal")
         return journal
 
 
@@ -93,7 +102,7 @@ class JournalDetailResource(MethodView):
         if "cover_url" in data:
             journal.cover_url = data.get("cover_url")
 
-        db.session.commit()
+        _commit_or_abort("Could not update journal")
         return journal
 
     @blp.response(204)
@@ -103,7 +112,7 @@ class JournalDetailResource(MethodView):
             abort(404, message="Journal not found")
 
         db.session.delete(journal)
-        db.session.commit()
+        _commit_or_abort("Could not delete journal")
         return "", 204
 
 
@@ -141,7 +150,7 @@ class JournalCoverResource(MethodView):
 
         base_url = request.url_root.rstrip("/")
         journal.cover_url = f"{base_url}/uploads/{final_name}"
-        db.session.commit()
+        _commit_or_abort("Could not update journal cover")
         return journal
 
 
@@ -178,7 +187,9 @@ class JournalEntriesResource(MethodView):
         entry.entry_date = data.get("entry_date")
 
         db.session.add(entry)
-        db.session.commit()
+        _commit_or_abort("Could not create journal entry")
+        evaluate_journal(g.current_user.id)
+        _commit_or_abort("Could not update journal achievements")
         return entry
 
 
@@ -207,14 +218,14 @@ class JournalEntryDetailResource(MethodView):
         if "entry_date" in data:
             entry.entry_date = data.get("entry_date")
 
-        db.session.commit()
+        _commit_or_abort("Could not update journal entry")
         return entry
 
     @blp.response(204)
     def delete(self, journal_id, entry_id):
         entry = self._get_entry(journal_id, entry_id)
         db.session.delete(entry)
-        db.session.commit()
+        _commit_or_abort("Could not delete journal entry")
         return "", 204
 
     def _get_entry(self, journal_id, entry_id):

@@ -43,6 +43,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = false;
   error?: string;
   isCreate = false;
+  private shouldLoadEntry = false;
 
   readonly backgrounds = [
     { value: 'blank', label: 'Blank' },
@@ -84,6 +85,14 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isCreate && entryParam) {
       this.entryId = Number(entryParam);
     }
+
+    if (!this.journalId || Number.isNaN(this.journalId)) {
+      this.error = 'Journal not found';
+      this.router.navigate(['/journal']);
+      return;
+    }
+    this.verifyJournal();
+    this.shouldLoadEntry = !!this.entryId;
   }
 
   ngAfterViewInit(): void {
@@ -114,8 +123,17 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // Apply default style to new docs
     this.applyFontSettings();
 
-    if (this.entryId) {
-      this.loadEntry();
+    if (this.shouldLoadEntry) {
+      setTimeout(() => this.loadEntry(), 0);
+    }
+  }
+
+  private async verifyJournal() {
+    try {
+      await firstValueFrom(this.journalService.getJournal(this.journalId));
+    } catch (err) {
+      this.error = 'Journal not found';
+      this.router.navigate(['/journal']);
     }
   }
 

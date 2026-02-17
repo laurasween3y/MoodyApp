@@ -7,6 +7,7 @@ from flask_smorest import Blueprint, abort
 from app.extensions import db
 from app.models.mood import Mood
 from app.auth_utils import get_current_user
+from app.services.gamification import evaluate_mood
 from ..schemas.mood import (
     MOOD_OPTIONS,
     MoodCreateSchema,
@@ -31,6 +32,14 @@ def require_auth():
     g.current_user = get_current_user()
 
 
+def _commit_or_abort(message: str) -> None:
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        abort(500, message=message)
+
+
 @blp.route("/")
 class MoodsResource(MethodView):
     @blp.response(200, MoodResponseSchema(many=True))
@@ -49,31 +58,25 @@ class MoodsResource(MethodView):
     def post(self, mood_data):
         """Create a mood entry and return it."""
 
-        mood_date = mood_data.get("date") or date.today()
+        return _upsert_mood(mood_data)
 
-        existing = (
-            Mood.query.filter_by(user_id=g.current_user.id, date=mood_date)
-            .order_by(Mood.id.desc())
-            .first()
-        )
 
-        if existing:
-            existing.mood = mood_data.get("mood", existing.mood)
-            if "note" in mood_data:
-                existing.note = mood_data.get("note")
-            db.session.commit()
-            return existing, 200
-
-        mood = Mood()
-        mood.user_id = g.current_user.id
-        mood.mood = mood_data.get("mood")
-        mood.note = mood_data.get("note")
-        mood.date = mood_date
-
-        db.session.add(mood)
-        db.session.commit()
-
+@blp.route("/today")
+class MoodTodayResource(MethodView):
+    @blp.response(200, MoodResponseSchema)
+    def get(self):
+        """Return today's mood for the current user; returns 200 with empty body if none."""
+        today = date.today()
+        mood = Mood.query.filter_by(user_id=g.current_user.id, date=today).first()
+        if mood is None:
+            return {}
         return mood
+
+    @blp.arguments(MoodCreateSchema)
+    @blp.response(201, MoodResponseSchema)
+    def post(self, mood_data):
+        """Create a mood entry and return it."""
+        return _upsert_mood(mood_data)
 
 
 @blp.route("/<int:mood_id>")
@@ -111,7 +114,7 @@ class MoodDetailResource(MethodView):
                     abort(409, message="Mood already exists for that date")
                 mood.date = new_date
 
-        db.session.commit()
+        _commit_or_abort("Could not update mood")
 
         return mood
 
@@ -124,27 +127,9 @@ class MoodDetailResource(MethodView):
             abort(404, message="Mood not found")
 
         db.session.delete(mood)
-        db.session.commit()
+        _commit_or_abort("Could not delete mood")
 
         return "", 204
-
-
-@blp.route("/today")
-class TodayMoodResource(MethodView):
-    @blp.response(200, MoodResponseSchema)
-    def get(self):
-        """Get today's mood for the current user."""
-
-        mood = (
-            Mood.query.filter_by(user_id=g.current_user.id, date=date.today())
-            .order_by(Mood.id.desc())
-            .first()
-        )
-
-        if mood is None:
-            abort(404, message="No mood submitted for today")
-
-        return mood
 
 
 @blp.route("/options")
@@ -154,3 +139,33 @@ class MoodOptionsResource(MethodView):
         """List allowed mood keys for the client UI."""
 
         return {"options": MOOD_OPTIONS}
+
+
+def _upsert_mood(mood_data):
+    mood_date = mood_data.get("date") or date.today()
+
+    existing = (
+        Mood.query.filter_by(user_id=g.current_user.id, date=mood_date)
+        .order_by(Mood.id.desc())
+        .first()
+    )
+
+    if existing:
+        existing.mood = mood_data.get("mood", existing.mood)
+        if "note" in mood_data:
+            existing.note = mood_data.get("note")
+        _commit_or_abort("Could not update mood")
+        return existing, 200
+
+    mood = Mood()
+    mood.user_id = g.current_user.id
+    mood.mood = mood_data.get("mood")
+    mood.note = mood_data.get("note")
+    mood.date = mood_date
+
+    db.session.add(mood)
+    _commit_or_abort("Could not save mood")
+    evaluate_mood(g.current_user.id, mood.date)
+    _commit_or_abort("Could not update mood streaks")
+
+    return mood

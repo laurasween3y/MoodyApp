@@ -17,6 +17,7 @@ import { Habit, HabitService } from '../../services/habit.service';
 export class HomePageComponent implements OnInit {
   loading = false;
   error?: string;
+  habitBusy = new Set<number>();
 
   todayMood?: MoodResponse;
   weekEvents: PlannerEventResponse[] = [];
@@ -37,7 +38,6 @@ export class HomePageComponent implements OnInit {
     { key: 'fine', label: 'Fine', icon: 'assets/moods/fine.png' },
   ];
 
-  private todayIso = format(new Date(), 'yyyy-MM-dd');
   private weekRange = {
     start: startOfWeek(new Date(), { weekStartsOn: 0 }),
     end: endOfWeek(new Date(), { weekStartsOn: 0 })
@@ -89,22 +89,7 @@ export class HomePageComponent implements OnInit {
   private async loadHabits() {
     try {
       const habits = await firstValueFrom(this.habitService.getHabits());
-      this.habitsDue = habits.map(h => {
-        const completions = h.completions || [];
-        const isDoneToday = completions.includes(this.todayIso);
-        let dueToday = false;
-        let remainingThisWeek = undefined as number | undefined;
-
-        if (h.frequency === 'daily' || h.frequency === 'custom') {
-          dueToday = !isDoneToday;
-        } else {
-          const countThisWeek = completions.filter(d => this.isWithinThisWeek(d)).length;
-          remainingThisWeek = Math.max(h.target_per_week - countThisWeek, 0);
-          dueToday = remainingThisWeek > 0 && !isDoneToday;
-        }
-
-        return { ...h, isDoneToday, remainingThisWeek, dueToday };
-      });
+      this.habitsDue = habits.map(h => this.decorateHabit(h));
     } catch (err) {
       this.habitsDue = [];
       console.error(err);
@@ -112,12 +97,44 @@ export class HomePageComponent implements OnInit {
   }
 
   async toggleHabit(habit: Habit & { isDoneToday: boolean }) {
+    if (this.habitBusy.has(habit.id)) return;
+    this.habitBusy.add(habit.id);
+
     try {
-      await firstValueFrom(this.habitService.toggleCompletion(habit.id, this.todayIso));
+      const updated = await firstValueFrom(
+        this.habitService.toggleCompletion(habit.id, this.currentTodayIso())
+      );
+      this.habitsDue = this.habitsDue.map(h =>
+        h.id === updated.id ? this.decorateHabit(updated) : h
+      );
       await this.loadHabits();
     } catch (err) {
       console.error(err);
+    } finally {
+      this.habitBusy.delete(habit.id);
     }
+  }
+
+  private decorateHabit(h: Habit) {
+    const todayIso = this.currentTodayIso();
+    const completions = h.completions || [];
+    const isDoneToday = completions.includes(todayIso);
+    let dueToday = false;
+    let remainingThisWeek = undefined as number | undefined;
+
+    if (h.frequency === 'daily' || h.frequency === 'custom') {
+      dueToday = !isDoneToday;
+    } else {
+      const countThisWeek = completions.filter(d => this.isWithinThisWeek(d)).length;
+      remainingThisWeek = Math.max(h.target_per_week - countThisWeek, 0);
+      dueToday = remainingThisWeek > 0 && !isDoneToday;
+    }
+
+    return { ...h, isDoneToday, remainingThisWeek, dueToday };
+  }
+
+  private currentTodayIso() {
+    return format(new Date(), 'yyyy-MM-dd');
   }
 
   private isWithinThisWeek(dateIso?: string | null) {

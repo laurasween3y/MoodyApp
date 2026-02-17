@@ -54,6 +54,10 @@ export class JournalService {
     return this.journalsApi.journalsJournalIdPatch(id, payload).pipe(map((j) => this.withResolvedCover(j)));
   }
 
+  getJournal(id: number): Observable<Journal> {
+    return this.journalsApi.journalsJournalIdGet(id).pipe(map((j) => this.withResolvedCover(j)));
+  }
+
   uploadCover(id: number, file: File): Observable<Journal> {
     return this.journalsApi.journalsJournalIdCoverPost(id, file).pipe(map((j) => this.withResolvedCover(j)));
   }

@@ -22,6 +22,14 @@ export class RegisterPageComponent {
   submit() {
     this.error = '';
     this.message = '';
+    if (!this.email.trim() || !this.password) {
+      this.error = 'Please enter your email and password.';
+      return;
+    }
+    if (this.password.length < 6) {
+      this.error = 'Password must be at least 6 characters.';
+      return;
+    }
     this.auth.register({ email: this.email, password: this.password }).subscribe({
       next: () => {
         // Auto-login after successful registration
@@ -40,10 +48,10 @@ export class RegisterPageComponent {
     if (err?.error?.message) {
       return err.error.message;
     }
-    const messages = err?.error?.messages?.json;
-    if (messages) {
-      const firstField = Object.keys(messages)[0];
-      const firstMessage = messages[firstField]?.[0];
+    const fieldErrors = err?.error?.errors?.json || err?.error?.messages?.json;
+    if (fieldErrors) {
+      const firstField = Object.keys(fieldErrors)[0];
+      const firstMessage = fieldErrors[firstField]?.[0];
       if (firstMessage) return `${firstField}: ${firstMessage}`;
     }
     return undefined;

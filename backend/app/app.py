@@ -31,6 +31,9 @@ def create_app() -> Flask:
         r"/journals/*": {"origins": allowed_origins},
         r"/habits/*": {"origins": allowed_origins},
         r"/planner/*": {"origins": allowed_origins},
+        r"/gamification/*": {"origins": allowed_origins},
+        r"/progress/*": {"origins": allowed_origins},
+        r"/profile*": {"origins": allowed_origins},
         r"/uploads/*": {"origins": allowed_origins},
     }
     CORS(app, resources=cors_resources)
@@ -49,23 +52,23 @@ def create_app() -> Flask:
 
     from app import models  
 
-
-    # Optional auto-create for local dev only; keep off in production.
-    if os.getenv("AUTO_CREATE_DB", "").lower() in {"1", "true", "yes"}:
-        with app.app_context():
-            db.create_all()
-
     from app.blueprints.moods import blp as MoodsBlueprint
     from app.blueprints.auth import blp as AuthBlueprint
     from app.blueprints.journals import blp as JournalsBlueprint
     from app.blueprints.habits import blp as HabitsBlueprint
     from app.blueprints.planner import blp as PlannerBlueprint
+    from app.blueprints.gamification import blp as GamificationBlueprint
+    from app.blueprints.progress import blp as ProgressBlueprint
+    from app.blueprints.profile import blp as ProfileBlueprint
 
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
     api.register_blueprint(JournalsBlueprint)
     api.register_blueprint(HabitsBlueprint)
     api.register_blueprint(PlannerBlueprint)
+    api.register_blueprint(GamificationBlueprint)
+    api.register_blueprint(ProgressBlueprint)
+    api.register_blueprint(ProfileBlueprint)
 
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):

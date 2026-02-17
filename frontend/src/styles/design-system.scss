@@ -1,0 +1,33 @@
+@mixin card-base {
+  background: #ffffff;
+  border: 1px solid #dbe7df;
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(19, 78, 74, 0.08);
+}
+
+@mixin btn-primary {
+  background: linear-gradient(135deg, #1f7665 0%, #1b5f52 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+  box-shadow: 0 10px 22px rgba(19, 78, 74, 0.22);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(19, 78, 74, 0.28);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}

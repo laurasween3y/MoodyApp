@@ -32,6 +32,14 @@ def _sign_jwt(user_id: int) -> str:
     return jwt.encode(payload, secret, algorithm="HS256")
 
 
+def _commit_or_abort(message: str) -> None:
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        abort(500, message=message)
+
+
 @blp.route("/register")
 class RegisterResource(MethodView):
     @blp.arguments(RegisterSchema)
@@ -48,7 +56,7 @@ class RegisterResource(MethodView):
         user.set_password(data["password"])
 
         db.session.add(user)
-        db.session.commit()
+        _commit_or_abort("Could not register user")
 
         return {"message": "User registered successfully"}
 

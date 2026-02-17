@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { Journal, JournalEntry, JournalService } from '../../services/journal.service';
@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './journal-page.component.scss'
 })
 export class JournalPageComponent implements OnInit {
+  @ViewChild('createFormRef') createFormRef?: ElementRef<HTMLDivElement>;
   journals: Journal[] = [];
   entries: JournalEntry[] = [];
   selectedJournalId?: number;
@@ -106,6 +107,13 @@ export class JournalPageComponent implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  openCreateForm() {
+    this.showCreateForm = true;
+    setTimeout(() => {
+      this.createFormRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   startEditJournal(journal: Journal) {
@@ -235,4 +243,3 @@ export class JournalPageComponent implements OnInit {
     return '';
   }
 }
-

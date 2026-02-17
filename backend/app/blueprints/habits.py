@@ -37,6 +37,14 @@ def _get_habit_or_404(habit_id: int) -> Habit:
     return habit
 
 
+def _commit_or_abort(message: str) -> None:
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        abort(500, message=message)
+
+
 @blp.route("/")
 class HabitsResource(MethodView):
     @blp.response(200, HabitResponseSchema(many=True))
@@ -62,7 +70,7 @@ class HabitsResource(MethodView):
         habit.target_per_week = payload.get("target_per_week", 7)
 
         db.session.add(habit)
-        db.session.commit()
+        _commit_or_abort("Could not create habit")
         return habit
 
 
@@ -85,14 +93,14 @@ class HabitDetailResource(MethodView):
         if "target_per_week" in payload:
             habit.target_per_week = payload["target_per_week"]
 
-        db.session.commit()
+        _commit_or_abort("Could not update habit")
         return habit
 
     @blp.response(204)
     def delete(self, habit_id):
         habit = _get_habit_or_404(habit_id)
         db.session.delete(habit)
-        db.session.commit()
+        _commit_or_abort("Could not delete habit")
         return "", 204
 
 
@@ -119,6 +127,9 @@ class HabitCompletionResource(MethodView):
         except IntegrityError:
             db.session.rollback()
             # Already exists, treat as idempotent success
+        except Exception:
+            db.session.rollback()
+            abort(500, message="Could not update habit completion")
         habit = _get_habit_or_404(habit_id)
         return habit
 
@@ -137,7 +148,7 @@ class HabitCompletionResource(MethodView):
             user_id=g.current_user.id,
             date=completion_date,
         ).delete()
-        db.session.commit()
+        _commit_or_abort("Could not remove habit completion")
 
         habit = _get_habit_or_404(habit_id)
         return habit
@@ -152,6 +163,11 @@ class HabitToggleResource(MethodView):
 
         habit = _get_habit_or_404(habit_id)
         completion_date = payload.get("date", date.today())
+        if isinstance(completion_date, str):
+            try:
+                completion_date = date.fromisoformat(completion_date)
+            except ValueError:
+                abort(400, message="Invalid date format; use YYYY-MM-DD")
 
         existing = HabitCompletion.query.filter_by(
             habit_id=habit.id,
@@ -159,15 +175,18 @@ class HabitToggleResource(MethodView):
             date=completion_date,
         ).first()
 
-        if existing:
-            db.session.delete(existing)
-        else:
-            completion = HabitCompletion()
-            completion.habit_id = habit.id
-            completion.user_id = g.current_user.id
-            completion.date = completion_date
-            db.session.add(completion)
-
-        db.session.commit()
-        habit = _get_habit_or_404(habit_id)
-        return habit
+        try:
+            if existing:
+                db.session.delete(existing)
+            else:
+                completion = HabitCompletion()
+                completion.habit_id = habit.id
+                completion.user_id = g.current_user.id
+                completion.date = completion_date
+                db.session.add(completion)
+            db.session.commit()
+            habit = _get_habit_or_404(habit_id)
+            return habit
+        except Exception:
+            db.session.rollback()
+            abort(500, message="Could not toggle habit completion")

@@ -104,6 +104,19 @@ button:hover:not([disabled]) {
   box-shadow: 0 12px 22px rgba(52, 211, 153, 0.25);
 }
 
+button.btn {
+  background: #a8e6c6;
+  color: #143c2c;
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+  box-shadow: none;
+}
+
+button.btn:hover:not([disabled]) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(52, 211, 153, 0.18);
+}
+
 button.ghost {
   background: rgba(168, 230, 198, 0.18);
   color: #1f2f2a;

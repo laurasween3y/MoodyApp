@@ -2,6 +2,8 @@ from datetime import date
 
 from marshmallow import Schema, fields, validate, validates, ValidationError
 
+from app.models.habit import HabitCompletion
+
 FREQUENCY_OPTIONS = ["daily", "weekly", "custom"]
 
 
@@ -46,18 +48,12 @@ class HabitResponseSchema(Schema):
     completions = fields.Method("get_completions", dump_only=True)
 
     def get_completions(self, obj):
-        return [c.date for c in sorted(obj.completions, key=lambda c: c.date)]
-
-
-class HabitCompletionResponseSchema(Schema):
-    id = fields.Int(dump_only=True)
-    habit_id = fields.Int()
-    date = fields.Date()
-
-
-class HabitListSchema(Schema):
-    habits = fields.List(fields.Nested(HabitResponseSchema))
-
+        completions = (
+            HabitCompletion.query.filter_by(habit_id=obj.id, user_id=obj.user_id)
+            .order_by(HabitCompletion.date.asc())
+            .all()
+        )
+        return [c.date.isoformat() for c in completions]
 
 class HabitToggleSchema(Schema):
     date = fields.Date(

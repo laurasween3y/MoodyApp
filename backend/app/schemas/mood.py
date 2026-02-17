@@ -43,14 +43,6 @@ class MoodUpdateSchema(Schema):
     date = fields.Date(required=False, metadata={"description": "The calendar date for the mood"})
 
 
-class MoodDBSchema(Schema):
-    id = fields.Int(dump_only=True)
-    user_id = fields.Int(required=True)
-    mood = fields.Str(required=True)
-    note = fields.Str(allow_none=True)
-    date = fields.Date(dump_only=True)
-
-
 class MoodResponseSchema(Schema):
     id = fields.Int(dump_only=True)
     mood = fields.Str(metadata={"description": "The submitted mood"})

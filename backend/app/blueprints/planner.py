@@ -7,6 +7,7 @@ from flask_smorest import Blueprint, abort
 from app.extensions import db
 from app.auth_utils import get_current_user
 from app.models.planner import PlannerEvent
+from app.services.gamification import evaluate_planner
 from app.schemas.planner import (
     PlannerEventCreateSchema,
     PlannerEventResponseSchema,
@@ -33,6 +34,14 @@ def _get_event_or_404(event_id: int) -> PlannerEvent:
     if event is None:
         abort(404, message="Event not found")
     return event
+
+
+def _commit_or_abort(message: str) -> None:
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        abort(500, message=message)
 
 
 @blp.route("/events")
@@ -68,7 +77,9 @@ class PlannerEventsResource(MethodView):
         event.reminder_minutes_before = payload.get("reminder_minutes_before")
 
         db.session.add(event)
-        db.session.commit()
+        _commit_or_abort("Could not create event")
+        evaluate_planner(g.current_user.id)
+        _commit_or_abort("Could not update planner streaks")
         return event
 
 
@@ -96,7 +107,7 @@ class PlannerEventDetailResource(MethodView):
         if "reminder_minutes_before" in payload:
             event.reminder_minutes_before = payload.get("reminder_minutes_before")
 
-        db.session.commit()
+        _commit_or_abort("Could not update event")
         return event
 
     @blp.response(204)
@@ -108,5 +119,5 @@ class PlannerEventDetailResource(MethodView):
         if not deleted:
             abort(404, message="Event not found")
 
-        db.session.commit()
+        _commit_or_abort("Could not delete event")
         return "", 204
