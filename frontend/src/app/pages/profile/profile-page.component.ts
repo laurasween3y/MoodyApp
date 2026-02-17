@@ -24,7 +24,6 @@ export class ProfilePageComponent implements OnInit {
 
   form = this.fb.group({
     email: [''],
-    username: [''],
     password: [''],
   });
 
@@ -36,8 +35,8 @@ export class ProfilePageComponent implements OnInit {
 
   get displayName() {
     if (!this.profile) return 'Your profile';
-    const { username, email } = this.profile;
-    return username || email;
+    const { email } = this.profile;
+    return email;
   }
 
   async loadAll() {
@@ -56,7 +55,6 @@ export class ProfilePageComponent implements OnInit {
 
       this.form.patchValue({
         email: profile.email || '',
-        username: profile.username || '',
         password: '',
       });
     } catch (err) {
@@ -72,8 +70,8 @@ export class ProfilePageComponent implements OnInit {
     this.saving = true;
     this.error = undefined;
     try {
-  const { email, username, password } = this.form.value;
-  const payload: any = { email, username };
+  const { email, password } = this.form.value;
+  const payload: any = { email };
   if (password) payload.password = password;
       const updated = await firstValueFrom(this.profileService.updateProfile(payload));
       this.profile = updated;

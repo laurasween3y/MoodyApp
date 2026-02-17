@@ -6,7 +6,6 @@ const API_BASE = 'http://localhost:5000';
 
 export interface Profile {
   email: string;
-  username: string;
 }
 
 export interface StreakSummary {
