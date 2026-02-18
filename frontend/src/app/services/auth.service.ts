@@ -1,20 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-
-const API_BASE = 'http://localhost:5000';
-
-export interface LoginRequest { email: string; password: string; }
-export interface LoginResponse { access_token: string; }
-export interface RegisterRequest { email: string; password: string; }
-export interface RegisterResponse { message: string; }
+import { AuthService as AuthApiService, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly tokenKey = 'moody_access_token';
   private readonly _isLoggedIn$ = new BehaviorSubject<boolean>(!!this.getToken());
 
-  constructor(private http: HttpClient) {}
+  constructor(private authApi: AuthApiService) {}
 
   isLoggedIn$(): Observable<boolean> {
     return this._isLoggedIn$.asObservable();
@@ -29,7 +22,7 @@ export class AuthService {
   }
 
   login(payload: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_BASE}/auth/login`, payload).pipe(
+    return this.authApi.authLoginPost(payload).pipe(
       tap((res) => {
         if (res?.access_token) {
           this.setToken(res.access_token);
@@ -39,7 +32,7 @@ export class AuthService {
   }
 
   register(payload: RegisterRequest): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>(`${API_BASE}/auth/register`, payload);
+    return this.authApi.authRegisterPost(payload);
   }
 
   logout(): void {

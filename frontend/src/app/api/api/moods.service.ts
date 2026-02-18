@@ -22,6 +22,8 @@ import { MoodCreate } from '../model/mood-create';
 import { MoodOptions } from '../model/mood-options';
 // @ts-ignore
 import { MoodResponse } from '../model/mood-response';
+// @ts-ignore
+import { MoodUpdate } from '../model/mood-update';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -40,7 +42,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * List moods for the current user
+     * List all moods for the current user.
      * @endpoint get /moods/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -92,7 +94,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Delete a mood
+     * Delete a mood for the current user.
      * @endpoint delete /moods/{mood_id}
      * @param moodId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -148,7 +150,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Get a mood by id
+     * Get a single mood by id for the current user.
      * @endpoint get /moods/{mood_id}
      * @param moodId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -204,23 +206,23 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Update a mood
+     * Update a mood\&#39;s mood/note fields.
      * @endpoint patch /moods/{mood_id}
      * @param moodId 
-     * @param moodCreate 
+     * @param moodUpdate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public moodsMoodIdPatch(moodId: number, moodCreate: MoodCreate, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MoodResponse>;
-    public moodsMoodIdPatch(moodId: number, moodCreate: MoodCreate, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MoodResponse>>;
-    public moodsMoodIdPatch(moodId: number, moodCreate: MoodCreate, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MoodResponse>>;
-    public moodsMoodIdPatch(moodId: number, moodCreate: MoodCreate, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public moodsMoodIdPatch(moodId: number, moodUpdate: MoodUpdate, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MoodResponse>;
+    public moodsMoodIdPatch(moodId: number, moodUpdate: MoodUpdate, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MoodResponse>>;
+    public moodsMoodIdPatch(moodId: number, moodUpdate: MoodUpdate, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MoodResponse>>;
+    public moodsMoodIdPatch(moodId: number, moodUpdate: MoodUpdate, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (moodId === null || moodId === undefined) {
             throw new Error('Required parameter moodId was null or undefined when calling moodsMoodIdPatch.');
         }
-        if (moodCreate === null || moodCreate === undefined) {
-            throw new Error('Required parameter moodCreate was null or undefined when calling moodsMoodIdPatch.');
+        if (moodUpdate === null || moodUpdate === undefined) {
+            throw new Error('Required parameter moodUpdate was null or undefined when calling moodsMoodIdPatch.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -262,7 +264,7 @@ export class MoodsService extends BaseService {
         return this.httpClient.request<MoodResponse>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: moodCreate,
+                body: moodUpdate,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -274,7 +276,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * List allowed mood keys
+     * List allowed mood keys for the client UI.
      * @endpoint get /moods/options
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -326,7 +328,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Create a mood entry
+     * Create a mood entry and return it.
      * @endpoint post /moods/
      * @param moodCreate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -392,7 +394,7 @@ export class MoodsService extends BaseService {
     }
 
     /**
-     * Get today\&#39;s mood for the current user
+     * Return today\&#39;s mood for the current user; returns 200 with empty body if none.
      * @endpoint get /moods/today
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -433,6 +435,72 @@ export class MoodsService extends BaseService {
         return this.httpClient.request<MoodResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a mood entry and return it.
+     * @endpoint post /moods/today
+     * @param moodCreate 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public moodsTodayPost(moodCreate: MoodCreate, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MoodResponse>;
+    public moodsTodayPost(moodCreate: MoodCreate, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MoodResponse>>;
+    public moodsTodayPost(moodCreate: MoodCreate, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MoodResponse>>;
+    public moodsTodayPost(moodCreate: MoodCreate, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (moodCreate === null || moodCreate === undefined) {
+            throw new Error('Required parameter moodCreate was null or undefined when calling moodsTodayPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/moods/today`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<MoodResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: moodCreate,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

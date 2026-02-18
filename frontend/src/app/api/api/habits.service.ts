@@ -94,7 +94,7 @@ export class HabitsService extends BaseService {
     }
 
     /**
-     * Remove a completion for a date
+     * Remove a completion for a given date.
      * @endpoint delete /habits/{habit_id}/completions/{date_str}
      * @param habitId 
      * @param dateStr 
@@ -154,7 +154,7 @@ export class HabitsService extends BaseService {
     }
 
     /**
-     * Mark a habit complete for a date
+     * Mark a habit complete for a given date (default today).
      * @endpoint put /habits/{habit_id}/completions/{date_str}
      * @param habitId 
      * @param dateStr 
@@ -214,7 +214,6 @@ export class HabitsService extends BaseService {
     }
 
     /**
-     * Delete a habit
      * @endpoint delete /habits/{habit_id}
      * @param habitId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -270,7 +269,6 @@ export class HabitsService extends BaseService {
     }
 
     /**
-     * Get a habit
      * @endpoint get /habits/{habit_id}
      * @param habitId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -326,7 +324,6 @@ export class HabitsService extends BaseService {
     }
 
     /**
-     * Update a habit
      * @endpoint patch /habits/{habit_id}
      * @param habitId 
      * @param habitUpdate 
@@ -396,7 +393,7 @@ export class HabitsService extends BaseService {
     }
 
     /**
-     * Toggle completion for a date (defaults to today)
+     * Toggle completion for a date (default today).
      * @endpoint post /habits/{habit_id}/toggle
      * @param habitId 
      * @param habitToggle 
@@ -404,12 +401,15 @@ export class HabitsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public habitsHabitIdTogglePost(habitId: number, habitToggle?: HabitToggle, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HabitResponse>;
-    public habitsHabitIdTogglePost(habitId: number, habitToggle?: HabitToggle, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<HabitResponse>>;
-    public habitsHabitIdTogglePost(habitId: number, habitToggle?: HabitToggle, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<HabitResponse>>;
-    public habitsHabitIdTogglePost(habitId: number, habitToggle?: HabitToggle, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public habitsHabitIdTogglePost(habitId: number, habitToggle: HabitToggle, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HabitResponse>;
+    public habitsHabitIdTogglePost(habitId: number, habitToggle: HabitToggle, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<HabitResponse>>;
+    public habitsHabitIdTogglePost(habitId: number, habitToggle: HabitToggle, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<HabitResponse>>;
+    public habitsHabitIdTogglePost(habitId: number, habitToggle: HabitToggle, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (habitId === null || habitId === undefined) {
             throw new Error('Required parameter habitId was null or undefined when calling habitsHabitIdTogglePost.');
+        }
+        if (habitToggle === null || habitToggle === undefined) {
+            throw new Error('Required parameter habitToggle was null or undefined when calling habitsHabitIdTogglePost.');
         }
 
         let localVarHeaders = this.defaultHeaders;

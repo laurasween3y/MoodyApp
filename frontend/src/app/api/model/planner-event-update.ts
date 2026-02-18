@@ -12,8 +12,17 @@
 export interface PlannerEventUpdate { 
     title?: string;
     description?: string | null;
+    /**
+     * Date of the event
+     */
     event_date?: string;
+    /**
+     * Start time (HH:MM)
+     */
     start_time?: string | null;
+    /**
+     * End time (HH:MM)
+     */
     end_time?: string | null;
     reminder_minutes_before?: number | null;
 }

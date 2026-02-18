@@ -1,58 +1,40 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {
+  AchievementItem as ApiAchievementItem,
+  AchievementsResponse as ApiAchievementsResponse,
+  Profile as ApiProfile,
+  ProfileService as ProfileApiService,
+  ProfileUpdate,
+  ProgressService,
+  StreakSummary as ApiStreakSummary,
+} from '../api';
 
-const API_BASE = 'http://localhost:5000';
-
-export interface Profile {
-  email: string;
-}
-
-export interface StreakSummary {
-  mood_current: number;
-  mood_longest: number;
-  habit_current: number;
-  habit_longest: number;
-  journal_current: number;
-  journal_longest: number;
-  planner_current: number;
-  planner_longest: number;
-}
-
-export interface AchievementItem {
-  module: string;
-  key: string;
-  title: string;
-  description: string;
-  icon: string;
-  locked: boolean;
-  unlocked_at?: string | null;
-  progress_current: number;
-  progress_target: number;
-}
-
-export interface AchievementsResponse {
-  unlocked: AchievementItem[];
-  all_possible: AchievementItem[];
-}
+export type Profile = ApiProfile;
+export type StreakSummary = ApiStreakSummary;
+export type AchievementItem = ApiAchievementItem;
+export type AchievementsResponse = ApiAchievementsResponse;
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private profileApi: ProfileApiService,
+    private progressApi: ProgressService
+  ) {}
 
   getProfile(): Observable<Profile> {
-    return this.http.get<Profile>(`${API_BASE}/profile`);
+    return this.profileApi.profileGet();
   }
 
-  updateProfile(payload: Partial<Profile>): Observable<Profile> {
-    return this.http.put<Profile>(`${API_BASE}/profile`, payload);
+  updateProfile(payload: ProfileUpdate): Observable<Profile> {
+    return this.profileApi.profilePut(payload);
   }
 
   getStreaks(): Observable<StreakSummary> {
-    return this.http.get<StreakSummary>(`${API_BASE}/progress/streaks`);
+    return this.progressApi.progressStreaksGet();
   }
 
   getAchievements(): Observable<AchievementsResponse> {
-    return this.http.get<AchievementsResponse>(`${API_BASE}/progress/achievements`);
+    return this.progressApi.progressAchievementsGet();
   }
 }

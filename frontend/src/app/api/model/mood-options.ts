@@ -10,6 +10,27 @@
 
 
 export interface MoodOptions { 
-    options?: Array<string>;
+    /**
+     * Available mood keys
+     */
+    readonly options?: Array<MoodOptions.OptionsEnum>;
 }
+export namespace MoodOptions {
+    export const OptionsEnum = {
+        Happy: 'happy',
+        Sad: 'sad',
+        Angry: 'angry',
+        Excited: 'excited',
+        Sick: 'sick',
+        Tired: 'tired',
+        Loved: 'loved',
+        Anxious: 'anxious',
+        Peaceful: 'peaceful',
+        Bored: 'bored',
+        Silly: 'silly',
+        Fine: 'fine'
+    } as const;
+    export type OptionsEnum = typeof OptionsEnum[keyof typeof OptionsEnum];
+}
+
 

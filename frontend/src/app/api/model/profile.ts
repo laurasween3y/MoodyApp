@@ -9,12 +9,10 @@
  */
 
 
-export interface JournalCreate { 
-    /**
-     * Journal title
-     */
-    title: string;
-    description?: string | null;
-    cover_url?: string | null;
+export interface Profile { 
+    id: number;
+    email: string;
+    created_at: string;
+    updated_at?: string | null;
 }
 

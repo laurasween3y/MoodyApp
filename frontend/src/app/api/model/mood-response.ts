@@ -11,7 +11,13 @@
 
 export interface MoodResponse { 
     readonly id?: number;
+    /**
+     * The submitted mood
+     */
     mood?: string;
+    /**
+     * Optional note about the mood
+     */
     note?: string | null;
     readonly date?: string;
 }

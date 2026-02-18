@@ -9,12 +9,9 @@
  */
 
 
-export interface JournalCreate { 
-    /**
-     * Journal title
-     */
-    title: string;
-    description?: string | null;
-    cover_url?: string | null;
+export interface Achievement { 
+    module: string;
+    achievement_key: string;
+    unlocked_at: string;
 }
 

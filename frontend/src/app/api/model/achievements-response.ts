@@ -7,14 +7,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { AchievementItem } from './achievement-item';
 
 
-export interface JournalCreate { 
-    /**
-     * Journal title
-     */
-    title: string;
-    description?: string | null;
-    cover_url?: string | null;
+export interface AchievementsResponse { 
+    unlocked: Array<AchievementItem>;
+    all_possible: Array<AchievementItem>;
 }
 

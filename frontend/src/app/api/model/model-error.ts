@@ -10,9 +10,21 @@
 
 
 export interface ModelError { 
+    /**
+     * Error code
+     */
     code?: number;
+    /**
+     * Error name
+     */
     status?: string;
+    /**
+     * Error message
+     */
     message?: string;
+    /**
+     * Errors
+     */
     errors?: { [key: string]: any; };
 }
 

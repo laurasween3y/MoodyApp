@@ -11,7 +11,13 @@
 
 export interface HabitCreate { 
     title: string;
+    /**
+     * daily, weekly, or custom
+     */
     frequency?: HabitCreate.FrequencyEnum;
+    /**
+     * How many completions per week constitutes success
+     */
     target_per_week?: number;
 }
 export namespace HabitCreate {

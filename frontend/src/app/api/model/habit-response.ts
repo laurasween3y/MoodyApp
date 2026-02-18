@@ -16,6 +16,6 @@ export interface HabitResponse {
     target_per_week?: number;
     readonly created_at?: string;
     readonly updated_at?: string;
-    completions?: Array<string>;
+    readonly completions?: any | null;
 }
 

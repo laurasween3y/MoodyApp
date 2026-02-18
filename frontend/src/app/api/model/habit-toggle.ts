@@ -10,6 +10,9 @@
 
 
 export interface HabitToggle { 
+    /**
+     * Date to mark complete (defaults to today)
+     */
     date?: string;
 }
 

@@ -10,7 +10,7 @@
 
 
 export interface PlannerEventResponse { 
-    id?: number;
+    readonly id?: number;
     title?: string;
     description?: string | null;
     event_date?: string;

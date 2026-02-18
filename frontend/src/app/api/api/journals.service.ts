@@ -46,7 +46,7 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * List journals for the current user
+     * List journals for the current user.
      * @endpoint get /journals/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -98,23 +98,18 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Upload a journal cover image
      * @endpoint post /journals/{journal_id}/cover
      * @param journalId 
-     * @param file 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public journalsJournalIdCoverPost(journalId: number, file: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<JournalResponse>;
-    public journalsJournalIdCoverPost(journalId: number, file: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<JournalResponse>>;
-    public journalsJournalIdCoverPost(journalId: number, file: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<JournalResponse>>;
-    public journalsJournalIdCoverPost(journalId: number, file: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public journalsJournalIdCoverPost(journalId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<JournalResponse>;
+    public journalsJournalIdCoverPost(journalId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<JournalResponse>>;
+    public journalsJournalIdCoverPost(journalId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<JournalResponse>>;
+    public journalsJournalIdCoverPost(journalId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (journalId === null || journalId === undefined) {
             throw new Error('Required parameter journalId was null or undefined when calling journalsJournalIdCoverPost.');
-        }
-        if (file === null || file === undefined) {
-            throw new Error('Required parameter file was null or undefined when calling journalsJournalIdCoverPost.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -130,28 +125,6 @@ export class JournalsService extends BaseService {
 
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'multipart/form-data'
-        ];
-
-        const canConsumeForm = this.canConsumeForm(consumes);
-
-        let localVarFormParams: { append(param: string, value: any): any; };
-        let localVarUseForm = false;
-        let localVarConvertFormParamsToString = false;
-        // use FormData to transmit files using content-type "multipart/form-data"
-        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
-        localVarUseForm = canConsumeForm;
-        if (localVarUseForm) {
-            localVarFormParams = new FormData();
-        } else {
-            localVarFormParams = new HttpParams({encoder: this.encoder});
-        }
-
-        if (file !== undefined) {
-            localVarFormParams = localVarFormParams.append('file', <any>file) as any || localVarFormParams;
-        }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
@@ -169,7 +142,6 @@ export class JournalsService extends BaseService {
         return this.httpClient.request<JournalResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -181,7 +153,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Delete a journal
      * @endpoint delete /journals/{journal_id}
      * @param journalId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -237,7 +208,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Delete a journal entry
      * @endpoint delete /journals/{journal_id}/entries/{entry_id}
      * @param journalId 
      * @param entryId 
@@ -297,7 +267,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Get a journal entry
      * @endpoint get /journals/{journal_id}/entries/{entry_id}
      * @param journalId 
      * @param entryId 
@@ -357,7 +326,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Update a journal entry
      * @endpoint patch /journals/{journal_id}/entries/{entry_id}
      * @param journalId 
      * @param entryId 
@@ -431,7 +399,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * List entries for a journal
      * @endpoint get /journals/{journal_id}/entries
      * @param journalId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -487,7 +454,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Create a journal entry
      * @endpoint post /journals/{journal_id}/entries
      * @param journalId 
      * @param journalEntryCreate 
@@ -557,7 +523,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Get a journal
      * @endpoint get /journals/{journal_id}
      * @param journalId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -613,7 +578,6 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Update a journal
      * @endpoint patch /journals/{journal_id}
      * @param journalId 
      * @param journalUpdate 
@@ -683,7 +647,7 @@ export class JournalsService extends BaseService {
     }
 
     /**
-     * Create a journal
+     * Create a new journal.
      * @endpoint post /journals/
      * @param journalCreate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

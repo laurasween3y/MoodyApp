@@ -13,7 +13,7 @@ export interface JournalEntryResponse {
     readonly id?: number;
     journal_id?: number;
     title?: string | null;
-    content_json?: object;
+    content_json?: { [key: string]: any; };
     background?: string;
     font_family?: string;
     font_size?: number;

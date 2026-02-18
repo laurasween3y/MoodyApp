@@ -9,21 +9,21 @@
  */
 
 
-export interface MoodCreate { 
+export interface MoodUpdate { 
     /**
      * The current mood (predefined options)
      */
-    mood: MoodCreate.MoodEnum;
+    mood?: MoodUpdate.MoodEnum;
     /**
-     * Optional note about the mood
+     * Optional note
      */
     note?: string | null;
     /**
-     * The calendar date for the mood (defaults to today)
+     * The calendar date for the mood
      */
     date?: string;
 }
-export namespace MoodCreate {
+export namespace MoodUpdate {
     export const MoodEnum = {
         Happy: 'happy',
         Sad: 'sad',

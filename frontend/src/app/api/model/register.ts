@@ -9,12 +9,8 @@
  */
 
 
-export interface JournalCreate { 
-    /**
-     * Journal title
-     */
-    title: string;
-    description?: string | null;
-    cover_url?: string | null;
+export interface Register { 
+    email: string;
+    password: string;
 }
 

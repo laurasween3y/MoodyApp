@@ -10,6 +10,6 @@
 
 
 export interface RegisterResponse { 
-    message?: string;
+    readonly message?: string;
 }
 
