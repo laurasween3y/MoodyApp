@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { AuthService as AuthApiService, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../api';
+import { AuthService as AuthApiService, Login, LoginResponse, Register, RegisterResponse } from '../api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -21,7 +21,7 @@ export class AuthService {
     return this.getToken();
   }
 
-  login(payload: LoginRequest): Observable<LoginResponse> {
+  login(payload: Login): Observable<LoginResponse> {
     return this.authApi.authLoginPost(payload).pipe(
       tap((res) => {
         if (res?.access_token) {
@@ -31,7 +31,7 @@ export class AuthService {
     );
   }
 
-  register(payload: RegisterRequest): Observable<RegisterResponse> {
+  register(payload: Register): Observable<RegisterResponse> {
     return this.authApi.authRegisterPost(payload);
   }
 

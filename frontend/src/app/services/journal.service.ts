@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import {
   Configuration,
@@ -35,7 +36,11 @@ export interface JournalEntry {
 
 @Injectable({ providedIn: 'root' })
 export class JournalService {
-  constructor(private journalsApi: JournalsService, private apiConfig: Configuration) {}
+  constructor(
+    private journalsApi: JournalsService,
+    private apiConfig: Configuration,
+    private http: HttpClient
+  ) {}
 
   private get apiBase(): string {
     const base = this.apiConfig?.basePath ?? 'http://localhost:5000';
@@ -59,7 +64,11 @@ export class JournalService {
   }
 
   uploadCover(id: number, file: File): Observable<Journal> {
-    return this.journalsApi.journalsJournalIdCoverPost(id, file).pipe(map((j) => this.withResolvedCover(j)));
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http
+      .post<JournalResponse>(`${this.apiBase}/journals/${id}/cover`, formData)
+      .pipe(map((j) => this.withResolvedCover(j)));
   }
 
   deleteJournal(id: number): Observable<void> {

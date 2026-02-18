@@ -21,6 +21,29 @@
   flex-direction: column;
   gap: 1.5rem;
   border: 1px solid #daf5e7;
+  position: relative;
+  overflow: visible;
+}
+
+.washi-tape {
+  position: absolute;
+  top: -18px;
+  left: 22px;
+  width: 120px;
+  height: 26px;
+  background: repeating-linear-gradient(
+    45deg,
+    #f6e7c1,
+    #f6e7c1 6px,
+    #f0c5c8 6px,
+    #f0c5c8 12px
+  );
+  opacity: 0.9;
+  border-radius: 8px;
+  transform: rotate(-2.5deg);
+  box-shadow: 0 6px 12px rgba(35, 50, 58, 0.12);
+  pointer-events: none;
+  z-index: 3;
 }
 
 .hero {
@@ -212,6 +235,7 @@ button.ghost {
 
 
 
+
 .day {
   background: #fff;
   border: 1px solid #e6f4ec;
@@ -296,7 +320,7 @@ button.ghost {
   border-color: #fdba74;
 }
 
-.event-actions button {
+.event-actions button:not(.icon-action) {
   padding: 0.5rem 0.75rem;
 }
 

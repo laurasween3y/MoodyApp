@@ -3,13 +3,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { endOfWeek, format, isSameWeek, startOfWeek } from 'date-fns';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { Frequency, Habit, HabitService } from '../../services/habit.service';
 
 @Component({
   selector: 'app-habits-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './habits-page.component.html',
   styleUrl: './habits-page.component.scss'
 })

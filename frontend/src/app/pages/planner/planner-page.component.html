@@ -1,5 +1,6 @@
 <section class="page">
   <div class="card">
+    <span class="washi-tape" aria-hidden="true"></span>
     <header class="hero">
       <div>
   <p class="eyebrow">Planner</p>
@@ -80,8 +81,24 @@
                   </div>
                 </div>
                 <div class="event-actions" *ngIf="!ev.isHoliday">
-                  <button type="button" (click)="startEdit(ev)">Edit</button>
-                  <button type="button" class="ghost" (click)="deleteEvent(ev)">Delete</button>
+                  <button
+                    type="button"
+                    class="icon-action icon-action--edit"
+                    (click)="startEdit(ev)"
+                    aria-label="Edit event"
+                    title="Edit event"
+                  >
+                    <lucide-icon name="pencil" size="18" strokeWidth="1.8"></lucide-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-action icon-action--delete"
+                    (click)="deleteEvent(ev)"
+                    aria-label="Delete event"
+                    title="Delete event"
+                  >
+                    <lucide-icon name="trash-2" size="18" strokeWidth="1.8"></lucide-icon>
+                  </button>
                 </div>
               </article>
             </div>

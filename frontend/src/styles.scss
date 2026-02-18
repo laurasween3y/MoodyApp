@@ -3,3 +3,54 @@ html, body {
 	padding: 0;
 }
 /* You can add global styles to this file, and also import other style files */
+
+button.icon-action.icon-action--edit,
+button.icon-action.icon-action--delete {
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid transparent;
+	background: #e8f7f0;
+	color: #1f5b45;
+	box-shadow: 0 6px 14px rgba(20, 83, 45, 0.08);
+	transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+	cursor: pointer;
+}
+
+button.icon-action.icon-action--delete {
+	background: #fff1f1;
+	color: #9f2a2a;
+	border-color: #f3caca;
+	box-shadow: 0 6px 14px rgba(185, 28, 28, 0.12);
+}
+
+button.icon-action.icon-action--edit {
+	background: #e8f7f0;
+	color: #1f5b45;
+	border-color: #cfeedd;
+}
+
+button.icon-action.icon-action--edit:hover:not(:disabled),
+button.icon-action.icon-action--delete:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+}
+
+button.icon-action.icon-action--edit:disabled,
+button.icon-action.icon-action--delete:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+button.icon-action svg,
+button.icon-action lucide-icon {
+	width: 18px;
+	height: 18px;
+	display: block;
+}

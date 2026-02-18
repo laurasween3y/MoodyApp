@@ -63,22 +63,22 @@
               </div>
               <div class="journal-actions" (click)="$event.stopPropagation()">
                 <button
-                  class="ghost"
                   type="button"
+                  class="icon-action icon-action--edit"
                   (click)="goToJournal(journal.id)"
                   aria-label="Open journal"
                   title="Open journal"
                 >
-                  ✏️
+                  <lucide-icon name="pencil" size="18" strokeWidth="1.8"></lucide-icon>
                 </button>
                 <button
-                  class="danger"
                   type="button"
+                  class="icon-action icon-action--delete"
                   (click)="deleteJournal(journal)"
                   aria-label="Delete journal"
                   title="Delete journal"
                 >
-                  🗑️
+                  <lucide-icon name="trash-2" size="18" strokeWidth="1.8"></lucide-icon>
                 </button>
               </div>
             </div>
@@ -118,22 +118,22 @@
               </div>
               <div class="entry-actions">
                 <button
-                  class="ghost"
                   type="button"
+                  class="icon-action icon-action--edit"
                   (click)="$event.stopPropagation(); goToEntry(entry)"
                   aria-label="Edit entry"
                   title="Edit entry"
                 >
-                  ✏️
+                  <lucide-icon name="pencil" size="18" strokeWidth="1.8"></lucide-icon>
                 </button>
                 <button
-                  class="danger"
                   type="button"
+                  class="icon-action icon-action--delete"
                   (click)="$event.stopPropagation(); deleteEntry(entry)"
                   aria-label="Delete entry"
                   title="Delete entry"
                 >
-                  🗑️
+                  <lucide-icon name="trash-2" size="18" strokeWidth="1.8"></lucide-icon>
                 </button>
               </div>
             </header>

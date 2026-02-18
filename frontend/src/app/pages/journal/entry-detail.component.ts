@@ -13,11 +13,12 @@ import FontFamily from '@tiptap/extension-font-family';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { JournalEntry, JournalService } from '../../services/journal.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-entry-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './entry-detail.component.html',
   styleUrls: ['./entry-detail.component.scss']
 })

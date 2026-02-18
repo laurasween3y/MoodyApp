@@ -55,7 +55,7 @@ export class HabitService {
       title: habit.title ?? '',
       frequency: (habit.frequency as Frequency) ?? 'daily',
       target_per_week: habit.target_per_week ?? 1,
-      completions: (habit.completions ?? []).map((c) => c.slice(0, 10)),
+      completions: (habit.completions ?? []).map((c: string) => c.slice(0, 10)),
       created_at: habit.created_at,
       updated_at: habit.updated_at,
     };

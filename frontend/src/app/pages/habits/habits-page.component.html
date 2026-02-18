@@ -1,5 +1,6 @@
 <section class="page">
   <div class="card">
+    <span class="washi-tape" aria-hidden="true"></span>
     <header class="hero">
       <div>
         <p class="eyebrow">Habit builder</p>
@@ -87,8 +88,26 @@
         </div>
 
         <div class="habit-actions">
-          <button type="button" (click)="startEdit(habit)" [disabled]="loading">Edit</button>
-          <button type="button" class="ghost" (click)="deleteHabit(habit)" [disabled]="loading">Delete</button>
+          <button
+            type="button"
+            class="icon-action icon-action--edit"
+            (click)="startEdit(habit)"
+            [disabled]="loading"
+            aria-label="Edit habit"
+            title="Edit habit"
+          >
+            <lucide-icon name="pencil" size="18" strokeWidth="1.8"></lucide-icon>
+          </button>
+          <button
+            type="button"
+            class="icon-action icon-action--delete"
+            (click)="deleteHabit(habit)"
+            [disabled]="loading"
+            aria-label="Delete habit"
+            title="Delete habit"
+          >
+            <lucide-icon name="trash-2" size="18" strokeWidth="1.8"></lucide-icon>
+          </button>
         </div>
       </div>
     </section>

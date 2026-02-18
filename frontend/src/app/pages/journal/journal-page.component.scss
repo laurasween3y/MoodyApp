@@ -308,7 +308,7 @@ button.primary:hover:not([disabled]) {
   max-width: 65ch;
 }
 
-.entry-actions button {
+.entry-actions button:not(.icon-action) {
   font-size: 0.85rem;
   padding: 0.45rem 0.7rem;
 }
