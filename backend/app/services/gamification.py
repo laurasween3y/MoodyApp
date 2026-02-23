@@ -63,21 +63,6 @@ def evaluate_mood(user_id: int, action_date: dt.date) -> List[str]:
 
     return awarded
 
-
-def evaluate_habit(user_id: int, action_date: dt.date) -> List[str]:
-    """Update habit streaks and award achievements matching progress API keys."""
-
-    awarded: List[str] = []
-    _touch_streak(user_id, "habit", action_date)
-
-    total = db.session.query(func.count(HabitCompletion.id)).filter_by(user_id=user_id).scalar() or 0
-
-    if total >= 10:
-        _award(user_id, "habit", "habit_10", awarded)
-
-    return awarded
-
-
 def evaluate_journal(user_id: int, action_date: dt.date | None = None) -> List[str]:
     """Award journal achievements that match progress API keys and optionally touch streaks."""
 

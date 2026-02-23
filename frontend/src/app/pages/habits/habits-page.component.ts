@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { endOfWeek, format, isSameWeek, startOfWeek } from 'date-fns';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { Frequency, Habit, HabitService } from '../../services/habit.service';
+import { calculateStreak, calculateWeeklyProgress, isHabitMet, normalizeTarget } from '../../utils/habit-utils';
+import { todayIso } from '../../utils/date-utils';
 
 @Component({
   selector: 'app-habits-page',
@@ -34,24 +35,7 @@ export class HabitsPageComponent implements OnInit {
   }
 
   streakFor(habit: Habit): number {
-    // naive streak: count consecutive completions ending today
-    const completions = new Set(habit.completions || []);
-    let streak = 0;
-    let cursor = new Date();
-    while (true) {
-      const iso = this.formatIso(cursor);
-      if (completions.has(iso)) {
-        streak += 1;
-        cursor.setDate(cursor.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-    return streak;
-  }
-
-  private formatIso(d: Date): string {
-    return format(d, 'yyyy-MM-dd');
+    return calculateStreak(habit.completions);
   }
 
   async loadHabits() {
@@ -81,7 +65,7 @@ export class HabitsPageComponent implements OnInit {
         this.habitsService.createHabit({
           title: this.form.title.trim(),
           frequency: this.form.frequency,
-          target_per_week: this.normalizeTarget(this.form.targetPerWeek),
+          target_per_week: normalizeTarget(this.form.targetPerWeek),
         })
       );
       this.habits = [created, ...this.habits];
@@ -111,7 +95,7 @@ export class HabitsPageComponent implements OnInit {
         this.habitsService.updateHabit(Number(this.editingHabitId), {
           title: this.form.title.trim(),
           frequency: this.form.frequency,
-          target_per_week: this.normalizeTarget(this.form.targetPerWeek),
+          target_per_week: normalizeTarget(this.form.targetPerWeek),
         })
       );
       this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
@@ -148,7 +132,7 @@ export class HabitsPageComponent implements OnInit {
       );
 
       this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
-      if (this.isHabitMet(updated)) {
+      if (isHabitMet(updated)) {
         this.triggerCelebration(habit.title);
       }
     } catch (err) {
@@ -164,13 +148,7 @@ export class HabitsPageComponent implements OnInit {
   }
 
   weeklyProgress(habit: Habit) {
-    const count = this.completionsThisWeek(habit);
-    return {
-      count,
-      target: habit.target_per_week,
-      percent: Math.min(100, Math.round((count / habit.target_per_week) * 100)),
-      met: count >= habit.target_per_week,
-    };
+    return calculateWeeklyProgress(habit);
   }
 
   onFrequencyChange(freq: Frequency) {
@@ -184,28 +162,8 @@ export class HabitsPageComponent implements OnInit {
     this.form = { title: '', frequency: 'daily', targetPerWeek: 7 };
   }
 
-  private normalizeTarget(value: number) {
-    if (!value || value < 1) return 1;
-    if (value > 14) return 14;
-    return Math.round(value);
-  }
-
   private todayISO() {
-    return format(new Date(), 'yyyy-MM-dd');
-  }
-
-  private completionsThisWeek(habit: Habit) {
-    const start = startOfWeek(new Date(), { weekStartsOn: 1 });
-    const end = endOfWeek(new Date(), { weekStartsOn: 1 });
-    return habit.completions.filter(dateStr => {
-      const d = new Date(dateStr);
-      return isSameWeek(d, new Date(), { weekStartsOn: 1 }) && d >= start && d <= end;
-    }).length;
-  }
-
-  private isHabitMet(habit: Habit) {
-    if (habit.frequency === 'daily') return this.completedToday(habit);
-    return this.completionsThisWeek(habit) >= habit.target_per_week;
+    return todayIso();
   }
 
   private triggerCelebration(habitName: string) {

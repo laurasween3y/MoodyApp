@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { Journal, JournalEntry, JournalService } from '../../services/journal.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { buildEntryPreview } from '../../utils/journal-utils';
 
 @Component({
   selector: 'app-journal-page',
@@ -231,16 +232,6 @@ export class JournalPageComponent implements OnInit {
   }
 
   previewText(entry: JournalEntry): string {
-    const text = this.extractText(entry.content_json);
-    return text || 'No content yet';
-  }
-
-  private extractText(node: any): string {
-    if (!node) return '';
-    if (typeof node === 'string') return node;
-    if (Array.isArray(node)) return node.map(n => this.extractText(n)).join(' ');
-    if (node.text) return node.text;
-    if (node.content) return this.extractText(node.content);
-    return '';
+    return buildEntryPreview(entry.content_json);
   }
 }

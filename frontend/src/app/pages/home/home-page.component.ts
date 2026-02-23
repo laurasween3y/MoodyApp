@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { addDays, endOfWeek, format, isWithinInterval, parseISO, startOfWeek } from 'date-fns';
-
 import { MoodsService, MoodResponse, PlannerEventResponse, PlannerService } from '../../api';
-import { Habit, HabitService } from '../../services/habit.service';
+import { HabitService } from '../../services/habit.service';
+import { buildWeekRange, formatWeekRangeLabel, isDateIsoWithinRange, todayIso } from '../../utils/date-utils';
+import { HabitDashboardView, decorateHabitForDashboard } from '../../utils/habit-utils';
 
 @Component({
   selector: 'app-home-page',
@@ -21,7 +21,7 @@ export class HomePageComponent implements OnInit {
 
   todayMood?: MoodResponse;
   weekEvents: PlannerEventResponse[] = [];
-  habitsDue: (Habit & { isDoneToday: boolean; remainingThisWeek?: number; dueToday: boolean })[] = [];
+  habitsDue: HabitDashboardView[] = [];
 
   moods = [
     { key: 'happy', label: 'Happy', icon: 'assets/moods/happy.png' },
@@ -38,10 +38,7 @@ export class HomePageComponent implements OnInit {
     { key: 'fine', label: 'Fine', icon: 'assets/moods/fine.png' },
   ];
 
-  private weekRange = {
-    start: startOfWeek(new Date(), { weekStartsOn: 0 }),
-    end: endOfWeek(new Date(), { weekStartsOn: 0 })
-  };
+  private weekRange = buildWeekRange(0);
 
   constructor(
     private moodsService: MoodsService,
@@ -78,7 +75,7 @@ export class HomePageComponent implements OnInit {
     try {
       const events = await firstValueFrom(this.plannerService.plannerEventsGet());
       this.weekEvents = (events || [])
-        .filter(ev => this.isWithinThisWeek(ev.event_date))
+        .filter(ev => isDateIsoWithinRange(ev.event_date, this.weekRange))
         .sort((a, b) => (a.event_date || '').localeCompare(b.event_date || ''));
     } catch (err) {
       this.weekEvents = [];
@@ -89,23 +86,23 @@ export class HomePageComponent implements OnInit {
   private async loadHabits() {
     try {
       const habits = await firstValueFrom(this.habitService.getHabits());
-      this.habitsDue = habits.map(h => this.decorateHabit(h));
+      this.habitsDue = habits.map(h => decorateHabitForDashboard(h, this.weekRange));
     } catch (err) {
       this.habitsDue = [];
       console.error(err);
     }
   }
 
-  async toggleHabit(habit: Habit & { isDoneToday: boolean }) {
+  async toggleHabit(habit: HabitDashboardView) {
     if (this.habitBusy.has(habit.id)) return;
     this.habitBusy.add(habit.id);
 
     try {
       const updated = await firstValueFrom(
-        this.habitService.toggleCompletion(habit.id, this.currentTodayIso())
+        this.habitService.toggleCompletion(habit.id, todayIso())
       );
       this.habitsDue = this.habitsDue.map(h =>
-        h.id === updated.id ? this.decorateHabit(updated) : h
+        h.id === updated.id ? decorateHabitForDashboard(updated, this.weekRange) : h
       );
       await this.loadHabits();
     } catch (err) {
@@ -115,42 +112,8 @@ export class HomePageComponent implements OnInit {
     }
   }
 
-  private decorateHabit(h: Habit) {
-    const todayIso = this.currentTodayIso();
-    const completions = h.completions || [];
-    const isDoneToday = completions.includes(todayIso);
-    let dueToday = false;
-    let remainingThisWeek = undefined as number | undefined;
-
-    if (h.frequency === 'daily' || h.frequency === 'custom') {
-      dueToday = !isDoneToday;
-    } else {
-      const countThisWeek = completions.filter(d => this.isWithinThisWeek(d)).length;
-      remainingThisWeek = Math.max(h.target_per_week - countThisWeek, 0);
-      dueToday = remainingThisWeek > 0 && !isDoneToday;
-    }
-
-    return { ...h, isDoneToday, remainingThisWeek, dueToday };
-  }
-
-  private currentTodayIso() {
-    return format(new Date(), 'yyyy-MM-dd');
-  }
-
-  private isWithinThisWeek(dateIso?: string | null) {
-    if (!dateIso) return false;
-    try {
-      const date = parseISO(dateIso);
-      return isWithinInterval(date, this.weekRange);
-    } catch (err) {
-      return false;
-    }
-  }
-
   weekRangeLabel() {
-    const startLabel = format(this.weekRange.start, 'MMM d');
-    const endLabel = format(addDays(this.weekRange.end, 0), 'MMM d');
-    return `${startLabel} – ${endLabel}`;
+    return formatWeekRangeLabel(this.weekRange);
   }
 
   moodLabel(mood?: string) {
