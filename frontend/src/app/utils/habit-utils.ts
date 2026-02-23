@@ -1,6 +1,8 @@
-import { endOfWeek, format, isSameWeek, startOfWeek, type Day } from 'date-fns';
+import { endOfWeek, format, isSameWeek, startOfWeek } from 'date-fns';
 import { Habit } from '../services/habit.service';
 import { isDateIsoWithinRange, todayIso, WeekRange } from './date-utils';
+
+type WeekStart = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface HabitDashboardView extends Habit {
   isDoneToday: boolean;
@@ -32,7 +34,7 @@ export const normalizeTarget = (value: number): number => {
   return Math.round(value);
 };
 
-export const completionsThisWeek = (completions: string[], weekStartsOn: Day = 1): number => {
+export const completionsThisWeek = (completions: string[], weekStartsOn: WeekStart = 1): number => {
   const start = startOfWeek(new Date(), { weekStartsOn });
   const end = endOfWeek(new Date(), { weekStartsOn });
   return (completions || []).filter((dateStr) => {
@@ -41,7 +43,7 @@ export const completionsThisWeek = (completions: string[], weekStartsOn: Day = 1
   }).length;
 };
 
-export const calculateWeeklyProgress = (habit: Habit, weekStartsOn: Day = 1) => {
+export const calculateWeeklyProgress = (habit: Habit, weekStartsOn: WeekStart = 1) => {
   const count = completionsThisWeek(habit.completions, weekStartsOn);
   return {
     count,
@@ -51,7 +53,7 @@ export const calculateWeeklyProgress = (habit: Habit, weekStartsOn: Day = 1) => 
   };
 };
 
-export const isHabitMet = (habit: Habit, weekStartsOn: Day = 1): boolean => {
+export const isHabitMet = (habit: Habit, weekStartsOn: WeekStart = 1): boolean => {
   if (habit.frequency === 'daily') return habit.completions.includes(todayIso());
   return completionsThisWeek(habit.completions, weekStartsOn) >= habit.target_per_week;
 };

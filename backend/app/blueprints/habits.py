@@ -14,6 +14,7 @@ from app.schemas.habit import (
     HabitUpdateSchema,
     HabitToggleSchema,
 )
+from app.services.gamification import evaluate_habit
 
 blp = Blueprint(
     "habits",
@@ -118,15 +119,24 @@ class HabitCompletionResource(MethodView):
         completion.date = completion_date
 
         db.session.add(completion)
+        awarded = []
+        added = True
         try:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
+            added = False
             # Already exists, treat as idempotent success
         except Exception:
             db.session.rollback()
             abort(500, message="Could not update habit completion")
+
+        if added:
+            awarded = evaluate_habit(g.current_user.id, completion_date)
+            _commit_or_abort("Could not update habit streaks")
+
         habit = _get_habit_or_404(habit_id)
+        setattr(habit, "awarded", awarded)
         return habit
 
     @blp.response(200, HabitResponseSchema)
@@ -182,7 +192,14 @@ class HabitToggleResource(MethodView):
                 completion.date = completion_date
                 db.session.add(completion)
             db.session.commit()
+
+            awarded = []
+            if not existing:
+                awarded = evaluate_habit(g.current_user.id, completion_date)
+                _commit_or_abort("Could not update habit streaks")
+
             habit = _get_habit_or_404(habit_id)
+            setattr(habit, "awarded", awarded)
             return habit
         except Exception:
             db.session.rollback()

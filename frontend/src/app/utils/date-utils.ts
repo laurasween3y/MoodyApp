@@ -1,11 +1,13 @@
-import { addDays, endOfWeek, format, isWithinInterval, parseISO, startOfWeek, type Day } from 'date-fns';
+import { addDays, endOfWeek, format, isWithinInterval, parseISO, startOfWeek } from 'date-fns';
+
+type WeekStart = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface WeekRange {
   start: Date;
   end: Date;
 }
 
-export const buildWeekRange = (weekStartsOn: Day = 0): WeekRange => ({
+export const buildWeekRange = (weekStartsOn: WeekStart = 0): WeekRange => ({
   start: startOfWeek(new Date(), { weekStartsOn }),
   end: endOfWeek(new Date(), { weekStartsOn }),
 });

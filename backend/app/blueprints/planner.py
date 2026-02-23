@@ -72,8 +72,9 @@ class PlannerEventsResource(MethodView):
 
         db.session.add(event)
         _commit_or_abort("Could not create event")
-        evaluate_planner(g.current_user.id)
+        awarded = evaluate_planner(g.current_user.id)
         _commit_or_abort("Could not update planner streaks")
+        setattr(event, "awarded", awarded)
         return event
 
 

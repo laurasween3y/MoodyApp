@@ -7,6 +7,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import { Frequency, Habit, HabitService } from '../../services/habit.service';
 import { calculateStreak, calculateWeeklyProgress, isHabitMet, normalizeTarget } from '../../utils/habit-utils';
 import { todayIso } from '../../utils/date-utils';
+import { NotificationService } from '../../core/notification.service';
+import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 @Component({
   selector: 'app-habits-page',
@@ -28,7 +30,10 @@ export class HabitsPageComponent implements OnInit {
     targetPerWeek: 7,
   };
 
-  constructor(private habitsService: HabitService) {}
+  constructor(
+    private habitsService: HabitService,
+    private notifications: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.loadHabits();
@@ -135,6 +140,7 @@ export class HabitsPageComponent implements OnInit {
       if (isHabitMet(updated)) {
         this.triggerCelebration(habit.title);
       }
+      this.notifyAwards(extractAwarded(updated));
     } catch (err) {
       this.error = 'Failed to update completion';
       console.error(err);
@@ -169,5 +175,10 @@ export class HabitsPageComponent implements OnInit {
   private triggerCelebration(habitName: string) {
     this.celebrationMessage = `Nice! "${habitName}" hit its goal.`;
     setTimeout(() => (this.celebrationMessage = ''), 3200);
+  }
+
+  private notifyAwards(awarded: string[] | undefined) {
+    if (!awarded?.length) return;
+    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
   }
 }

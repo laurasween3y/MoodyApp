@@ -53,4 +53,9 @@ class JournalEntryResponseSchema(Schema):
     entry_date = fields.Date()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
-
+    awarded = fields.List(
+        fields.Str(),
+        dump_only=True,
+        dump_default=[],
+        metadata={"description": "Newly awarded achievement keys"},
+    )

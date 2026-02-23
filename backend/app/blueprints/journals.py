@@ -180,8 +180,9 @@ class JournalEntriesResource(MethodView):
 
         db.session.add(entry)
         db.session.commit()
-        evaluate_journal(g.current_user.id)
+        awarded = evaluate_journal(g.current_user.id)
         db.session.commit()
+        setattr(entry, "awarded", awarded)
         return entry
 
 

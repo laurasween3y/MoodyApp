@@ -14,6 +14,8 @@ import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { JournalEntry, JournalService } from '../../services/journal.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { NotificationService } from '../../core/notification.service';
+import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 @Component({
   selector: 'app-entry-detail',
@@ -76,7 +78,8 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private journalService: JournalService
+    private journalService: JournalService,
+    private notifications: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -190,7 +193,8 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
         entry_date: this.entryDate,
       };
       if (this.isCreate) {
-        await firstValueFrom(this.journalService.createEntry(this.journalId, payload));
+        const created = await firstValueFrom(this.journalService.createEntry(this.journalId, payload));
+        this.notifyAwards(extractAwarded(created));
       } else if (this.entryId) {
         await firstValueFrom(this.journalService.updateEntry(this.journalId, this.entryId, payload));
       }
@@ -223,6 +227,11 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   goBack() {
     this.router.navigate(['/journal', this.journalId]);
+  }
+
+  private notifyAwards(awarded: string[] | undefined) {
+    if (!awarded?.length) return;
+    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
   }
 
   // Toolbar actions

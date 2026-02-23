@@ -151,6 +151,7 @@ def _upsert_mood(mood_data):
         if "note" in mood_data:
             existing.note = mood_data.get("note")
         _commit_or_abort("Could not update mood")
+        setattr(existing, "awarded", [])
         return existing, 200
 
     mood = Mood()
@@ -161,7 +162,8 @@ def _upsert_mood(mood_data):
 
     db.session.add(mood)
     _commit_or_abort("Could not save mood")
-    evaluate_mood(g.current_user.id, mood.date)
+    awarded = evaluate_mood(g.current_user.id, mood.date)
     _commit_or_abort("Could not update mood streaks")
+    setattr(mood, "awarded", awarded)
 
     return mood

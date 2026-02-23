@@ -11,6 +11,7 @@ import {
   JournalUpdate,
   JournalsService
 } from '../api';
+import { extractAwarded } from '../utils/achievement-utils';
 
 export interface Journal {
   id: number;
@@ -30,6 +31,7 @@ export interface JournalEntry {
   font_family?: string;
   font_size?: number;
   entry_date: string;
+  awarded: string[];
   created_at?: string;
   updated_at?: string;
 }
@@ -134,6 +136,7 @@ export class JournalService {
       font_family: entry.font_family,
       font_size: entry.font_size,
       entry_date: entry.entry_date ?? '',
+      awarded: extractAwarded(entry),
       created_at: entry.created_at,
       updated_at: entry.updated_at,
     };

@@ -16,6 +16,8 @@ import {
 } from 'date-fns';
 
 import { MoodResponse, MoodsService } from '../../api';
+import { NotificationService } from '../../core/notification.service';
+import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 type CalendarDay = {
   date: Date;
@@ -62,7 +64,10 @@ export class MoodPageComponent implements OnInit {
   loading = false;
   error?: string;
 
-  constructor(private moodsService: MoodsService) {}
+  constructor(
+    private moodsService: MoodsService,
+    private notifications: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.refreshData();
@@ -92,14 +97,16 @@ export class MoodPageComponent implements OnInit {
     };
     this.loading = true;
     try {
+      let response: MoodResponse | undefined;
       if (this.editingMoodId) {
-        await firstValueFrom(
+        response = await firstValueFrom(
           this.moodsService.moodsMoodIdPatch(this.editingMoodId, payload)
         );
       } else {
-        await firstValueFrom(this.moodsService.moodsPost(payload));
+        response = await firstValueFrom(this.moodsService.moodsPost(payload));
       }
 
+      this.notifyAwards(extractAwarded(response));
       this.resetForm();
       await this.refreshData(false);
     } catch (err) {
@@ -236,5 +243,10 @@ export class MoodPageComponent implements OnInit {
         mood: this.moodByDate.get(iso),
       };
     });
+  }
+
+  private notifyAwards(awarded: string[] | undefined) {
+    if (!awarded?.length) return;
+    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { HabitCreate, HabitResponse, HabitToggle, HabitUpdate, HabitsService } from '../api';
+import { extractAwarded } from '../utils/achievement-utils';
 
 export type Frequency = 'daily' | 'weekly' | 'custom';
 export interface Habit {
@@ -9,6 +10,7 @@ export interface Habit {
   frequency: Frequency;
   target_per_week: number;
   completions: string[];
+  awarded: string[];
   created_at?: string;
   updated_at?: string;
 }
@@ -56,6 +58,7 @@ export class HabitService {
       frequency: (habit.frequency as Frequency) ?? 'daily',
       target_per_week: habit.target_per_week ?? 1,
       completions: (habit.completions ?? []).map((c: string) => c.slice(0, 10)),
+      awarded: extractAwarded(habit),
       created_at: habit.created_at,
       updated_at: habit.updated_at,
     };

@@ -6,6 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { PlannerEventResponse, PlannerEventCreate, PlannerService } from '../../api';
+import { NotificationService } from '../../core/notification.service';
+import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 type PlannerUiEvent = PlannerEventResponse & { isHoliday?: boolean };
 
@@ -45,7 +47,10 @@ export class PlannerPageComponent implements OnInit {
     { label: '1 day before', value: 1440 },
   ];
 
-  constructor(private plannerService: PlannerService) {}
+  constructor(
+    private plannerService: PlannerService,
+    private notifications: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.loadEvents();
@@ -93,6 +98,7 @@ export class PlannerPageComponent implements OnInit {
       } else {
         const created = await firstValueFrom(this.plannerService.plannerEventsPost(payload));
         this.events = this.sortEvents([created, ...this.events]);
+        this.notifyAwards(extractAwarded(created));
       }
       this.resetForm();
       this.buildCalendar();
@@ -279,5 +285,10 @@ export class PlannerPageComponent implements OnInit {
       }
     }
     return detail || fallback;
+  }
+
+  private notifyAwards(awarded: string[] | undefined) {
+    if (!awarded?.length) return;
+    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
   }
 }

@@ -48,6 +48,12 @@ class MoodResponseSchema(Schema):
     mood = fields.Str(metadata={"description": "The submitted mood"})
     note = fields.Str(allow_none=True, metadata={"description": "Optional note about the mood"})
     date = fields.Date(dump_only=True)
+    awarded = fields.List(
+        fields.Str(),
+        dump_only=True,
+        dump_default=[],
+        metadata={"description": "Newly awarded achievement keys"},
+    )
 
 
 class MoodOptionsSchema(Schema):

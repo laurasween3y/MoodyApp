@@ -71,6 +71,12 @@ class PlannerEventResponseSchema(Schema):
     reminder_minutes_before = fields.Int(allow_none=True)
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
+    awarded = fields.List(
+        fields.Str(),
+        dump_only=True,
+        dump_default=[],
+        metadata={"description": "Newly awarded achievement keys"},
+    )
 
 
 class PlannerEventListSchema(Schema):

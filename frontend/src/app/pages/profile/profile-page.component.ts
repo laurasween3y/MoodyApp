@@ -5,14 +5,7 @@ import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { ProfileService, Profile, StreakSummary, AchievementItem } from '../../services/profile.service';
-
-const ACHIEVEMENT_ICON_MAP: Record<string, string> = {
-  mood_7_day: 'assets/achievements/moodkeeper.png',
-  mood_30_day: 'assets/achievements/moodmaestro.png',
-  habit_10: 'assets/achievements/habithero.png',
-  journal_5: 'assets/achievements/storyteller.png',
-  planner_7: 'assets/achievements/plannerpro.png',
-};
+import { getAchievementIcon } from '../../utils/achievement-utils';
 
 @Component({
   selector: 'app-profile-page',
@@ -61,7 +54,7 @@ export class ProfilePageComponent implements OnInit {
       this.streaks = streaks;
       this.achievementsAll = achievements.all_possible.map((ach) => ({
         ...ach,
-        icon: ACHIEVEMENT_ICON_MAP[ach.key] ?? ach.icon,
+        icon: getAchievementIcon(ach.key) ?? ach.icon,
       }));
 
       this.form.patchValue({

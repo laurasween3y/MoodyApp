@@ -45,6 +45,12 @@ class HabitResponseSchema(Schema):
     target_per_week = fields.Int()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
+    awarded = fields.List(
+        fields.Str(),
+        dump_only=True,
+        dump_default=[],
+        metadata={"description": "Newly awarded achievement keys"},
+    )
     completions = fields.Method("get_completions", dump_only=True)
 
     def get_completions(self, obj):
