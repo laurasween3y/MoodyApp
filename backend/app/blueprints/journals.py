@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 
 from app.extensions import db
-from app.auth_utils import jwt_required
+from app.auth_utils import get_current_user
 from app.models import Journal, JournalEntry
 from app.services.gamification import evaluate_journal
 from app.schemas.journal import (
@@ -25,17 +25,15 @@ blp = Blueprint(
 )
 
 
-def _commit_or_abort(message: str) -> None:
-    try:
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        abort(500, message=message)
+@blp.before_request
+def require_auth():
+    if request.method == "OPTIONS":
+        return None
+    g.current_user = get_current_user()
 
 
 @blp.route("/")
 class JournalsResource(MethodView):
-    decorators = [jwt_required]
     @blp.response(200, JournalResponseSchema(many=True))
     def get(self):
         """List journals for the current user."""
@@ -63,13 +61,12 @@ class JournalsResource(MethodView):
             abort(409, message="A journal with that title already exists")
 
         db.session.add(journal)
-        _commit_or_abort("Could not create journal")
+        db.session.commit()
         return journal
 
 
 @blp.route("/<int:journal_id>")
 class JournalDetailResource(MethodView):
-    decorators = [jwt_required]
     @blp.response(200, JournalResponseSchema)
     def get(self, journal_id):
         journal = Journal.query.filter_by(user_id=g.current_user.id, id=journal_id).first()
@@ -97,7 +94,7 @@ class JournalDetailResource(MethodView):
         if "cover_url" in data:
             journal.cover_url = data.get("cover_url")
 
-        _commit_or_abort("Could not update journal")
+        db.session.commit()
         return journal
 
     @blp.response(204)
@@ -107,13 +104,12 @@ class JournalDetailResource(MethodView):
             abort(404, message="Journal not found")
 
         db.session.delete(journal)
-        _commit_or_abort("Could not delete journal")
+        db.session.commit()
         return "", 204
 
 
 @blp.route("/<int:journal_id>/cover")
 class JournalCoverResource(MethodView):
-    decorators = [jwt_required]
     @blp.response(200, JournalResponseSchema)
     def post(self, journal_id):
         journal = Journal.query.filter_by(user_id=g.current_user.id, id=journal_id).first()
@@ -146,13 +142,12 @@ class JournalCoverResource(MethodView):
 
         base_url = request.url_root.rstrip("/")
         journal.cover_url = f"{base_url}/uploads/{final_name}"
-        _commit_or_abort("Could not update journal cover")
+        db.session.commit()
         return journal
 
 
 @blp.route("/<int:journal_id>/entries")
 class JournalEntriesResource(MethodView):
-    decorators = [jwt_required]
     @blp.response(200, JournalEntryResponseSchema(many=True))
     def get(self, journal_id):
         journal = Journal.query.filter_by(user_id=g.current_user.id, id=journal_id).first()
@@ -184,15 +179,14 @@ class JournalEntriesResource(MethodView):
         entry.entry_date = data.get("entry_date")
 
         db.session.add(entry)
-        _commit_or_abort("Could not create journal entry")
+        db.session.commit()
         evaluate_journal(g.current_user.id)
-        _commit_or_abort("Could not update journal achievements")
+        db.session.commit()
         return entry
 
 
 @blp.route("/<int:journal_id>/entries/<int:entry_id>")
 class JournalEntryDetailResource(MethodView):
-    decorators = [jwt_required]
     @blp.response(200, JournalEntryResponseSchema)
     def get(self, journal_id, entry_id):
         entry = self._get_entry(journal_id, entry_id)
@@ -216,14 +210,14 @@ class JournalEntryDetailResource(MethodView):
         if "entry_date" in data:
             entry.entry_date = data.get("entry_date")
 
-        _commit_or_abort("Could not update journal entry")
+        db.session.commit()
         return entry
 
     @blp.response(204)
     def delete(self, journal_id, entry_id):
         entry = self._get_entry(journal_id, entry_id)
         db.session.delete(entry)
-        _commit_or_abort("Could not delete journal entry")
+        db.session.commit()
         return "", 204
 
     def _get_entry(self, journal_id, entry_id):
