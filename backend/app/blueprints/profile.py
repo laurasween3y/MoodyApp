@@ -1,8 +1,8 @@
-from flask import g, request
+from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
-from app.auth_utils import get_current_user
+from app.auth_utils import jwt_required
 from app.extensions import db
 from app.schemas.profile import ProfileSchema, ProfileUpdateSchema
 
@@ -12,13 +12,6 @@ blp = Blueprint(
     url_prefix="/profile",
     description="User profile",
 )
-
-
-@blp.before_request
-def require_auth():
-    if request.method == "OPTIONS":
-        return None
-    g.current_user = get_current_user()
 
 
 def _commit_or_abort(message: str) -> None:
@@ -31,6 +24,7 @@ def _commit_or_abort(message: str) -> None:
 
 @blp.route("")
 class ProfileResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, ProfileSchema)
     def get(self):
         return g.current_user

@@ -17,11 +17,11 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { Login } from '../model/login';
+import { LoginRequest } from '../model/login-request';
 // @ts-ignore
 import { LoginResponse } from '../model/login-response';
 // @ts-ignore
-import { Register } from '../model/register';
+import { RegisterRequest } from '../model/register-request';
 // @ts-ignore
 import { RegisterResponse } from '../model/register-response';
 
@@ -44,17 +44,17 @@ export class AuthService extends BaseService {
     /**
      * Authenticate and return a JWT.
      * @endpoint post /auth/login
-     * @param login 
+     * @param loginRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public authLoginPost(login: Login, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoginResponse>;
-    public authLoginPost(login: Login, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoginResponse>>;
-    public authLoginPost(login: Login, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoginResponse>>;
-    public authLoginPost(login: Login, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (login === null || login === undefined) {
-            throw new Error('Required parameter login was null or undefined when calling authLoginPost.');
+    public authLoginPost(loginRequest: LoginRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoginResponse>;
+    public authLoginPost(loginRequest: LoginRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoginResponse>>;
+    public authLoginPost(loginRequest: LoginRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoginResponse>>;
+    public authLoginPost(loginRequest: LoginRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loginRequest === null || loginRequest === undefined) {
+            throw new Error('Required parameter loginRequest was null or undefined when calling authLoginPost.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -96,7 +96,7 @@ export class AuthService extends BaseService {
         return this.httpClient.request<LoginResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: login,
+                body: loginRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -110,17 +110,17 @@ export class AuthService extends BaseService {
     /**
      * Create a new user account.
      * @endpoint post /auth/register
-     * @param register 
+     * @param registerRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public authRegisterPost(register: Register, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<RegisterResponse>;
-    public authRegisterPost(register: Register, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterResponse>>;
-    public authRegisterPost(register: Register, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterResponse>>;
-    public authRegisterPost(register: Register, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (register === null || register === undefined) {
-            throw new Error('Required parameter register was null or undefined when calling authRegisterPost.');
+    public authRegisterPost(registerRequest: RegisterRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<RegisterResponse>;
+    public authRegisterPost(registerRequest: RegisterRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterResponse>>;
+    public authRegisterPost(registerRequest: RegisterRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterResponse>>;
+    public authRegisterPost(registerRequest: RegisterRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (registerRequest === null || registerRequest === undefined) {
+            throw new Error('Required parameter registerRequest was null or undefined when calling authRegisterPost.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -162,7 +162,7 @@ export class AuthService extends BaseService {
         return this.httpClient.request<RegisterResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: register,
+                body: registerRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

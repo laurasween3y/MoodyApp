@@ -11,6 +11,7 @@ from app.extensions import db
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
     # File uploads (journal covers)
     upload_folder = os.path.join(app.root_path, "uploads")

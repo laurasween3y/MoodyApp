@@ -1,12 +1,12 @@
 from datetime import date
 
-from flask import g, request
+from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
 from app.extensions import db
 from app.models.mood import Mood
-from app.auth_utils import get_current_user
+from app.auth_utils import jwt_required
 from app.services.gamification import evaluate_mood
 from ..schemas.mood import (
     MOOD_OPTIONS,
@@ -24,14 +24,6 @@ blp = Blueprint(
 )
 
 
-@blp.before_request
-def require_auth():
-    if request.method == "OPTIONS":
-        return None
-
-    g.current_user = get_current_user()
-
-
 def _commit_or_abort(message: str) -> None:
     try:
         db.session.commit()
@@ -42,6 +34,7 @@ def _commit_or_abort(message: str) -> None:
 
 @blp.route("/")
 class MoodsResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, MoodResponseSchema(many=True))
     def get(self):
         """List all moods for the current user."""
@@ -63,6 +56,7 @@ class MoodsResource(MethodView):
 
 @blp.route("/today")
 class MoodTodayResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, MoodResponseSchema)
     def get(self):
         """Return today's mood for the current user; returns 200 with empty body if none."""
@@ -81,6 +75,7 @@ class MoodTodayResource(MethodView):
 
 @blp.route("/<int:mood_id>")
 class MoodDetailResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, MoodResponseSchema)
     def get(self, mood_id):
         """Get a single mood by id for the current user."""
@@ -134,6 +129,7 @@ class MoodDetailResource(MethodView):
 
 @blp.route("/options")
 class MoodOptionsResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, MoodOptionsSchema)
     def get(self):
         """List allowed mood keys for the client UI."""

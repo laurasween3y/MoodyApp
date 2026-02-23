@@ -16,7 +16,11 @@ from app.models import (
 def _touch_streak(user_id: int, module: str, action_date: dt.date) -> Streak:
     streak = Streak.query.filter_by(user_id=user_id, module=module).first()
     if not streak:
-        streak = Streak(user_id=user_id, module=module, current_streak=0, longest_streak=0)
+        streak = Streak()
+        streak.user_id = user_id
+        streak.module = module
+        streak.current_streak = 0
+        streak.longest_streak = 0
         db.session.add(streak)
 
     if streak.last_action_date == action_date:
@@ -35,68 +39,68 @@ def _touch_streak(user_id: int, module: str, action_date: dt.date) -> Streak:
 def _award(user_id: int, module: str, key: str, awarded: List[str]) -> None:
     exists = Achievement.query.filter_by(user_id=user_id, achievement_key=key).first()
     if not exists:
-        db.session.add(Achievement(user_id=user_id, module=module, achievement_key=key))
+        achievement = Achievement()
+        achievement.user_id = user_id
+        achievement.module = module
+        achievement.achievement_key = key
+        db.session.add(achievement)
         awarded.append(key)
 
 
 def evaluate_mood(user_id: int, action_date: dt.date) -> List[str]:
+    """Update mood streaks and award achievements that align with progress API keys."""
+
     awarded: List[str] = []
-    _touch_streak(user_id, "mood", action_date)
+    streak = _touch_streak(user_id, "mood", action_date)
 
-    total = db.session.query(func.count(Mood.id)).filter_by(user_id=user_id).scalar()
-    streak = Streak.query.filter_by(user_id=user_id, module="mood").first()
+    total = db.session.query(func.count(Mood.id)).filter_by(user_id=user_id).scalar() or 0
 
-    if total >= 1:
-        _award(user_id, "mood", "mood_first_log", awarded)
-    for threshold in (3, 7, 30):
-        if streak and streak.current_streak >= threshold:
-            _award(user_id, "mood", f"mood_{threshold}_day_streak", awarded)
-    if total >= 100:
-        _award(user_id, "mood", "mood_100_total_logs", awarded)
+    # Achievement keys must match progress.ALL_ACHIEVEMENTS
+    if streak and streak.current_streak >= 7:
+        _award(user_id, "mood", "mood_7_day", awarded)
+    if total >= 30:
+        _award(user_id, "mood", "mood_30_day", awarded)
+
     return awarded
 
 
 def evaluate_habit(user_id: int, action_date: dt.date) -> List[str]:
+    """Update habit streaks and award achievements matching progress API keys."""
+
     awarded: List[str] = []
     _touch_streak(user_id, "habit", action_date)
 
-    total = db.session.query(func.count(HabitCompletion.id)).filter_by(user_id=user_id).scalar()
-    streak = Streak.query.filter_by(user_id=user_id, module="habit").first()
+    total = db.session.query(func.count(HabitCompletion.id)).filter_by(user_id=user_id).scalar() or 0
 
-    if total >= 1:
-        _award(user_id, "habit", "habit_first_complete", awarded)
-    if total >= 7:
-        _award(user_id, "habit", "habit_7_completions", awarded)
-    if total >= 30:
-        _award(user_id, "habit", "habit_30_completions", awarded)
-    if streak and streak.current_streak >= 14:
-        _award(user_id, "habit", "habit_14_day_streak", awarded)
-    if total >= 100:
-        _award(user_id, "habit", "habit_100_total_completions", awarded)
-    return awarded
-
-
-def evaluate_journal(user_id: int) -> List[str]:
-    awarded: List[str] = []
-    total = db.session.query(func.count(JournalEntry.id)).filter_by(user_id=user_id).scalar()
-    if total >= 1:
-        _award(user_id, "journal", "journal_first_entry", awarded)
     if total >= 10:
-        _award(user_id, "journal", "journal_10_entries", awarded)
-    if total >= 25:
-        _award(user_id, "journal", "journal_25_entries", awarded)
-    if total >= 50:
-        _award(user_id, "journal", "journal_50_entries", awarded)
-    if total >= 100:
-        _award(user_id, "journal", "journal_100_entries", awarded)
+        _award(user_id, "habit", "habit_10", awarded)
+
     return awarded
 
 
-def evaluate_planner(user_id: int) -> List[str]:
+def evaluate_journal(user_id: int, action_date: dt.date | None = None) -> List[str]:
+    """Award journal achievements that match progress API keys and optionally touch streaks."""
+
     awarded: List[str] = []
-    total = db.session.query(func.count(PlannerEvent.id)).filter_by(user_id=user_id).scalar()
-    for threshold in (1, 10, 25, 50, 100):
-        key = "planner_first_event" if threshold == 1 else f"planner_{threshold}_events"
-        if total >= threshold:
-            _award(user_id, "planner", key, awarded)
+
+    if action_date:
+        _touch_streak(user_id, "journal", action_date)
+
+    total = db.session.query(func.count(JournalEntry.id)).filter_by(user_id=user_id).scalar() or 0
+    if total >= 5:
+        _award(user_id, "journal", "journal_5", awarded)
+    return awarded
+
+
+def evaluate_planner(user_id: int, action_date: dt.date | None = None) -> List[str]:
+    """Award planner achievements matching progress API keys and update streak when date provided."""
+
+    awarded: List[str] = []
+
+    if action_date:
+        _touch_streak(user_id, "planner", action_date)
+
+    total = db.session.query(func.count(PlannerEvent.id)).filter_by(user_id=user_id).scalar() or 0
+    if total >= 7:
+        _award(user_id, "planner", "planner_7", awarded)
     return awarded

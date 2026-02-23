@@ -5,7 +5,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
 from app.extensions import db
-from app.auth_utils import get_current_user
+from app.auth_utils import jwt_required
 from app.models.planner import PlannerEvent
 from app.services.gamification import evaluate_planner
 from app.schemas.planner import (
@@ -20,13 +20,6 @@ blp = Blueprint(
     url_prefix="/planner",
     description="Plan events and reminders",
 )
-
-
-@blp.before_request
-def require_auth():
-    if request.method == "OPTIONS":
-        return None
-    g.current_user = get_current_user()
 
 
 def _get_event_or_404(event_id: int) -> PlannerEvent:
@@ -46,6 +39,7 @@ def _commit_or_abort(message: str) -> None:
 
 @blp.route("/events")
 class PlannerEventsResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, PlannerEventResponseSchema(many=True))
     def get(self):
         """List planner events (optionally filter by date)"""
@@ -85,6 +79,7 @@ class PlannerEventsResource(MethodView):
 
 @blp.route("/events/<int:event_id>")
 class PlannerEventDetailResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, PlannerEventResponseSchema)
     def get(self, event_id):
         return _get_event_or_404(event_id)

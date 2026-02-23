@@ -247,7 +247,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Register"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             }
           }
@@ -283,7 +283,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Login"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             }
           }
@@ -1376,7 +1376,7 @@
         },
         "additionalProperties": false
       },
-      "Register": {
+      "RegisterRequest": {
         "type": "object",
         "properties": {
           "email": {
@@ -1403,7 +1403,7 @@
         },
         "additionalProperties": false
       },
-      "Login": {
+      "LoginRequest": {
         "type": "object",
         "properties": {
           "email": {

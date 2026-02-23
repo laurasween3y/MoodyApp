@@ -4,12 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { Journal, JournalEntry, JournalService } from '../../services/journal.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-journal-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './journal-page.component.html',
   styleUrl: './journal-page.component.scss'
 })

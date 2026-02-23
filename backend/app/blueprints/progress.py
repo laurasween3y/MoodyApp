@@ -1,8 +1,8 @@
-from flask import g, request
+from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from app.auth_utils import get_current_user
+from app.auth_utils import jwt_required
 from app.models import Achievement, Streak
 from app.schemas.progress import AchievementsResponseSchema, StreakSummarySchema
 
@@ -57,13 +57,6 @@ ALL_ACHIEVEMENTS = [
 ]
 
 
-@blp.before_request
-def require_auth():
-    if request.method == "OPTIONS":
-        return None
-    g.current_user = get_current_user()
-
-
 def _aggregate_streaks(user_id: int):
     streaks = {m: {"current": 0, "longest": 0} for m in ["mood", "habit", "journal", "planner"]}
     rows = Streak.query.filter_by(user_id=user_id).all()
@@ -78,6 +71,7 @@ def _aggregate_streaks(user_id: int):
 
 @blp.route("/streaks")
 class StreakSummaryResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, StreakSummarySchema)
     def get(self):
         streaks = _aggregate_streaks(g.current_user.id)
@@ -95,6 +89,7 @@ class StreakSummaryResource(MethodView):
 
 @blp.route("/achievements")
 class AchievementsResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, AchievementsResponseSchema)
     def get(self):
         unlocked_rows = Achievement.query.filter_by(user_id=g.current_user.id).all()

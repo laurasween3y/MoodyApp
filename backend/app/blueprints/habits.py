@@ -1,13 +1,13 @@
 from datetime import date
 
-from flask import g, request
+from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
 from app.models.habit import Habit, HabitCompletion
-from app.auth_utils import get_current_user
+from app.auth_utils import jwt_required
 from app.schemas.habit import (
     HabitCreateSchema,
     HabitResponseSchema,
@@ -21,13 +21,6 @@ blp = Blueprint(
     url_prefix="/habits",
     description="Create, update, and complete habits",
 )
-
-
-@blp.before_request
-def require_auth():
-    if request.method == "OPTIONS":
-        return None
-    g.current_user = get_current_user()
 
 
 def _get_habit_or_404(habit_id: int) -> Habit:
@@ -47,6 +40,7 @@ def _commit_or_abort(message: str) -> None:
 
 @blp.route("/")
 class HabitsResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, HabitResponseSchema(many=True))
     def get(self):
         """List habits for the current user"""
@@ -76,6 +70,7 @@ class HabitsResource(MethodView):
 
 @blp.route("/<int:habit_id>")
 class HabitDetailResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, HabitResponseSchema)
     def get(self, habit_id):
         habit = _get_habit_or_404(habit_id)
@@ -106,6 +101,7 @@ class HabitDetailResource(MethodView):
 
 @blp.route("/<int:habit_id>/completions/<string:date_str>")
 class HabitCompletionResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, HabitResponseSchema)
     def put(self, habit_id, date_str):
         """Mark a habit complete for a given date (default today)."""
@@ -156,6 +152,7 @@ class HabitCompletionResource(MethodView):
 
 @blp.route("/<int:habit_id>/toggle")
 class HabitToggleResource(MethodView):
+    decorators = [jwt_required]
     @blp.arguments(HabitToggleSchema)
     @blp.response(200, HabitResponseSchema)
     def post(self, payload, habit_id):

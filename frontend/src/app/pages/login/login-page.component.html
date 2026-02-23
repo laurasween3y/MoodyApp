@@ -10,15 +10,32 @@
 
     <div class="card">
       <h2>Sign in</h2>
-      <p class="muted">Use your email or username and password.</p>
-      <form (ngSubmit)="submit()" novalidate>
+      <p class="muted">Use your email and password.</p>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <label>Email
-          <input type="email" [(ngModel)]="email" name="email" required placeholder="you@example.com" />
+          <input type="email" formControlName="email" placeholder="you@example.com" />
+          <span class="field-error" *ngIf="emailCtrl?.touched && emailCtrl?.invalid">
+            <span *ngIf="emailCtrl?.errors?.['required']">Please add your email.</span>
+            <span *ngIf="emailCtrl?.errors?.['email']">That email format doesn’t look right.</span>
+          </span>
         </label>
         <label>Password
-          <input type="password" [(ngModel)]="password" name="password" required minlength="6" placeholder="••••••••" />
+          <div class="password-field">
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" />
+            <button type="button" class="toggle" (click)="togglePassword()" aria-label="Toggle password visibility">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <span class="field-error" *ngIf="passwordCtrl?.touched && passwordCtrl?.invalid">
+            <span *ngIf="passwordCtrl?.errors?.['required']">Please enter your password.</span>
+            <span *ngIf="passwordCtrl?.errors?.['minlength']">Use at least 6 characters.</span>
+          </span>
         </label>
-        <button type="submit">Log in</button>
+        <button type="submit" [disabled]="submitting || form.invalid">
+          <span *ngIf="!submitting">Log in</span>
+          <span *ngIf="submitting" class="spinner" aria-hidden="true"></span>
+          <span *ngIf="submitting">Signing in...</span>
+        </button>
       </form>
       <p class="error" *ngIf="error">{{ error }}</p>
       <p class="switch">Need an account? <a routerLink="/register">Sign up</a></p>

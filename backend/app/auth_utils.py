@@ -1,5 +1,6 @@
 import jwt
-from flask import current_app, request
+from functools import wraps
+from flask import current_app, request, g
 from flask_smorest import abort
 
 from app.models import User
@@ -32,3 +33,14 @@ def get_current_user() -> User:
         abort(401, message="User not found")
 
     return user
+
+
+def jwt_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if request.method == "OPTIONS":
+            return "", 200
+        g.current_user = get_current_user()
+        return fn(*args, **kwargs)
+
+    return wrapper

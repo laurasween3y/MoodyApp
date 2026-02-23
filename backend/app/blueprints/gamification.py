@@ -1,8 +1,8 @@
-from flask import g, request
+from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from app.auth_utils import get_current_user
+from app.auth_utils import jwt_required
 from app.models import Streak, Achievement
 from app.schemas.gamification import StreakSchema, AchievementSchema
 
@@ -14,15 +14,9 @@ blp = Blueprint(
 )
 
 
-@blp.before_request
-def require_auth():
-    if request.method == "OPTIONS":
-        return None
-    g.current_user = get_current_user()
-
-
 @blp.route("/streaks")
 class StreaksResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, StreakSchema(many=True))
     def get(self):
         streaks = Streak.query.filter_by(user_id=g.current_user.id).all()
@@ -31,6 +25,7 @@ class StreaksResource(MethodView):
 
 @blp.route("/achievements")
 class AchievementsResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, AchievementSchema(many=True))
     def get(self):
         achievements = Achievement.query.filter_by(user_id=g.current_user.id).all()
