@@ -110,11 +110,12 @@
         </div>
 
         <div class="entries" *ngIf="entries.length; else noEntries">
-          <article class="entry" *ngFor="let entry of entries" (click)="goToEntry(entry)">
+          <article class="entry" *ngFor="let entry of entries" (click)="goToEntry(entry)" [class.pending]="entry.queued">
             <header>
               <div>
                 <p class="label">{{ entry.entry_date | date }}</p>
                 <h3>{{ entry.title || 'Untitled entry' }}</h3>
+                <p class="label muted" *ngIf="entry.queued">Pending sync</p>
               </div>
               <div class="entry-actions">
                 <button

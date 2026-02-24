@@ -3,6 +3,8 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { Journal, JournalEntry, JournalService } from '../../services/journal.service';
+
+const JOURNALS_CACHE_KEY = 'moody_cached_journals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { buildEntryPreview } from '../../utils/journal-utils';
@@ -45,6 +47,7 @@ export class JournalPageComponent implements OnInit {
     this.loading = true;
     try {
       this.journals = await firstValueFrom(this.journalsService.getJournals());
+      this.saveCachedJournals(this.journals);
       this.route.paramMap.subscribe(params => {
         const paramId = Number(params.get('journalId'));
         const targetId = paramId && this.journals.some(j => j.id === paramId)
@@ -54,7 +57,13 @@ export class JournalPageComponent implements OnInit {
       });
     } catch (err) {
       console.error(err);
-      this.error = 'Failed to load journals';
+      const cached = this.loadCachedJournals();
+      if (cached.length) {
+        this.journals = cached;
+        this.error = 'Offline: showing cached journals';
+      } else {
+        this.error = 'Failed to load journals';
+      }
     } finally {
       this.loading = false;
     }
@@ -101,6 +110,7 @@ export class JournalPageComponent implements OnInit {
         await this.uploadCover(journal.id, this.journalCoverFile);
       }
       this.journals.unshift(journal);
+      this.saveCachedJournals(this.journals);
       this.journalTitle = '';
       this.journalDescription = '';
       this.journalCoverFile = undefined;
@@ -147,6 +157,7 @@ export class JournalPageComponent implements OnInit {
         updated.cover_url = this.journalCoverFile ? updated.cover_url : updated.cover_url;
       }
       this.journals = this.journals.map(j => (j.id === updated.id ? updated : j));
+      this.saveCachedJournals(this.journals);
       this.editingJournalId = undefined;
       this.journalTitle = '';
       this.journalDescription = '';
@@ -197,6 +208,7 @@ export class JournalPageComponent implements OnInit {
     try {
       const updated = await firstValueFrom(this.journalsService.uploadCover(journalId, file));
       this.journals = this.journals.map(j => (j.id === updated.id ? updated : j));
+      this.saveCachedJournals(this.journals);
       if (this.selectedJournalId === updated.id) {
         this.selectedJournalId = updated.id; // trigger getter use
       }
@@ -214,9 +226,17 @@ export class JournalPageComponent implements OnInit {
     this.error = undefined;
     try {
       this.entries = await firstValueFrom(this.journalsService.getEntries(this.selectedJournalId));
+      this.saveCachedEntries(this.selectedJournalId, this.entries);
     } catch (err) {
-      this.error = 'Failed to load entries';
       console.error(err);
+      const cached = this.loadCachedEntries(this.selectedJournalId) || [];
+      if (cached.length) {
+        this.entries = cached;
+        this.error = 'Offline: showing cached entries';
+      } else {
+        this.error = 'Failed to load entries';
+        this.entries = [];
+      }
     } finally {
       this.entryLoading = false;
     }
@@ -239,5 +259,41 @@ export class JournalPageComponent implements OnInit {
 
   previewText(entry: JournalEntry): string {
     return buildEntryPreview(entry.content_json);
+  }
+
+  private saveCachedJournals(journals: Journal[]) {
+    try {
+      const limited = journals.slice(0, 50);
+      localStorage.setItem(JOURNALS_CACHE_KEY, JSON.stringify(limited));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private loadCachedJournals(): Journal[] {
+    try {
+      const raw = localStorage.getItem(JOURNALS_CACHE_KEY);
+      return raw ? (JSON.parse(raw) as Journal[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveCachedEntries(journalId: number, entries: JournalEntry[]) {
+    try {
+      const limited = entries.slice(-20);
+      localStorage.setItem(`moody_cached_entries_${journalId}`, JSON.stringify(limited));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private loadCachedEntries(journalId: number): JournalEntry[] | null {
+    try {
+      const raw = localStorage.getItem(`moody_cached_entries_${journalId}`);
+      return raw ? (JSON.parse(raw) as JournalEntry[]) : null;
+    } catch {
+      return null;
+    }
   }
 }

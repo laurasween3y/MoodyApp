@@ -2,8 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
-
 import { Frequency, Habit, HabitService } from '../../services/habit.service';
 import { calculateStreak, calculateWeeklyProgress, isHabitMet, normalizeTarget } from '../../utils/habit-utils';
 import { todayIso } from '../../utils/date-utils';
@@ -13,7 +11,7 @@ import { buildAchievementToast, extractAwarded } from '../../utils/achievement-u
 @Component({
   selector: 'app-habits-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './habits-page.component.html',
   styleUrl: './habits-page.component.scss'
 })

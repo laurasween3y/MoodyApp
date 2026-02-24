@@ -8,6 +8,10 @@ import { buildWeekRange, formatWeekRangeLabel, isDateIsoWithinRange, todayIso } 
 import { HabitDashboardView, decorateHabitForDashboard } from '../../utils/habit-utils';
 import { AffirmationService } from '../../core/affirmation.service';
 
+const HABITS_CACHE_KEY = 'moody_cached_habits';
+const PLANNER_CACHE_KEY = 'moody_cached_planner';
+const MOOD_TODAY_CACHE_KEY = 'moody_cached_mood_today';
+
 @Component({
   selector: 'app-home-page',
   standalone: true,
@@ -71,8 +75,10 @@ export class HomePageComponent implements OnInit {
   private async loadMood() {
     try {
       this.todayMood = await firstValueFrom(this.moodsService.moodsTodayGet());
+      this.saveCached(MOOD_TODAY_CACHE_KEY, this.todayMood);
     } catch (err) {
-      this.todayMood = undefined;
+      const cached = this.loadCached<MoodResponse>(MOOD_TODAY_CACHE_KEY);
+      this.todayMood = cached ?? undefined;
     }
   }
 
@@ -82,9 +88,12 @@ export class HomePageComponent implements OnInit {
       this.weekEvents = (events || [])
         .filter(ev => isDateIsoWithinRange(ev.event_date, this.weekRange))
         .sort((a, b) => (a.event_date || '').localeCompare(b.event_date || ''));
+      this.saveCached(PLANNER_CACHE_KEY, events || []);
     } catch (err) {
-      this.weekEvents = [];
-      console.error(err);
+      const cached = this.loadCached<PlannerEventResponse[]>(PLANNER_CACHE_KEY) || [];
+      this.weekEvents = cached
+        .filter(ev => isDateIsoWithinRange(ev.event_date, this.weekRange))
+        .sort((a, b) => (a.event_date || '').localeCompare(b.event_date || ''));
     }
   }
 
@@ -92,9 +101,10 @@ export class HomePageComponent implements OnInit {
     try {
       const habits = await firstValueFrom(this.habitService.getHabits());
       this.habitsDue = habits.map(h => decorateHabitForDashboard(h, this.weekRange));
+      this.saveCached(HABITS_CACHE_KEY, habits);
     } catch (err) {
-      this.habitsDue = [];
-      console.error(err);
+      const cached = this.loadCached<any[]>(HABITS_CACHE_KEY) || [];
+      this.habitsDue = cached.map(h => decorateHabitForDashboard(h, this.weekRange));
     }
   }
 
@@ -143,5 +153,22 @@ export class HomePageComponent implements OnInit {
   moodIcon(key?: string) {
     if (!key) return undefined;
     return this.moods.find(m => m.key === key)?.icon;
+  }
+
+  private saveCached(key: string, value: any) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private loadCached<T>(key: string): T | null {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as T) : null;
+    } catch {
+      return null;
+    }
   }
 }

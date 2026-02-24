@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 interface AffirmationResponse {
   affirmation: string;
@@ -13,8 +13,7 @@ export class AffirmationService {
   constructor(private http: HttpClient) {}
 
   getAffirmation(): Observable<AffirmationResponse> {
-    return this.http.get<AffirmationResponse>(this.url, {
-      headers: { Accept: 'application/json' },
-    });
+    // Remote API has CORS issues; use a friendly fallback instead.
+    return of({ affirmation: "You're doing better than you think 💛" });
   }
 }

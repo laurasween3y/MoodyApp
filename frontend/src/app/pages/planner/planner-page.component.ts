@@ -9,7 +9,7 @@ import { PlannerEventResponse, PlannerEventCreate, PlannerService } from '../../
 import { NotificationService } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
-type PlannerUiEvent = PlannerEventResponse & { isHoliday?: boolean };
+type PlannerUiEvent = PlannerEventResponse & { isHoliday?: boolean; queued?: boolean };
 
 @Component({
   selector: 'app-planner-page',
@@ -311,7 +311,8 @@ export class PlannerPageComponent implements OnInit {
 
   private saveCachedEvents(events: PlannerUiEvent[]) {
     try {
-      localStorage.setItem('moody_cached_planner', JSON.stringify(events));
+      const limited = events.slice(0, 100);
+      localStorage.setItem('moody_cached_planner', JSON.stringify(limited));
     } catch {
       /* ignore */
     }

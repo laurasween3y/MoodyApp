@@ -78,6 +78,7 @@
                   <div class="chips">
                     <span class="chip holiday" *ngIf="ev.isHoliday">Holiday</span>
                     <span class="chip" *ngIf="ev.reminder_minutes_before">Reminder: {{ ev.reminder_minutes_before }} min before</span>
+                    <span class="chip pending" *ngIf="ev.queued">Pending sync</span>
                   </div>
                 </div>
                 <div class="event-actions" *ngIf="!ev.isHoliday">
