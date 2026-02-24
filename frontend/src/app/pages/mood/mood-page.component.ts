@@ -136,6 +136,19 @@ export class MoodPageComponent implements OnInit {
   }
 
   async fetchAll() {
+    // Prefer cache immediately when offline to keep calendar populated
+    if (!navigator.onLine) {
+      const cached = this.loadCachedMoods();
+      if (cached.length) {
+        this.allMoods = cached;
+        this.buildMoodMap();
+        this.today = this.moodByDate.get(format(new Date(), 'yyyy-MM-dd'));
+        this.error = 'Offline: showing cached moods';
+        this.buildCalendarDays();
+        return;
+      }
+    }
+
     try {
       this.allMoods = await firstValueFrom(this.moodsService.moodsGet());
       this.buildMoodMap();

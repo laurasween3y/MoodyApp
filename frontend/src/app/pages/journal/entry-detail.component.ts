@@ -13,14 +13,13 @@ import FontFamily from '@tiptap/extension-font-family';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { JournalEntry, JournalService } from '../../services/journal.service';
-import { LucideAngularModule } from 'lucide-angular';
 import { NotificationService } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 @Component({
   selector: 'app-entry-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './entry-detail.component.html',
   styleUrls: ['./entry-detail.component.scss']
 })

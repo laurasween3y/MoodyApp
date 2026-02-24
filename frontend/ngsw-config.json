@@ -42,6 +42,30 @@
       }
     },
     {
+      "name": "api-habits",
+      "urls": [
+        "http://localhost:5000/habits/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "7d",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "api-planner",
+      "urls": [
+        "http://localhost:5000/planner/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "7d",
+        "timeout": "5s"
+      }
+    },
+    {
       "name": "affirmations-api",
       "urls": [
         "https://www.affirmations.dev/**"

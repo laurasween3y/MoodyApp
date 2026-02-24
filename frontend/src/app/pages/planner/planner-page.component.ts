@@ -3,8 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, startOfMonth, startOfWeek } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
-
 import { PlannerEventResponse, PlannerEventCreate, PlannerService } from '../../api';
 import { NotificationService } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
@@ -14,7 +12,7 @@ type PlannerUiEvent = PlannerEventResponse & { isHoliday?: boolean; queued?: boo
 @Component({
   selector: 'app-planner-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './planner-page.component.html',
   styleUrl: './planner-page.component.scss'
 })

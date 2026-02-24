@@ -6,13 +6,12 @@ import { Journal, JournalEntry, JournalService } from '../../services/journal.se
 
 const JOURNALS_CACHE_KEY = 'moody_cached_journals';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
 import { buildEntryPreview } from '../../utils/journal-utils';
 
 @Component({
   selector: 'app-journal-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './journal-page.component.html',
   styleUrl: './journal-page.component.scss'
 })
@@ -46,8 +45,19 @@ export class JournalPageComponent implements OnInit {
   async ngOnInit() {
     this.loading = true;
     try {
-      this.journals = await firstValueFrom(this.journalsService.getJournals());
-      this.saveCachedJournals(this.journals);
+      if (!navigator.onLine) {
+        const cached = this.loadCachedJournals();
+        if (cached.length) {
+          this.journals = cached;
+          this.error = 'Offline: showing cached journals';
+        } else {
+          this.journals = [];
+          this.error = 'Offline and no cached journals available';
+        }
+      } else {
+        this.journals = await firstValueFrom(this.journalsService.getJournals());
+        this.saveCachedJournals(this.journals);
+      }
       this.route.paramMap.subscribe(params => {
         const paramId = Number(params.get('journalId'));
         const targetId = paramId && this.journals.some(j => j.id === paramId)
@@ -115,7 +125,9 @@ export class JournalPageComponent implements OnInit {
       this.journalDescription = '';
       this.journalCoverFile = undefined;
       this.showCreateForm = false;
-      this.router.navigate(['/journal', journal.id]);
+      if (!(journal as any)?.queued) {
+        this.router.navigate(['/journal', journal.id]);
+      }
     } catch (err: any) {
       this.error = err?.error?.message || 'Failed to create journal';
       console.error(err);
@@ -225,6 +237,14 @@ export class JournalPageComponent implements OnInit {
     this.entryLoading = true;
     this.error = undefined;
     try {
+      if (!navigator.onLine) {
+        const cached = this.loadCachedEntries(this.selectedJournalId) || [];
+        if (cached.length) {
+          this.entries = cached;
+          this.error = 'Offline: showing cached entries';
+          return;
+        }
+      }
       this.entries = await firstValueFrom(this.journalsService.getEntries(this.selectedJournalId));
       this.saveCachedEntries(this.selectedJournalId, this.entries);
     } catch (err) {

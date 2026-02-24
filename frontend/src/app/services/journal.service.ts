@@ -51,14 +51,41 @@ export class JournalService {
   }
 
   getJournals(): Observable<Journal[]> {
-    return this.journalsApi.journalsGet().pipe(map((list) => list.map((j) => this.withResolvedCover(j))));
+    return this.journalsApi.journalsGet().pipe(map((list) => list.map((j) => this.withResolvedCover(j)).filter(Boolean) as Journal[]));
   }
 
   createJournal(payload: JournalCreate): Observable<Journal> {
+    if (!navigator.onLine) {
+      // queue-like stub so UI can show pending
+      return new Observable<Journal>((subscriber) => {
+        subscriber.next({
+          id: -1,
+          title: payload.title ?? '(queued)',
+          description: payload.description ?? null,
+          cover_url: null,
+          awarded: [],
+          queued: true,
+        } as any);
+        subscriber.complete();
+      });
+    }
     return this.journalsApi.journalsPost(payload).pipe(map((j) => this.withResolvedCover(j)));
   }
 
   updateJournal(id: number, payload: JournalUpdate): Observable<Journal> {
+    if (!navigator.onLine) {
+      return new Observable<Journal>((subscriber) => {
+        subscriber.next({
+          id,
+          title: payload.title ?? '(queued)',
+          description: payload.description ?? null,
+          cover_url: null,
+          awarded: [],
+          queued: true,
+        } as any);
+        subscriber.complete();
+      });
+    }
     return this.journalsApi.journalsJournalIdPatch(id, payload).pipe(map((j) => this.withResolvedCover(j)));
   }
 
@@ -80,7 +107,8 @@ export class JournalService {
 
   private withResolvedCover(journal: JournalResponse): Journal {
     if (journal.id === undefined) {
-      throw new Error('Journal id is required');
+      // Skip malformed journal objects
+      return null as unknown as Journal;
     }
     const normalized: Journal = {
       id: journal.id,
