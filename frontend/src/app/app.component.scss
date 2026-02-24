@@ -121,6 +121,18 @@ button.link.logout {
   flex: 1;
 }
 
+.offline-banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #fff7ed;
+  color: #9a3412;
+  border-bottom: 1px solid rgba(253, 186, 116, 0.6);
+  font-weight: 600;
+  padding: 0.45rem 1.5rem;
+  text-align: center;
+}
+
 /* Responsive: collapse nav into a vertical panel on small screens */
 @media (max-width: 720px) {
   .menu-toggle {

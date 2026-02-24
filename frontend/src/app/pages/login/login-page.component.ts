@@ -37,7 +37,7 @@ export class LoginPageComponent {
     this.auth.login(payload).subscribe({
       next: () => {
         this.submitting = false;
-        this.router.navigate(['/mood']);
+        this.router.navigate(['/home']);
       },
       error: (err) => {
         this.submitting = false;

@@ -56,6 +56,8 @@ def evaluate_mood(user_id: int, action_date: dt.date) -> List[str]:
     total = db.session.query(func.count(Mood.id)).filter_by(user_id=user_id).scalar() or 0
 
     # Achievement keys must match progress.ALL_ACHIEVEMENTS
+    if total >= 1:
+        _award(user_id, "mood", "mood_first_log", awarded)
     if streak and streak.current_streak >= 7:
         _award(user_id, "mood", "mood_7_day", awarded)
     if total >= 30:
@@ -72,6 +74,8 @@ def evaluate_habit(user_id: int, action_date: dt.date) -> List[str]:
 
     total = db.session.query(func.count(HabitCompletion.id)).filter_by(user_id=user_id).scalar() or 0
 
+    if total >= 1:
+        _award(user_id, "habit", "habit_first_completion", awarded)
     if total >= 10:
         _award(user_id, "habit", "habit_10", awarded)
 
@@ -86,6 +90,8 @@ def evaluate_journal(user_id: int, action_date: dt.date | None = None) -> List[s
         _touch_streak(user_id, "journal", action_date)
 
     total = db.session.query(func.count(JournalEntry.id)).filter_by(user_id=user_id).scalar() or 0
+    if total >= 1:
+        _award(user_id, "journal", "journal_first_entry", awarded)
     if total >= 5:
         _award(user_id, "journal", "journal_5", awarded)
     return awarded
@@ -100,6 +106,8 @@ def evaluate_planner(user_id: int, action_date: dt.date | None = None) -> List[s
         _touch_streak(user_id, "planner", action_date)
 
     total = db.session.query(func.count(PlannerEvent.id)).filter_by(user_id=user_id).scalar() or 0
+    if total >= 1:
+        _award(user_id, "planner", "planner_first_event", awarded)
     if total >= 7:
         _award(user_id, "planner", "planner_7", awarded)
     return awarded

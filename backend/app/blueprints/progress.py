@@ -1,3 +1,4 @@
+import datetime as dt
 from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint
@@ -16,6 +17,14 @@ blp = Blueprint(
 ALL_ACHIEVEMENTS = [
     {
         "module": "mood",
+        "key": "mood_first_log",
+        "title": "First Check-in",
+        "description": "Log your first mood",
+        "icon": "/assets/achievements/firstmood.png",
+        "target": 1,
+    },
+    {
+        "module": "mood",
         "key": "mood_7_day",
         "title": "Mood Keeper",
         "description": "Log moods 7 days in a row",
@@ -32,6 +41,14 @@ ALL_ACHIEVEMENTS = [
     },
     {
         "module": "habit",
+        "key": "habit_first_completion",
+        "title": "First Habit Check-in",
+        "description": "Complete your first habit",
+        "icon": "/assets/achievements/firsthabit.png",
+        "target": 1,
+    },
+    {
+        "module": "habit",
         "key": "habit_10",
         "title": "Habit Hero",
         "description": "Complete 10 habit check-ins",
@@ -40,11 +57,27 @@ ALL_ACHIEVEMENTS = [
     },
     {
         "module": "journal",
+        "key": "journal_first_entry",
+        "title": "First Entry",
+        "description": "Write your first journal entry",
+        "icon": "/assets/achievements/firstjournal.png",
+        "target": 1,
+    },
+    {
+        "module": "journal",
         "key": "journal_5",
         "title": "Storyteller",
         "description": "Write 5 journal entries",
         "icon": "/assets/badges/journal_5.svg",
         "target": 5,
+    },
+    {
+        "module": "planner",
+        "key": "planner_first_event",
+        "title": "First Plan",
+        "description": "Create your first planner event",
+        "icon": "/assets/achievements/firstplan.png",
+        "target": 1,
     },
     {
         "module": "planner",
@@ -65,8 +98,20 @@ def _aggregate_streaks(user_id: int):
             streaks[row.module] = {
                 "current": row.current_streak or 0,
                 "longest": row.longest_streak or 0,
-            }
+        }
     return streaks
+
+
+def _safe_unlocked_at(row):
+    val = getattr(row, "unlocked_at", None)
+    if isinstance(val, dt.datetime):
+        return val
+    if isinstance(val, str):
+        try:
+            return dt.datetime.fromisoformat(val)
+        except Exception:
+            return None
+    return None
 
 
 @blp.route("/streaks")
@@ -102,6 +147,7 @@ class AchievementsResource(MethodView):
             db_row = unlocked_lookup.get(ach["key"])
             progress_current = ach.get("target", 0)
             progress_target = ach.get("target", 0)
+            unlocked_at = _safe_unlocked_at(db_row) if db_row else None
             payload = {
                 "module": ach["module"],
                 "key": ach["key"],
@@ -109,7 +155,8 @@ class AchievementsResource(MethodView):
                 "description": ach["description"],
                 "icon": ach["icon"],
                 "locked": db_row is None,
-                "unlocked_at": db_row.unlocked_at.isoformat() if db_row else None,
+                # keep as datetime for marshmallow to format
+                "unlocked_at": unlocked_at if unlocked_at else None,
                 "progress_current": progress_current if db_row else 0,
                 "progress_target": progress_target,
             }
