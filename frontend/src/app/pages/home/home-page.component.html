@@ -13,10 +13,13 @@
         <div class="sticky-quote">
           <span class="quote-emoji">✨</span>
           <div>
-            <p class="quote-text">“Small steps still count. Be gentle with yourself.”</p>
+            <p class="quote-text" *ngIf="!loadingAffirmation; else loadingAffirmationTpl">“{{ affirmation }}”</p>
             <p class="quote-meta">Daily affirmation</p>
           </div>
         </div>
+        <ng-template #loadingAffirmationTpl>
+          <p class="quote-text muted">Loading something gentle...</p>
+        </ng-template>
       </div>
     </div>
 

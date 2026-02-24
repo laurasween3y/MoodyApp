@@ -6,6 +6,7 @@ import { MoodsService, MoodResponse, PlannerEventResponse, PlannerService } from
 import { HabitService } from '../../services/habit.service';
 import { buildWeekRange, formatWeekRangeLabel, isDateIsoWithinRange, todayIso } from '../../utils/date-utils';
 import { HabitDashboardView, decorateHabitForDashboard } from '../../utils/habit-utils';
+import { AffirmationService } from '../../core/affirmation.service';
 
 @Component({
   selector: 'app-home-page',
@@ -22,6 +23,8 @@ export class HomePageComponent implements OnInit {
   todayMood?: MoodResponse;
   weekEvents: PlannerEventResponse[] = [];
   habitsDue: HabitDashboardView[] = [];
+  affirmation = '';
+  loadingAffirmation = true;
 
   moods = [
     { key: 'happy', label: 'Happy', icon: 'assets/moods/happy.png' },
@@ -43,11 +46,13 @@ export class HomePageComponent implements OnInit {
   constructor(
     private moodsService: MoodsService,
     private plannerService: PlannerService,
-    private habitService: HabitService
+    private habitService: HabitService,
+    private affirmationService: AffirmationService
   ) {}
 
   ngOnInit(): void {
     this.loadDashboard();
+    this.loadAffirmation();
   }
 
   async loadDashboard() {
@@ -91,6 +96,20 @@ export class HomePageComponent implements OnInit {
       this.habitsDue = [];
       console.error(err);
     }
+  }
+
+  private loadAffirmation() {
+    this.loadingAffirmation = true;
+    this.affirmationService.getAffirmation().subscribe({
+      next: (res) => {
+        this.affirmation = res.affirmation;
+        this.loadingAffirmation = false;
+      },
+      error: () => {
+        this.affirmation = "You're doing better than you think 💛";
+        this.loadingAffirmation = false;
+      },
+    });
   }
 
   async toggleHabit(habit: HabitDashboardView) {

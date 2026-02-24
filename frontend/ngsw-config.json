@@ -40,6 +40,18 @@
         "maxAge": "7d",
         "timeout": "5s"
       }
+    },
+    {
+      "name": "affirmations-api",
+      "urls": [
+        "https://www.affirmations.dev/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 5,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
     }
   ]
 }
