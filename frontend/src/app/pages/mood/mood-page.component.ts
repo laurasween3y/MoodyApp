@@ -173,6 +173,29 @@ export class MoodPageComponent implements OnInit {
     }
   }
 
+  async deleteSelectedMood() {
+    if (!this.selectedMoodEntry?.id) return;
+    const confirmDelete = confirm('Delete this mood entry?');
+    if (!confirmDelete) return;
+    this.loading = true;
+    try {
+      await firstValueFrom(this.moodsService.moodsMoodIdDelete(this.selectedMoodEntry.id));
+      this.resetForm();
+      await this.refreshData(false);
+      this.notifications.show({
+        type: 'success',
+        title: 'Mood deleted',
+        message: 'Entry removed.',
+        icon: '🗑️',
+      } as AppNotification);
+    } catch (err) {
+      this.error = 'Failed to delete mood';
+      console.error(err);
+    } finally {
+      this.loading = false;
+    }
+  }
+
   startEdit(mood: MoodResponse) {
     this.editingMoodId = mood.id;
     this.selectedMood = mood.mood;

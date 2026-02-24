@@ -39,6 +39,9 @@
       <button type="button" class="ghost" (click)="refreshData()" [disabled]="loading">
         Refresh data
       </button>
+      <button type="button" class="ghost danger" (click)="deleteSelectedMood()" [disabled]="loading || !selectedMoodEntry">
+        Delete selected
+      </button>
     </div>
 
     <div *ngIf="error" class="alert">{{ error }}</div>
