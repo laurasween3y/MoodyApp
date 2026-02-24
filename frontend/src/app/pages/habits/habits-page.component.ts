@@ -48,9 +48,16 @@ export class HabitsPageComponent implements OnInit {
     this.error = undefined;
     try {
       this.habits = await firstValueFrom(this.habitsService.getHabits());
+      this.saveCachedHabits(this.habits);
     } catch (err) {
-      this.error = 'Failed to load habits';
       console.error(err);
+      const cached = this.loadCachedHabits();
+      if (cached.length) {
+        this.habits = cached;
+        this.error = 'Offline: showing cached habits';
+      } else {
+        this.error = 'Failed to load habits';
+      }
     } finally {
       this.loading = false;
     }
@@ -73,7 +80,14 @@ export class HabitsPageComponent implements OnInit {
           target_per_week: normalizeTarget(this.form.targetPerWeek),
         })
       );
-      this.habits = [created, ...this.habits];
+      if ((created as any)?.queued || created.id === -1) {
+        const temp: Habit = { ...created, id: Date.now() * -1, title: this.form.title.trim() };
+        this.habits = [temp, ...this.habits];
+        this.notifications.show({ type: 'info', title: 'Saved offline', message: 'Habit will sync when back online.', icon: '🛰️' });
+      } else {
+        this.habits = [created, ...this.habits];
+      }
+      this.saveCachedHabits(this.habits);
       this.resetForm();
     } catch (err) {
       this.error = 'Failed to create habit';
@@ -103,7 +117,12 @@ export class HabitsPageComponent implements OnInit {
           target_per_week: normalizeTarget(this.form.targetPerWeek),
         })
       );
-      this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
+      if ((updated as any)?.queued || updated.id === -1) {
+        this.notifications.show({ type: 'info', title: 'Saved offline', message: 'Habit update will sync when back online.', icon: '🛰️' });
+      } else {
+        this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
+      }
+      this.saveCachedHabits(this.habits);
       this.resetForm();
     } catch (err) {
       this.error = 'Failed to update habit';
@@ -136,11 +155,16 @@ export class HabitsPageComponent implements OnInit {
         this.habitsService.toggleCompletion(Number(habit.id), this.todayISO())
       );
 
-      this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
-      if (isHabitMet(updated)) {
-        this.triggerCelebration(habit.title);
+      if ((updated as any)?.queued || updated.id === -1) {
+        this.notifications.show({ type: 'info', title: 'Saved offline', message: 'Completion will sync when back online.', icon: '🛰️' });
+      } else {
+        this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
+        if (isHabitMet(updated)) {
+          this.triggerCelebration(habit.title);
+        }
+        this.notifyAwards(extractAwarded(updated));
       }
-      this.notifyAwards(extractAwarded(updated));
+      this.saveCachedHabits(this.habits);
     } catch (err) {
       this.error = 'Failed to update completion';
       console.error(err);
@@ -180,5 +204,22 @@ export class HabitsPageComponent implements OnInit {
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
     awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+  }
+
+  private saveCachedHabits(habits: Habit[]) {
+    try {
+      localStorage.setItem('moody_cached_habits', JSON.stringify(habits));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private loadCachedHabits(): Habit[] {
+    try {
+      const raw = localStorage.getItem('moody_cached_habits');
+      return raw ? (JSON.parse(raw) as Habit[]) : [];
+    } catch {
+      return [];
+    }
   }
 }

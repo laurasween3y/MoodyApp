@@ -64,9 +64,17 @@ export class PlannerPageComponent implements OnInit {
   this.events = this.sortEvents(events || []);
       this.holidayEvents = this.buildHolidayEvents(this.currentMonth.getFullYear());
       this.buildCalendar();
+      this.saveCachedEvents(this.events);
     } catch (err) {
       console.error(err);
-      this.error = 'Failed to load events';
+      const cached = this.loadCachedEvents();
+      if (cached.length) {
+        this.events = cached;
+        this.error = 'Offline: showing cached events';
+        this.buildCalendar();
+      } else {
+        this.error = 'Failed to load events';
+      }
     } finally {
       this.loading = false;
     }
@@ -92,14 +100,23 @@ export class PlannerPageComponent implements OnInit {
         const updated = await firstValueFrom(
           this.plannerService.plannerEventsEventIdPut(this.editingId, payload)
         );
-        this.events = this.sortEvents(
-          this.events.map(e => (e.id === updated.id ? updated : e))
-        );
+        if ((updated as any)?.queued) {
+          this.notifications.show({ type: 'info', title: 'Saved offline', message: 'We will sync this update when online.' });
+        } else {
+          this.events = this.sortEvents(
+            this.events.map(e => (e.id === updated.id ? updated : e))
+          );
+        }
       } else {
         const created = await firstValueFrom(this.plannerService.plannerEventsPost(payload));
-        this.events = this.sortEvents([created, ...this.events]);
-        this.notifyAwards(extractAwarded(created));
+        if ((created as any)?.queued) {
+          this.notifications.show({ type: 'info', title: 'Saved offline', message: 'We will sync this event when online.' });
+        } else {
+          this.events = this.sortEvents([created, ...this.events]);
+          this.notifyAwards(extractAwarded(created));
+        }
       }
+      this.saveCachedEvents(this.events);
       this.resetForm();
       this.buildCalendar();
     } catch (err) {
@@ -290,5 +307,22 @@ export class PlannerPageComponent implements OnInit {
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
     awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+  }
+
+  private saveCachedEvents(events: PlannerUiEvent[]) {
+    try {
+      localStorage.setItem('moody_cached_planner', JSON.stringify(events));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private loadCachedEvents(): PlannerUiEvent[] {
+    try {
+      const raw = localStorage.getItem('moody_cached_planner');
+      return raw ? (JSON.parse(raw) as PlannerUiEvent[]) : [];
+    } catch {
+      return [];
+    }
   }
 }

@@ -16,7 +16,7 @@ import {
 } from 'date-fns';
 
 import { MoodResponse, MoodsService } from '../../api';
-import { NotificationService } from '../../core/notification.service';
+import { NotificationService, AppNotification } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 type CalendarDay = {
@@ -106,7 +106,17 @@ export class MoodPageComponent implements OnInit {
         response = await firstValueFrom(this.moodsService.moodsPost(payload));
       }
 
-      this.notifyAwards(extractAwarded(response));
+      if ((response as any)?.queued) {
+        this.notifications.show({
+          type: 'info',
+          title: 'Saved offline',
+          message: 'We will sync this mood when you are back online.',
+          icon: '🌙',
+        } as AppNotification);
+      } else {
+        this.notifyAwards(extractAwarded(response));
+      }
+
       this.resetForm();
       await this.refreshData(false);
     } catch (err) {

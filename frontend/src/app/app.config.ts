@@ -6,15 +6,18 @@ import { ApiModule, Configuration } from './api';
 import { LucideAngularModule, Pencil, Trash2 } from 'lucide-angular';
 import { routes } from './app.routes';
 import { authInterceptor } from './auth.interceptor';
+import { offlineQueueInterceptor } from './core/offline-queue.interceptor';
+import { OfflineQueueService } from './core/offline-queue.service';
 import { provideServiceWorker } from '@angular/service-worker';
 
 const apiConfigFactory = () => new Configuration({ basePath: 'http://localhost:5000' });
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, offlineQueueInterceptor])),
     importProvidersFrom(ApiModule.forRoot(apiConfigFactory), LucideAngularModule.pick({ Pencil, Trash2 })),
     provideRouter(routes),
+    OfflineQueueService,
     provideServiceWorker('ngsw-worker.js', {
         enabled: !isDevMode(),
         registrationStrategy: 'registerWhenStable:30000'

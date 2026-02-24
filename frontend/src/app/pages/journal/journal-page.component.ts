@@ -53,8 +53,8 @@ export class JournalPageComponent implements OnInit {
         this.selectJournal(targetId);
       });
     } catch (err) {
-      this.error = 'Failed to load journals';
       console.error(err);
+      this.error = 'Failed to load journals';
     } finally {
       this.loading = false;
     }
@@ -94,6 +94,9 @@ export class JournalPageComponent implements OnInit {
       const journal = await firstValueFrom(
         this.journalsService.createJournal({ title: this.journalTitle.trim(), description: this.journalDescription || undefined })
       );
+      if ((journal as any)?.queued) {
+        this.error = undefined;
+      }
       if (this.journalCoverFile) {
         await this.uploadCover(journal.id, this.journalCoverFile);
       }
@@ -136,6 +139,9 @@ export class JournalPageComponent implements OnInit {
           description: this.journalDescription || null,
         })
       );
+      if ((updated as any)?.queued) {
+        this.error = undefined;
+      }
       if (this.journalCoverFile) {
         await this.uploadCover(updated.id, this.journalCoverFile);
         updated.cover_url = this.journalCoverFile ? updated.cover_url : updated.cover_url;

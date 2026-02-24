@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
-export type NotificationType = 'success' | 'achievement' | 'error';
+export type NotificationType = 'success' | 'achievement' | 'error' | 'info';
 
 export interface AppNotification {
   type: NotificationType;

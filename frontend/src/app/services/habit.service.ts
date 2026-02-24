@@ -13,6 +13,7 @@ export interface Habit {
   awarded: string[];
   created_at?: string;
   updated_at?: string;
+  queued?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,11 +25,11 @@ export class HabitService {
   }
 
   createHabit(payload: HabitCreate): Observable<Habit> {
-    return this.habitsApi.habitsPost(payload).pipe(map((h) => this.normalizeHabit(h)));
+    return this.habitsApi.habitsPost(payload).pipe(map((h: any) => this.normalizeQueuedOrHabit(h)));
   }
 
   updateHabit(id: number, payload: HabitUpdate): Observable<Habit> {
-    return this.habitsApi.habitsHabitIdPatch(id, payload).pipe(map((h) => this.normalizeHabit(h)));
+    return this.habitsApi.habitsHabitIdPatch(id, payload).pipe(map((h: any) => this.normalizeQueuedOrHabit(h)));
   }
 
   deleteHabit(id: number): Observable<void> {
@@ -37,15 +38,30 @@ export class HabitService {
 
   toggleCompletion(id: number, dateIso: string): Observable<Habit> {
     const body: HabitToggle = { date: dateIso };
-    return this.habitsApi.habitsHabitIdTogglePost(id, body).pipe(map((h) => this.normalizeHabit(h)));
+    return this.habitsApi.habitsHabitIdTogglePost(id, body).pipe(map((h: any) => this.normalizeQueuedOrHabit(h)));
   }
 
   setCompletion(id: number, dateIso: string): Observable<Habit> {
-    return this.habitsApi.habitsHabitIdCompletionsDateStrPut(id, dateIso).pipe(map((h) => this.normalizeHabit(h)));
+    return this.habitsApi.habitsHabitIdCompletionsDateStrPut(id, dateIso).pipe(map((h: any) => this.normalizeQueuedOrHabit(h)));
   }
 
   unsetCompletion(id: number, dateIso: string): Observable<Habit> {
-    return this.habitsApi.habitsHabitIdCompletionsDateStrDelete(id, dateIso).pipe(map((h) => this.normalizeHabit(h)));
+    return this.habitsApi.habitsHabitIdCompletionsDateStrDelete(id, dateIso).pipe(map((h: any) => this.normalizeQueuedOrHabit(h)));
+  }
+
+  private normalizeQueuedOrHabit(habit: any): Habit {
+    if (habit?.queued) {
+      return {
+        id: -1,
+        title: habit?.title ?? '(queued)',
+        frequency: 'daily',
+        target_per_week: 1,
+        completions: [],
+        awarded: [],
+        queued: true,
+      } as Habit;
+    }
+    return this.normalizeHabit(habit as HabitResponse);
   }
 
   private normalizeHabit(habit: HabitResponse): Habit {

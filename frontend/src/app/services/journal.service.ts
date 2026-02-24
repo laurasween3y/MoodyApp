@@ -34,6 +34,7 @@ export interface JournalEntry {
   awarded: string[];
   created_at?: string;
   updated_at?: string;
+  queued?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -108,7 +109,7 @@ export class JournalService {
     journalId: number,
     payload: JournalEntryCreate
   ): Observable<JournalEntry> {
-    return this.journalsApi.journalsJournalIdEntriesPost(journalId, payload).pipe(map((e) => this.normalizeEntry(e)));
+    return this.journalsApi.journalsJournalIdEntriesPost(journalId, payload).pipe(map((e: any) => this.normalizeQueuedOrEntry(e)));
   }
 
   updateEntry(
@@ -116,11 +117,26 @@ export class JournalService {
     entryId: number,
     payload: JournalEntryUpdate
   ): Observable<JournalEntry> {
-    return this.journalsApi.journalsJournalIdEntriesEntryIdPatch(journalId, entryId, payload).pipe(map((e) => this.normalizeEntry(e)));
+    return this.journalsApi.journalsJournalIdEntriesEntryIdPatch(journalId, entryId, payload).pipe(map((e: any) => this.normalizeQueuedOrEntry(e)));
   }
 
   deleteEntry(journalId: number, entryId: number): Observable<void> {
     return this.journalsApi.journalsJournalIdEntriesEntryIdDelete(journalId, entryId);
+  }
+
+  private normalizeQueuedOrEntry(entry: any): JournalEntry {
+    if (entry?.queued) {
+      return {
+        id: -1,
+        journal_id: -1,
+        title: entry?.title ?? '(queued)',
+        content_json: entry?.content_json ?? null,
+        entry_date: entry?.entry_date ?? '',
+        awarded: [],
+        queued: true,
+      } as JournalEntry;
+    }
+    return this.normalizeEntry(entry as JournalEntryResponse);
   }
 
   private normalizeEntry(entry: JournalEntryResponse): JournalEntry {
