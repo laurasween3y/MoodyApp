@@ -51,12 +51,18 @@ export class HabitService {
 
   private normalizeQueuedOrHabit(habit: any): Habit {
     if (habit?.queued) {
+      const body = habit?.body ?? {};
+      const id = habit?.habitId ?? habit?.id ?? -1;
       return {
-        id: -1,
-        title: habit?.title ?? '(queued)',
-        frequency: 'daily',
-        target_per_week: 1,
-        completions: [],
+        id,
+        title: body?.title ?? habit?.title ?? '(queued)',
+        frequency: (body?.frequency as Frequency) ?? 'daily',
+        target_per_week: body?.target_per_week ?? 1,
+        completions: Array.isArray(habit?.completions)
+          ? habit.completions
+          : Array.isArray(body?.completions)
+            ? body.completions
+            : [],
         awarded: [],
         queued: true,
       } as Habit;

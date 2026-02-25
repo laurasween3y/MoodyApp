@@ -116,7 +116,7 @@ export class JournalPageComponent implements OnInit {
       if ((journal as any)?.queued) {
         this.error = undefined;
       }
-      if (this.journalCoverFile) {
+      if (this.journalCoverFile && !(journal as any)?.queued && journal.id > 0) {
         await this.uploadCover(journal.id, this.journalCoverFile);
       }
       this.journals.unshift(journal);
@@ -164,7 +164,7 @@ export class JournalPageComponent implements OnInit {
       if ((updated as any)?.queued) {
         this.error = undefined;
       }
-      if (this.journalCoverFile) {
+      if (this.journalCoverFile && !(updated as any)?.queued && updated.id > 0) {
         await this.uploadCover(updated.id, this.journalCoverFile);
         updated.cover_url = this.journalCoverFile ? updated.cover_url : updated.cover_url;
       }

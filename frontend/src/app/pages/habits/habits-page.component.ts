@@ -116,6 +116,11 @@ export class HabitsPageComponent implements OnInit {
         })
       );
       if ((updated as any)?.queued || updated.id === -1) {
+        this.habits = this.habits.map(h =>
+          h.id === this.editingHabitId
+            ? { ...h, title: this.form.title.trim(), frequency: this.form.frequency, target_per_week: normalizeTarget(this.form.targetPerWeek), queued: true }
+            : h
+        );
         this.notifications.show({ type: 'info', title: 'Saved offline', message: 'Habit update will sync when back online.', icon: '🛰️' });
       } else {
         this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));
@@ -154,6 +159,14 @@ export class HabitsPageComponent implements OnInit {
       );
 
       if ((updated as any)?.queued || updated.id === -1) {
+        const next = this.habits.map(h => {
+          if (h.id !== habit.id) return h;
+          const today = this.todayISO();
+          const has = h.completions.includes(today);
+          const completions = has ? h.completions.filter(d => d !== today) : [...h.completions, today];
+          return { ...h, completions, queued: true };
+        });
+        this.habits = next;
         this.notifications.show({ type: 'info', title: 'Saved offline', message: 'Completion will sync when back online.', icon: '🛰️' });
       } else {
         this.habits = this.habits.map(h => (h.id === updated.id ? updated : h));

@@ -12,7 +12,7 @@ import Highlight from '@tiptap/extension-highlight';
 import FontFamily from '@tiptap/extension-font-family';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
-import { JournalEntry, JournalService } from '../../services/journal.service';
+import { Journal, JournalEntry, JournalService } from '../../services/journal.service';
 import { NotificationService } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
@@ -132,6 +132,20 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async verifyJournal() {
+    if (!navigator.onLine) {
+      try {
+        const raw = localStorage.getItem('moody_cached_journals');
+        const cached = raw ? (JSON.parse(raw) as Journal[]) : [];
+        if (cached.some(j => j.id === this.journalId)) {
+          return;
+        }
+      } catch {
+        // fallthrough to error
+      }
+      this.error = 'Journal not available offline';
+      this.router.navigate(['/journal']);
+      return;
+    }
     try {
       await firstValueFrom(this.journalService.getJournal(this.journalId));
     } catch (err) {
@@ -149,6 +163,24 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loading = true;
     this.error = undefined;
     try {
+      if (!navigator.onLine) {
+        const key = `moody_cached_entries_${this.journalId}`;
+        const raw = localStorage.getItem(key);
+        const cached = raw ? (JSON.parse(raw) as JournalEntry[]) : [];
+        const entry = cached.find(e => e.id === this.entryId);
+        if (entry) {
+          this.entryTitle = entry.title || '';
+          this.entryDate = entry.entry_date;
+          this.selectedBackground = entry.background || 'lined';
+          this.fontFamily = entry.font_family || 'Inter';
+          this.fontSize = entry.font_size || 16;
+          if (this.editor && entry.content_json) {
+            this.editor.commands.setContent(entry.content_json);
+          }
+          this.applyFontSettings();
+          return;
+        }
+      }
       const entry = await firstValueFrom(this.journalService.getEntry(this.journalId, this.entryId));
       this.entryTitle = entry.title || '';
       this.entryDate = entry.entry_date;
@@ -176,6 +208,10 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.error = 'Content is required';
       return;
     }
+    if (!navigator.onLine && this.journalId < 0) {
+      this.error = 'Go online to add entries for a new journal.';
+      return;
+    }
     this.loading = true;
     this.error = undefined;
     try {
@@ -194,6 +230,9 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.isCreate) {
         const created = await firstValueFrom(this.journalService.createEntry(this.journalId, payload));
         this.notifyAwards(extractAwarded(created));
+        if ((created as any)?.queued) {
+          this.cacheEntry(created);
+        }
       } else if (this.entryId) {
         await firstValueFrom(this.journalService.updateEntry(this.journalId, this.entryId, payload));
       }
@@ -221,6 +260,18 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       console.error(err);
     } finally {
       this.loading = false;
+    }
+  }
+
+  private cacheEntry(entry: JournalEntry) {
+    try {
+      const key = `moody_cached_entries_${this.journalId}`;
+      const raw = localStorage.getItem(key);
+      const list = raw ? (JSON.parse(raw) as JournalEntry[]) : [];
+      const next = [entry, ...list].slice(0, 20);
+      localStorage.setItem(key, JSON.stringify(next));
+    } catch {
+      /* ignore */
     }
   }
 
