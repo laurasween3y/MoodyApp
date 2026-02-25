@@ -39,6 +39,12 @@ export interface JournalEntry {
   queued?: boolean;
 }
 
+export interface JournalPrompt {
+  id: number;
+  text: string;
+  category: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class JournalService {
   constructor(
@@ -105,6 +111,10 @@ export class JournalService {
 
   deleteJournal(id: number): Observable<void> {
     return this.journalsApi.journalsJournalIdDelete(id);
+  }
+
+  getRandomPrompt(): Observable<JournalPrompt> {
+    return this.http.get<JournalPrompt>(`${this.apiBase}/journal-prompts/random`);
   }
 
   private normalizeQueuedOrJournal(

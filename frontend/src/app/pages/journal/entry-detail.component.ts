@@ -12,7 +12,7 @@ import Highlight from '@tiptap/extension-highlight';
 import FontFamily from '@tiptap/extension-font-family';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Journal, JournalEntry, JournalService } from '../../services/journal.service';
+import { Journal, JournalEntry, JournalPrompt, JournalService } from '../../services/journal.service';
 import { NotificationService } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
@@ -46,6 +46,10 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   error?: string;
   isCreate = false;
   private shouldLoadEntry = false;
+  prompt?: JournalPrompt;
+  promptVisible = false;
+  promptLoading = false;
+  promptError?: string;
 
   readonly backgrounds = [
     { value: 'blank', label: 'Blank' },
@@ -282,6 +286,25 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
     awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+  }
+
+  async fetchPrompt() {
+    this.promptLoading = true;
+    this.promptError = undefined;
+    try {
+      const prompt = await firstValueFrom(this.journalService.getRandomPrompt());
+      this.prompt = prompt;
+      this.promptVisible = true;
+    } catch {
+      this.promptError = 'Unable to load a prompt right now.';
+      this.promptVisible = true;
+    } finally {
+      this.promptLoading = false;
+    }
+  }
+
+  closePrompt() {
+    this.promptVisible = false;
   }
 
   // Toolbar actions

@@ -21,6 +21,29 @@
         </label>
       </div>
 
+      <div class="prompt-row">
+        <button type="button" class="ghost prompt-button" (click)="fetchPrompt()">
+          ✨ Need Inspiration?
+        </button>
+      </div>
+
+      <div class="prompt-card" *ngIf="promptVisible">
+        <div class="prompt-head">
+          <div>
+            <p class="prompt-eyebrow">Journal prompt</p>
+            <h3>Inspiration</h3>
+          </div>
+          <div class="prompt-actions">
+            <button type="button" class="ghost" (click)="fetchPrompt()" [disabled]="promptLoading">Refresh</button>
+            <button type="button" class="ghost" (click)="closePrompt()">Close</button>
+          </div>
+        </div>
+        <p *ngIf="promptLoading" class="muted">Loading prompt…</p>
+        <p *ngIf="!promptLoading && prompt?.text" class="prompt-text">“{{ prompt?.text }}”</p>
+        <p *ngIf="prompt?.category" class="prompt-meta">{{ prompt?.category }}</p>
+        <p *ngIf="promptError" class="prompt-error">{{ promptError }}</p>
+      </div>
+
       <div class="toolbar">
         <div class="group">
           <button type="button" (click)="toggleBold()" [class.active]="editorReady && editor?.isActive('bold')">B</button>

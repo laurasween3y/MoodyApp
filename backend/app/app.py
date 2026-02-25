@@ -44,6 +44,7 @@ def create_app() -> Flask:
         r"/progress/*": cors_rule,
         r"/profile*": cors_rule,
         r"/affirmations*": cors_rule,
+        r"/journal-prompts*": cors_rule,
         r"/uploads/*": cors_rule,
     }
     CORS(app, resources=cors_resources, supports_credentials=True)
@@ -71,6 +72,7 @@ def create_app() -> Flask:
     from app.blueprints.progress import blp as ProgressBlueprint
     from app.blueprints.profile import blp as ProfileBlueprint
     from app.blueprints.affirmations import blp as AffirmationsBlueprint
+    from app.blueprints.journal_prompts import blp as JournalPromptsBlueprint
 
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
@@ -81,6 +83,7 @@ def create_app() -> Flask:
     api.register_blueprint(ProgressBlueprint)
     api.register_blueprint(ProfileBlueprint)
     api.register_blueprint(AffirmationsBlueprint)
+    api.register_blueprint(JournalPromptsBlueprint)
 
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):
