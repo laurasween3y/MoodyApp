@@ -23,6 +23,31 @@
       </div>
     </div>
 
+    <div class="card streaks-card" *ngIf="streaks">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">🔥 Streaks</p>
+          <h2>Keep it going</h2>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="snippet snippet--mood">
+          <div class="snippet-content">
+            <div class="streak-label">Mood</div>
+            <div class="streak-value">{{ streaks.mood_current }} day{{ streaks.mood_current === 1 ? '' : 's' }}</div>
+            <div class="streak-meta">Longest: {{ streaks.mood_longest }}</div>
+          </div>
+        </div>
+        <div class="snippet snippet--habits">
+          <div class="snippet-content">
+            <div class="streak-label">Habits</div>
+            <div class="streak-value">{{ streaks.habit_current }} day{{ streaks.habit_current === 1 ? '' : 's' }}</div>
+            <div class="streak-meta">Longest: {{ streaks.habit_longest }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card mood-card">
       <div class="card-head">
         <div>

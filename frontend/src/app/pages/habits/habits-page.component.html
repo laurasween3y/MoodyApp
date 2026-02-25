@@ -10,6 +10,14 @@
       <div class="celebration" *ngIf="celebrationMessage">{{ celebrationMessage }}</div>
     </header>
 
+    <div class="streak-card" *ngIf="streaks">
+      <div>
+        <p class="eyebrow">Habit streak</p>
+        <h2>{{ streaks.habit_current }} day{{ streaks.habit_current === 1 ? '' : 's' }}</h2>
+        <p class="muted">Longest: {{ streaks.habit_longest }} day{{ streaks.habit_longest === 1 ? '' : 's' }}</p>
+      </div>
+    </div>
+
     <div class="alert error" *ngIf="error">{{ error }}</div>
     <div class="alert" *ngIf="loading">Loading habits…</div>
 

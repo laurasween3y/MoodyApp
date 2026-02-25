@@ -91,7 +91,7 @@ ALL_ACHIEVEMENTS = [
 
 
 def _aggregate_streaks(user_id: int):
-    streaks = {m: {"current": 0, "longest": 0} for m in ["mood", "habit", "journal", "planner"]}
+    streaks = {m: {"current": 0, "longest": 0} for m in ["mood", "habit"]}
     rows = Streak.query.filter_by(user_id=user_id).all()
     for row in rows:
         if row.module in streaks:
@@ -125,10 +125,6 @@ class StreakSummaryResource(MethodView):
             "mood_longest": streaks["mood"]["longest"],
             "habit_current": streaks["habit"]["current"],
             "habit_longest": streaks["habit"]["longest"],
-            "journal_current": streaks["journal"]["current"],
-            "journal_longest": streaks["journal"]["longest"],
-            "planner_current": streaks["planner"]["current"],
-            "planner_longest": streaks["planner"]["longest"],
         }
 
 

@@ -445,14 +445,3 @@ button.ghost {
   }
 }
 
-.planner-view::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at 15% 20%,
-    rgba(0, 0, 0, 0.02),
-    transparent 40%
-  );
-  pointer-events: none;
-}

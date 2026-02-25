@@ -6,10 +6,6 @@ class StreakSummarySchema(Schema):
     mood_longest = fields.Integer(required=True)
     habit_current = fields.Integer(required=True)
     habit_longest = fields.Integer(required=True)
-    journal_current = fields.Integer(required=True)
-    journal_longest = fields.Integer(required=True)
-    planner_current = fields.Integer(required=True)
-    planner_longest = fields.Integer(required=True)
 
 
 class AchievementItemSchema(Schema):

@@ -49,8 +49,6 @@
           <div class="streak" *ngFor="let item of [
             { label: 'Mood', current: streaks.mood_current, longest: streaks.mood_longest },
             { label: 'Habits', current: streaks.habit_current, longest: streaks.habit_longest },
-            { label: 'Journal', current: streaks.journal_current, longest: streaks.journal_longest },
-            { label: 'Planner', current: streaks.planner_current, longest: streaks.planner_longest },
           ]">
             <div class="streak-label">{{ item.label }}</div>
             <div class="streak-current">{{ item.current }} days</div>

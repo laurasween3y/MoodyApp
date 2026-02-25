@@ -6,6 +6,7 @@ import { Frequency, Habit, HabitService } from '../../services/habit.service';
 import { calculateStreak, calculateWeeklyProgress, isHabitMet, normalizeTarget } from '../../utils/habit-utils';
 import { todayIso } from '../../utils/date-utils';
 import { NotificationService } from '../../core/notification.service';
+import { ProfileService, StreakSummary } from '../../services/profile.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 @Component({
@@ -21,6 +22,7 @@ export class HabitsPageComponent implements OnInit {
   celebrationMessage = '';
   loading = false;
   error?: string;
+  streaks?: StreakSummary;
 
   form: { title: string; frequency: Frequency; targetPerWeek: number } = {
     title: '',
@@ -30,11 +32,13 @@ export class HabitsPageComponent implements OnInit {
 
   constructor(
     private habitsService: HabitService,
-    private notifications: NotificationService
+    private notifications: NotificationService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit(): void {
     this.loadHabits();
+    this.loadStreaks();
   }
 
   streakFor(habit: Habit): number {
@@ -176,6 +180,7 @@ export class HabitsPageComponent implements OnInit {
         this.notifyAwards(extractAwarded(updated));
       }
       this.saveCachedHabits(this.habits);
+      await this.loadStreaks();
     } catch (err) {
       this.error = 'Failed to update completion';
       console.error(err);
@@ -215,6 +220,14 @@ export class HabitsPageComponent implements OnInit {
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
     awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+  }
+
+  private async loadStreaks() {
+    try {
+      this.streaks = await firstValueFrom(this.profileService.getStreaks());
+    } catch {
+      this.streaks = undefined;
+    }
   }
 
   private saveCachedHabits(habits: Habit[]) {

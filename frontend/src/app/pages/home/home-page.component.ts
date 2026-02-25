@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { MoodsService, MoodResponse, PlannerEventResponse, PlannerService } from '../../api';
 import { HabitService } from '../../services/habit.service';
+import { ProfileService, StreakSummary } from '../../services/profile.service';
 import { buildWeekRange, formatWeekRangeLabel, isDateIsoWithinRange, todayIso } from '../../utils/date-utils';
 import { HabitDashboardView, decorateHabitForDashboard } from '../../utils/habit-utils';
 import { AffirmationService } from '../../core/affirmation.service';
@@ -29,6 +30,7 @@ export class HomePageComponent implements OnInit {
   habitsDue: HabitDashboardView[] = [];
   affirmation = '';
   loadingAffirmation = true;
+  streaks?: StreakSummary;
 
   moods = [
     { key: 'happy', label: 'Happy', icon: 'assets/moods/happy.png' },
@@ -51,7 +53,8 @@ export class HomePageComponent implements OnInit {
     private moodsService: MoodsService,
     private plannerService: PlannerService,
     private habitService: HabitService,
-    private affirmationService: AffirmationService
+    private affirmationService: AffirmationService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit(): void {
@@ -63,7 +66,7 @@ export class HomePageComponent implements OnInit {
     this.loading = true;
     this.error = undefined;
     try {
-      await Promise.all([this.loadMood(), this.loadEvents(), this.loadHabits()]);
+      await Promise.all([this.loadMood(), this.loadEvents(), this.loadHabits(), this.loadStreaks()]);
     } catch (err) {
       console.error(err);
       this.error = 'Unable to refresh dashboard right now';
@@ -105,6 +108,14 @@ export class HomePageComponent implements OnInit {
     } catch (err) {
       const cached = this.loadCached<any[]>(HABITS_CACHE_KEY) || [];
       this.habitsDue = cached.map(h => decorateHabitForDashboard(h, this.weekRange));
+    }
+  }
+
+  private async loadStreaks() {
+    try {
+      this.streaks = await firstValueFrom(this.profileService.getStreaks());
+    } catch {
+      this.streaks = undefined;
     }
   }
 

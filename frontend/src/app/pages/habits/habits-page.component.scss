@@ -53,6 +53,16 @@
   gap: 1rem;
 }
 
+.streak-card {
+  background: #f0fdf4;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.1em;

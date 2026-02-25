@@ -17,6 +17,7 @@ import {
 
 import { MoodResponse, MoodsService } from '../../api';
 import { NotificationService, AppNotification } from '../../core/notification.service';
+import { ProfileService, StreakSummary } from '../../services/profile.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 
 type CalendarDay = {
@@ -63,10 +64,12 @@ export class MoodPageComponent implements OnInit {
   weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   loading = false;
   error?: string;
+  streaks?: StreakSummary;
 
   constructor(
     private moodsService: MoodsService,
-    private notifications: NotificationService
+    private notifications: NotificationService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit(): void {
@@ -77,7 +80,7 @@ export class MoodPageComponent implements OnInit {
     if (manageLoading) this.loading = true;
     this.error = undefined;
     try {
-      await Promise.all([this.fetchToday(), this.fetchAll()]);
+      await Promise.all([this.fetchToday(), this.fetchAll(), this.fetchStreaks()]);
       this.buildCalendarDays();
     } finally {
       if (manageLoading) this.loading = false;
@@ -167,6 +170,14 @@ export class MoodPageComponent implements OnInit {
       }
     } finally {
       this.buildCalendarDays();
+    }
+  }
+
+  private async fetchStreaks() {
+    try {
+      this.streaks = await firstValueFrom(this.profileService.getStreaks());
+    } catch {
+      this.streaks = undefined;
     }
   }
 

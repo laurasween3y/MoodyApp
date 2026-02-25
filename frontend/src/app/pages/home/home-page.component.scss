@@ -308,6 +308,29 @@ h2 {
   border-color: #f3d7a3;
 }
 
+.streaks-card .snippet-content {
+  gap: 0.25rem;
+}
+
+.streak-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4b5f58;
+  font-weight: 700;
+}
+
+.streak-value {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.streak-meta {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
 .snippet .item {
   background: transparent;
   border: none;
@@ -373,7 +396,8 @@ h2 {
 .mood-card::after,
 .journal-card::after,
 .habits-card::after,
-.events-card::after {
+.events-card::after,
+.streaks-card::after {
   content: '';
   position: absolute;
   top: -10px;

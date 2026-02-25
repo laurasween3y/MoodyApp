@@ -9,6 +9,14 @@
       <div class="pill" *ngIf="selectedDateISO">{{ selectedDateISO | date:'EEE, MMM d' }}</div>
     </header>
 
+    <div class="streak-card" *ngIf="streaks">
+      <div>
+        <p class="eyebrow">Mood streak</p>
+        <h2>{{ streaks.mood_current }} day{{ streaks.mood_current === 1 ? '' : 's' }}</h2>
+        <p class="muted">Longest: {{ streaks.mood_longest }} day{{ streaks.mood_longest === 1 ? '' : 's' }}</p>
+      </div>
+    </div>
+
     <div class="panel mood-selection">
       <h2 class="section-title">Choose your mood</h2>
       <div class="mood-grid" role="list">
