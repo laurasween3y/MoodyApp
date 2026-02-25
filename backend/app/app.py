@@ -28,18 +28,25 @@ def create_app() -> Flask:
         "http://127.0.0.1:4300",
     ]
 
-    cors_resources = {
-        r"/moods/*": {"origins": allowed_origins},
-        r"/auth/*": {"origins": allowed_origins},
-        r"/journals/*": {"origins": allowed_origins},
-        r"/habits/*": {"origins": allowed_origins},
-        r"/planner/*": {"origins": allowed_origins},
-        r"/gamification/*": {"origins": allowed_origins},
-        r"/progress/*": {"origins": allowed_origins},
-        r"/profile*": {"origins": allowed_origins},
-        r"/uploads/*": {"origins": allowed_origins},
+    cors_rule = {
+        "origins": allowed_origins,
+        "allow_headers": ["Authorization", "Content-Type"],
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     }
-    CORS(app, resources=cors_resources)
+
+    cors_resources = {
+        r"/moods/*": cors_rule,
+        r"/auth/*": cors_rule,
+        r"/journals/*": cors_rule,
+        r"/habits/*": cors_rule,
+        r"/planner/*": cors_rule,
+        r"/gamification/*": cors_rule,
+        r"/progress/*": cors_rule,
+        r"/profile*": cors_rule,
+        r"/affirmations*": cors_rule,
+        r"/uploads/*": cors_rule,
+    }
+    CORS(app, resources=cors_resources, supports_credentials=True)
 
     # Flask-Smorest / OpenAPI configuration
     app.config["API_TITLE"] = "Moody API"
@@ -63,6 +70,7 @@ def create_app() -> Flask:
     from app.blueprints.gamification import blp as GamificationBlueprint
     from app.blueprints.progress import blp as ProgressBlueprint
     from app.blueprints.profile import blp as ProfileBlueprint
+    from app.blueprints.affirmations import blp as AffirmationsBlueprint
 
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
@@ -72,6 +80,7 @@ def create_app() -> Flask:
     api.register_blueprint(GamificationBlueprint)
     api.register_blueprint(ProgressBlueprint)
     api.register_blueprint(ProfileBlueprint)
+    api.register_blueprint(AffirmationsBlueprint)
 
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):
