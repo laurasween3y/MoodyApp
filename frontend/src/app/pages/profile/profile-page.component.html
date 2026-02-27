@@ -57,6 +57,104 @@
         </div>
       </div>
 
+      <div class="card notifications">
+        <span class="washi-tape" aria-hidden="true"></span>
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Reminders</p>
+            <h2>Gentle nudges</h2>
+          </div>
+        </div>
+
+        <p class="muted">
+          Small supportive reminders to help you stay consistent.
+        </p>
+
+        <div class="permission-row">
+          <button
+            type="button"
+            class="ghost-link"
+            (click)="requestNotificationPermission()"
+            [disabled]="notificationPermission === 'granted' || notificationPermission === 'unsupported'"
+          >
+            {{ notificationPermission === 'granted' ? 'Notifications enabled' : 'Enable Notifications' }}
+          </button>
+          <button
+            type="button"
+            class="ghost-link"
+            (click)="sendTestNotification()"
+            [disabled]="notificationPermission === 'unsupported'"
+          >
+            Send test notification
+          </button>
+          <p class="muted" *ngIf="notificationPermission === 'unsupported'">
+            Your browser does not support notifications.
+          </p>
+          <p class="muted" *ngIf="notificationPermission === 'denied'">
+            Notifications are blocked in your browser settings.
+          </p>
+        </div>
+
+        <form [formGroup]="notificationForm" (ngSubmit)="saveNotificationSettings()" class="form notifications-form">
+          <div class="reminder-list">
+            <div class="reminder-item">
+              <div class="reminder-info">
+                <h4>Mood check-in</h4>
+                <p>Get a daily reminder to log your mood.</p>
+              </div>
+              <div class="reminder-controls">
+                <input
+                  type="time"
+                  class="reminder-time"
+                  formControlName="moodTime"
+                  (change)="handleReminderTimeChange('mood')"
+                />
+                <label class="switch" aria-label="Toggle mood reminders">
+                  <input
+                    type="checkbox"
+                    formControlName="moodEnabled"
+                    (change)="handleReminderToggle('mood')"
+                  />
+                  <span class="slider" aria-hidden="true"></span>
+                </label>
+              </div>
+            </div>
+            <p class="next-reminder" *ngIf="nextMoodReminder">Next: {{ nextMoodReminder }}</p>
+
+            <div class="reminder-item">
+              <div class="reminder-info">
+                <h4>Habit check</h4>
+                <p>A gentle nudge to review your habits.</p>
+              </div>
+              <div class="reminder-controls">
+                <input
+                  type="time"
+                  class="reminder-time"
+                  formControlName="habitTime"
+                  (change)="handleReminderTimeChange('habit')"
+                />
+                <label class="switch" aria-label="Toggle habit reminders">
+                  <input
+                    type="checkbox"
+                    formControlName="habitEnabled"
+                    (change)="handleReminderToggle('habit')"
+                  />
+                  <span class="slider" aria-hidden="true"></span>
+                </label>
+              </div>
+            </div>
+            <p class="next-reminder" *ngIf="nextHabitReminder">Next: {{ nextHabitReminder }}</p>
+          </div>
+
+          <div class="actions">
+            <button type="submit" [disabled]="notificationSaving || notificationPermission !== 'granted'">
+              {{ notificationSaving ? 'Saving...' : 'Save reminders' }}
+            </button>
+          </div>
+          <p class="error" *ngIf="notificationError">{{ notificationError }}</p>
+        </form>
+      </div>
+
       <div class="card achievements" *ngIf="achievementsAll.length">
         <span class="washi-tape" aria-hidden="true"></span>
         <div class="card-header">

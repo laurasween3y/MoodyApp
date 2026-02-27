@@ -8,6 +8,7 @@ import { ProfileService, StreakSummary } from '../../services/profile.service';
 import { buildWeekRange, formatWeekRangeLabel, isDateIsoWithinRange, todayIso } from '../../utils/date-utils';
 import { HabitDashboardView, decorateHabitForDashboard } from '../../utils/habit-utils';
 import { AffirmationService } from '../../core/affirmation.service';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 const HABITS_CACHE_KEY = 'moody_cached_habits';
 const PLANNER_CACHE_KEY = 'moody_cached_planner';
@@ -69,7 +70,7 @@ export class HomePageComponent implements OnInit {
       await Promise.all([this.loadMood(), this.loadEvents(), this.loadHabits(), this.loadStreaks()]);
     } catch (err) {
       console.error(err);
-      this.error = 'Unable to refresh dashboard right now';
+      this.error = getApiErrorMessage(err, 'Unable to refresh dashboard right now');
     } finally {
       this.loading = false;
     }

@@ -98,6 +98,7 @@ def _aggregate_streaks(user_id: int):
             streaks[row.module] = {
                 "current": row.current_streak or 0,
                 "longest": row.longest_streak or 0,
+            }
         }
     return streaks
 

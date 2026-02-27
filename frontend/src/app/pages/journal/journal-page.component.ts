@@ -3,6 +3,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { Journal, JournalEntry, JournalService } from '../../services/journal.service';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 const JOURNALS_CACHE_KEY = 'moody_cached_journals';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -72,7 +73,7 @@ export class JournalPageComponent implements OnInit {
         this.journals = cached;
         this.error = 'Offline: showing cached journals';
       } else {
-        this.error = 'Failed to load journals';
+        this.error = getApiErrorMessage(err, 'Failed to load journals');
       }
     } finally {
       this.loading = false;
@@ -129,7 +130,7 @@ export class JournalPageComponent implements OnInit {
         this.router.navigate(['/journal', journal.id]);
       }
     } catch (err: any) {
-      this.error = err?.error?.message || 'Failed to create journal';
+      this.error = getApiErrorMessage(err, 'Failed to create journal');
       console.error(err);
     } finally {
       this.loading = false;
@@ -176,7 +177,7 @@ export class JournalPageComponent implements OnInit {
       this.journalCoverFile = undefined;
       this.showCreateForm = false;
     } catch (err) {
-      this.error = 'Failed to update journal';
+      this.error = getApiErrorMessage(err, 'Failed to update journal');
       console.error(err);
     } finally {
       this.loading = false;
@@ -202,7 +203,7 @@ export class JournalPageComponent implements OnInit {
         this.router.navigate(nextId ? ['/journal', nextId] : ['/journal']);
       }
     } catch (err) {
-      this.error = 'Failed to delete journal';
+      this.error = getApiErrorMessage(err, 'Failed to delete journal');
       console.error(err);
     } finally {
       this.loading = false;
@@ -254,7 +255,7 @@ export class JournalPageComponent implements OnInit {
         this.entries = cached;
         this.error = 'Offline: showing cached entries';
       } else {
-        this.error = 'Failed to load entries';
+        this.error = getApiErrorMessage(err, 'Failed to load entries');
         this.entries = [];
       }
     } finally {
@@ -270,7 +271,7 @@ export class JournalPageComponent implements OnInit {
       await firstValueFrom(this.journalsService.deleteEntry(this.selectedJournalId, entry.id));
       this.entries = this.entries.filter(e => e.id !== entry.id);
     } catch (err) {
-      this.error = 'Failed to delete entry';
+      this.error = getApiErrorMessage(err, 'Failed to delete entry');
       console.error(err);
     } finally {
       this.entryLoading = false;

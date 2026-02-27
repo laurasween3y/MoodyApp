@@ -8,6 +8,7 @@ import { todayIso } from '../../utils/date-utils';
 import { NotificationService } from '../../core/notification.service';
 import { ProfileService, StreakSummary } from '../../services/profile.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 @Component({
   selector: 'app-habits-page',
@@ -58,7 +59,7 @@ export class HabitsPageComponent implements OnInit {
         this.habits = cached;
         this.error = 'Offline: showing cached habits';
       } else {
-        this.error = 'Failed to load habits';
+        this.error = getApiErrorMessage(err, 'Failed to load habits');
       }
     } finally {
       this.loading = false;
@@ -92,7 +93,7 @@ export class HabitsPageComponent implements OnInit {
       this.saveCachedHabits(this.habits);
       this.resetForm();
     } catch (err) {
-      this.error = 'Failed to create habit';
+      this.error = getApiErrorMessage(err, 'Failed to create habit');
       console.error(err);
     } finally {
       this.loading = false;
@@ -132,7 +133,7 @@ export class HabitsPageComponent implements OnInit {
       this.saveCachedHabits(this.habits);
       this.resetForm();
     } catch (err) {
-      this.error = 'Failed to update habit';
+      this.error = getApiErrorMessage(err, 'Failed to update habit');
       console.error(err);
     } finally {
       this.loading = false;
@@ -148,7 +149,7 @@ export class HabitsPageComponent implements OnInit {
         this.resetForm();
       }
     } catch (err) {
-      this.error = 'Failed to delete habit';
+      this.error = getApiErrorMessage(err, 'Failed to delete habit');
       console.error(err);
     } finally {
       this.loading = false;
@@ -182,7 +183,7 @@ export class HabitsPageComponent implements OnInit {
       this.saveCachedHabits(this.habits);
       await this.loadStreaks();
     } catch (err) {
-      this.error = 'Failed to update completion';
+      this.error = getApiErrorMessage(err, 'Failed to update completion');
       console.error(err);
     } finally {
       this.loading = false;

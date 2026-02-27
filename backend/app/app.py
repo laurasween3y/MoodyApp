@@ -1,7 +1,7 @@
-from flask import Flask
+from flask import Flask, jsonify, send_from_directory
 from flask_smorest import Api
 from flask_cors import CORS
-from flask import send_from_directory
+from werkzeug.exceptions import HTTPException
 import os
 
 from app.config import Config
@@ -45,6 +45,7 @@ def create_app() -> Flask:
         r"/profile*": cors_rule,
         r"/affirmations*": cors_rule,
         r"/journal-prompts*": cors_rule,
+        r"/notification-settings*": cors_rule,
         r"/uploads/*": cors_rule,
     }
     CORS(app, resources=cors_resources, supports_credentials=True)
@@ -73,6 +74,7 @@ def create_app() -> Flask:
     from app.blueprints.profile import blp as ProfileBlueprint
     from app.blueprints.affirmations import blp as AffirmationsBlueprint
     from app.blueprints.journal_prompts import blp as JournalPromptsBlueprint
+    from app.blueprints.notification_settings import blp as NotificationSettingsBlueprint
 
     api.register_blueprint(MoodsBlueprint)
     api.register_blueprint(AuthBlueprint)
@@ -84,6 +86,25 @@ def create_app() -> Flask:
     api.register_blueprint(ProfileBlueprint)
     api.register_blueprint(AffirmationsBlueprint)
     api.register_blueprint(JournalPromptsBlueprint)
+    api.register_blueprint(NotificationSettingsBlueprint)
+
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(err: HTTPException):
+        payload = {"message": err.description or "Request failed"}
+        data = getattr(err, "data", None)
+        if isinstance(data, dict):
+            if data.get("message"):
+                payload["message"] = data["message"]
+            if data.get("errors"):
+                payload["errors"] = data["errors"]
+            if data.get("messages"):
+                payload["messages"] = data["messages"]
+        return jsonify(payload), err.code or 500
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_exception(err: Exception):
+        app.logger.exception("Unhandled exception")
+        return jsonify({"message": "Unexpected server error"}), 500
 
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):

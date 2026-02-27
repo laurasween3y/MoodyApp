@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 @Component({
   selector: 'app-register-page',
@@ -44,7 +45,12 @@ export class RegisterPageComponent {
       },
       error: (err) => {
         this.submitting = false;
-        this.error = this.extractError(err) || "We couldn't create that account. Let's try again.";
+        const message = getApiErrorMessage(err, "We couldn't create that account. Let's try again.");
+        if (message.toLowerCase().includes('already') && message.toLowerCase().includes('email')) {
+          this.error = 'That email is already in use. Try logging in instead.';
+        } else {
+          this.error = message;
+        }
       }
     });
   }
@@ -61,20 +67,4 @@ export class RegisterPageComponent {
     return this.form.get('password');
   }
 
-  private extractError(err: any): string | undefined {
-    if (err?.error?.message) {
-      const message = String(err.error.message);
-      if (message.toLowerCase().includes('already') && message.toLowerCase().includes('email')) {
-        return 'That email is already in use. Try logging in instead.';
-      }
-      return message;
-    }
-    const fieldErrors = err?.error?.errors?.json || err?.error?.messages?.json;
-    if (fieldErrors) {
-      const firstField = Object.keys(fieldErrors)[0];
-      const firstMessage = fieldErrors[firstField]?.[0];
-      if (firstMessage) return `${firstField}: ${firstMessage}`;
-    }
-    return undefined;
-  }
 }

@@ -19,6 +19,7 @@ import { MoodResponse, MoodsService } from '../../api';
 import { NotificationService, AppNotification } from '../../core/notification.service';
 import { ProfileService, StreakSummary } from '../../services/profile.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 type CalendarDay = {
   date: Date;
@@ -123,7 +124,10 @@ export class MoodPageComponent implements OnInit {
       this.resetForm();
       await this.refreshData(false);
     } catch (err) {
-      this.error = this.editingMoodId ? 'Failed to update mood' : 'Failed to save mood';
+      this.error = getApiErrorMessage(
+        err,
+        this.editingMoodId ? 'Failed to update mood' : 'Failed to save mood'
+      );
       console.error(err);
     } finally {
       this.loading = false;
@@ -167,6 +171,7 @@ export class MoodPageComponent implements OnInit {
       } else {
         this.allMoods = [];
         this.moodByDate.clear();
+        this.error = getApiErrorMessage(err, 'Failed to load moods');
       }
     } finally {
       this.buildCalendarDays();
@@ -190,7 +195,7 @@ export class MoodPageComponent implements OnInit {
       }
       await this.refreshData(false);
     } catch (err) {
-      this.error = 'Failed to delete mood';
+      this.error = getApiErrorMessage(err, 'Failed to delete mood');
       console.error(err);
     } finally {
       this.loading = false;
@@ -213,7 +218,7 @@ export class MoodPageComponent implements OnInit {
         icon: '🗑️',
       } as AppNotification);
     } catch (err) {
-      this.error = 'Failed to delete mood';
+      this.error = getApiErrorMessage(err, 'Failed to delete mood');
       console.error(err);
     } finally {
       this.loading = false;

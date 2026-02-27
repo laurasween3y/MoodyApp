@@ -15,6 +15,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { Journal, JournalEntry, JournalPrompt, JournalService } from '../../services/journal.service';
 import { NotificationService } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 @Component({
   selector: 'app-entry-detail',
@@ -199,7 +200,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.applyFontSettings();
       }
     } catch (err) {
-      this.error = 'Failed to load entry';
+      this.error = getApiErrorMessage(err, 'Failed to load entry');
       console.error(err);
     } finally {
       this.loading = false;
@@ -242,7 +243,10 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.goBack();
     } catch (err) {
-      this.error = this.isCreate ? 'Failed to create entry' : 'Failed to save entry';
+      this.error = getApiErrorMessage(
+        err,
+        this.isCreate ? 'Failed to create entry' : 'Failed to save entry'
+      );
       console.error(err);
     } finally {
       this.loading = false;
@@ -260,7 +264,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       await firstValueFrom(this.journalService.deleteEntry(this.journalId, this.entryId));
       this.goBack();
     } catch (err) {
-      this.error = 'Failed to delete entry';
+      this.error = getApiErrorMessage(err, 'Failed to delete entry');
       console.error(err);
     } finally {
       this.loading = false;

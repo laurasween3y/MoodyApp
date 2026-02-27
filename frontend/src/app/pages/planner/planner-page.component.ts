@@ -6,6 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { PlannerEventResponse, PlannerEventCreate, PlannerService } from '../../api';
 import { NotificationService } from '../../core/notification.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { BrowserNotificationService } from '../../services/notification.service';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 type PlannerUiEvent = PlannerEventResponse & { isHoliday?: boolean; queued?: boolean };
 
@@ -47,7 +49,8 @@ export class PlannerPageComponent implements OnInit {
 
   constructor(
     private plannerService: PlannerService,
-    private notifications: NotificationService
+    private notifications: NotificationService,
+    private browserNotifications: BrowserNotificationService
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +66,7 @@ export class PlannerPageComponent implements OnInit {
       this.holidayEvents = this.buildHolidayEvents(this.currentMonth.getFullYear());
       this.buildCalendar();
       this.saveCachedEvents(this.events);
+      this.browserNotifications.schedulePlannerReminders(this.events);
     } catch (err) {
       console.error(err);
       const cached = this.loadCachedEvents();
@@ -71,7 +75,7 @@ export class PlannerPageComponent implements OnInit {
         this.error = 'Offline: showing cached events';
         this.buildCalendar();
       } else {
-        this.error = 'Failed to load events';
+        this.error = getApiErrorMessage(err, 'Failed to load events');
       }
     } finally {
       this.loading = false;
@@ -104,6 +108,7 @@ export class PlannerPageComponent implements OnInit {
           this.events = this.sortEvents(
             this.events.map(e => (e.id === updated.id ? updated : e))
           );
+          this.browserNotifications.schedulePlannerReminders(this.events);
         }
       } else {
         const created = await firstValueFrom(this.plannerService.plannerEventsPost(payload));
@@ -112,6 +117,7 @@ export class PlannerPageComponent implements OnInit {
         } else {
           this.events = this.sortEvents([created, ...this.events]);
           this.notifyAwards(extractAwarded(created));
+          this.browserNotifications.schedulePlannerReminders(this.events);
         }
       }
       this.saveCachedEvents(this.events);
@@ -119,7 +125,7 @@ export class PlannerPageComponent implements OnInit {
       this.buildCalendar();
     } catch (err) {
       console.error(err);
-      this.error = this.messageFromError(
+      this.error = getApiErrorMessage(
         err,
         this.editingId ? 'Failed to update event' : 'Failed to create event'
       );
@@ -146,13 +152,14 @@ export class PlannerPageComponent implements OnInit {
     this.loading = true;
     this.error = undefined;
     try {
-  await firstValueFrom(this.plannerService.plannerEventsEventIdDelete(event.id));
+      await firstValueFrom(this.plannerService.plannerEventsEventIdDelete(event.id));
       this.events = this.events.filter(e => e.id !== event.id);
       if (this.editingId === event.id) this.resetForm();
       this.buildCalendar();
+      this.browserNotifications.schedulePlannerReminders(this.events);
     } catch (err) {
       console.error(err);
-      this.error = this.messageFromError(err, 'Failed to delete event');
+      this.error = getApiErrorMessage(err, 'Failed to delete event');
     } finally {
       this.loading = false;
     }
@@ -276,30 +283,6 @@ export class PlannerPageComponent implements OnInit {
       description: 'Holiday',
       isHoliday: true,
     } as any));
-  }
-
-  private messageFromError(err: any, fallback: string) {
-    const detail = err?.error?.message || err?.error?.detail;
-    if (Array.isArray(err?.error?.messages)) {
-      return err.error.messages.join(', ');
-    }
-    if (err?.error?.messages && typeof err.error.messages === 'object') {
-      try {
-        return Object.values(err.error.messages).flat().join(', ');
-      } catch (_) {
-        /* noop */
-      }
-    }
-    if (err?.error?.errors) {
-      try {
-        return Object.values(err.error.errors)
-          .flat()
-          .join(', ');
-      } catch (_) {
-        /* noop */
-      }
-    }
-    return detail || fallback;
   }
 
   private notifyAwards(awarded: string[] | undefined) {

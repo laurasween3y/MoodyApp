@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { getApiErrorMessage } from '../../core/error-utils';
 
 @Component({
   selector: 'app-login-page',
@@ -41,7 +42,12 @@ export class LoginPageComponent {
       },
       error: (err) => {
         this.submitting = false;
-        this.error = this.extractError(err) || "Let's try that again.";
+        const message = getApiErrorMessage(err, "Let's try that again.");
+        if (message.toLowerCase().includes('invalid credentials')) {
+          this.error = "Let's try that again.";
+        } else {
+          this.error = message;
+        }
       }
     });
   }
@@ -58,20 +64,4 @@ export class LoginPageComponent {
     return this.form.get('password');
   }
 
-  private extractError(err: any): string | undefined {
-    if (err?.error?.message) {
-      const message = String(err.error.message);
-      if (message.toLowerCase().includes('invalid credentials')) {
-        return "Let's try that again.";
-      }
-      return message;
-    }
-    const fieldErrors = err?.error?.errors?.json || err?.error?.messages?.json;
-    if (fieldErrors) {
-      const firstField = Object.keys(fieldErrors)[0];
-      const firstMessage = fieldErrors[firstField]?.[0];
-      if (firstMessage) return `${firstField}: ${firstMessage}`;
-    }
-    return undefined;
-  }
 }

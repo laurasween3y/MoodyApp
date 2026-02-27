@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
-import { PlannerEventResponse } from '../api';
-import { UserNotificationSettings } from './notification-settings.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Configuration, PlannerEventResponse } from '../api';
 import { NotificationService as AppNotificationService } from '../core/notification.service';
+
+export interface UserNotificationSettings {
+  mood_reminder_enabled: boolean;
+  mood_reminder_time: string | null;
+  habit_reminder_enabled: boolean;
+  habit_reminder_time: string | null;
+}
 
 type ReminderKind = 'mood' | 'habit';
 
@@ -13,7 +21,29 @@ export class BrowserNotificationService {
   private nextMoodRun?: Date;
   private nextHabitRun?: Date;
 
-  constructor(private appNotifications: AppNotificationService) {}
+  constructor(
+    private appNotifications: AppNotificationService,
+    private http: HttpClient,
+    private apiConfig: Configuration
+  ) {}
+
+  private get apiBase(): string {
+    const base = this.apiConfig?.basePath ?? 'http://localhost:5000';
+    return base.replace(/\/$/, '');
+  }
+
+  getNotificationSettings(): Observable<UserNotificationSettings> {
+    return this.http.get<UserNotificationSettings>(`${this.apiBase}/notification-settings`);
+  }
+
+  updateNotificationSettings(
+    payload: Partial<UserNotificationSettings>
+  ): Observable<UserNotificationSettings> {
+    return this.http.put<UserNotificationSettings>(
+      `${this.apiBase}/notification-settings`,
+      payload
+    );
+  }
 
   get permission(): NotificationPermission | 'unsupported' {
     if (typeof window === 'undefined' || !('Notification' in window)) {
