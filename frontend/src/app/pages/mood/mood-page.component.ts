@@ -20,6 +20,7 @@ import { NotificationService, AppNotification } from '../../core/notification.se
 import { ProfileService, StreakSummary } from '../../services/profile.service';
 import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
 import { getApiErrorMessage } from '../../core/error-utils';
+import { filterMoodOptions, MOOD_OPTIONS, MoodOption } from '../../utils/mood-options';
 
 type CalendarDay = {
   date: Date;
@@ -42,20 +43,7 @@ export class MoodPageComponent implements OnInit {
   editingMoodId?: number;
   private readonly cacheKey = 'moody_cached_moods';
 
-  moods = [
-    { key: 'happy', label: 'Happy', icon: 'assets/moods/happy.png' },
-    { key: 'sad', label: 'Sad', icon: 'assets/moods/sad.png' },
-    { key: 'angry', label: 'Angry', icon: 'assets/moods/angry.png' },
-    { key: 'excited', label: 'Excited', icon: 'assets/moods/excited.png' },
-    { key: 'sick', label: 'Sick', icon: 'assets/moods/sick.png' },
-    { key: 'tired', label: 'Tired', icon: 'assets/moods/tired.png' },
-    { key: 'loved', label: 'Loved', icon: 'assets/moods/loved.png' },
-    { key: 'anxious', label: 'Anxious', icon: 'assets/moods/anxious.png' },
-    { key: 'peaceful', label: 'Peaceful', icon: 'assets/moods/peaceful.png' },
-    { key: 'bored', label: 'Bored', icon: 'assets/moods/bored.png' },
-    { key: 'silly', label: 'Silly', icon: 'assets/moods/silly.png' },
-    { key: 'fine', label: 'Fine', icon: 'assets/moods/fine.png' },
-  ];
+  moods: MoodOption[] = MOOD_OPTIONS;
 
   today?: MoodResponse;
   allMoods: MoodResponse[] = [];
@@ -74,7 +62,17 @@ export class MoodPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadMoodOptions();
     this.refreshData();
+  }
+
+  private async loadMoodOptions() {
+    try {
+      const options = await firstValueFrom(this.moodsService.moodsOptionsGet());
+      this.moods = filterMoodOptions(options?.options as string[] | undefined);
+    } catch {
+      this.moods = MOOD_OPTIONS;
+    }
   }
 
   async refreshData(manageLoading = true) {

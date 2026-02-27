@@ -1,7 +1,5 @@
 export * from './auth.service';
 import { AuthService } from './auth.service';
-export * from './gamification.service';
-import { GamificationService } from './gamification.service';
 export * from './habits.service';
 import { HabitsService } from './habits.service';
 export * from './journals.service';
@@ -14,4 +12,4 @@ export * from './profile.service';
 import { ProfileService } from './profile.service';
 export * from './progress.service';
 import { ProgressService } from './progress.service';
-export const APIS = [AuthService, GamificationService, HabitsService, JournalsService, MoodsService, PlannerService, ProfileService, ProgressService];
+export const APIS = [AuthService, HabitsService, JournalsService, MoodsService, PlannerService, ProfileService, ProgressService];

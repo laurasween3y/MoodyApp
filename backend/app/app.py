@@ -40,7 +40,6 @@ def create_app() -> Flask:
         r"/journals/*": cors_rule,
         r"/habits/*": cors_rule,
         r"/planner/*": cors_rule,
-        r"/gamification/*": cors_rule,
         r"/progress/*": cors_rule,
         r"/profile*": cors_rule,
         r"/affirmations*": cors_rule,
@@ -69,7 +68,6 @@ def create_app() -> Flask:
     from app.blueprints.journals import blp as JournalsBlueprint
     from app.blueprints.habits import blp as HabitsBlueprint
     from app.blueprints.planner import blp as PlannerBlueprint
-    from app.blueprints.gamification import blp as GamificationBlueprint
     from app.blueprints.progress import blp as ProgressBlueprint
     from app.blueprints.profile import blp as ProfileBlueprint
     from app.blueprints.affirmations import blp as AffirmationsBlueprint
@@ -81,7 +79,6 @@ def create_app() -> Flask:
     api.register_blueprint(JournalsBlueprint)
     api.register_blueprint(HabitsBlueprint)
     api.register_blueprint(PlannerBlueprint)
-    api.register_blueprint(GamificationBlueprint)
     api.register_blueprint(ProgressBlueprint)
     api.register_blueprint(ProfileBlueprint)
     api.register_blueprint(AffirmationsBlueprint)

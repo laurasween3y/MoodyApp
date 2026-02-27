@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
-import { Observable, map, of, catchError, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 import {
   Configuration,
   JournalCreate,
@@ -12,7 +12,6 @@ import {
   JournalsService
 } from '../api';
 import { extractAwarded } from '../utils/achievement-utils';
-import { OfflineQueueService } from '../core/offline-queue.service';
 
 export interface Journal {
   id: number;
@@ -50,8 +49,7 @@ export class JournalService {
   constructor(
     private journalsApi: JournalsService,
     private apiConfig: Configuration,
-    private http: HttpClient,
-    private offlineQueue: OfflineQueueService
+    private http: HttpClient
   ) {}
 
   private get apiBase(): string {
@@ -64,36 +62,14 @@ export class JournalService {
   }
 
   createJournal(payload: JournalCreate): Observable<Journal> {
-    if (!navigator.onLine) {
-      const stub = this.enqueueOffline('POST', `${this.apiBase}/journals/`, payload);
-      return of(this.normalizeQueuedOrJournal(stub, payload));
-    }
     return this.journalsApi.journalsPost(payload).pipe(
-      map((j: any) => this.normalizeQueuedOrJournal(j, payload)),
-      catchError((err) => {
-        if (err?.status === 0 || err?.status === 504) {
-          const stub = this.enqueueOffline('POST', `${this.apiBase}/journals/`, payload);
-          return of(this.normalizeQueuedOrJournal(stub, payload));
-        }
-        return throwError(() => err);
-      })
+      map((j: any) => this.normalizeQueuedOrJournal(j, payload))
     );
   }
 
   updateJournal(id: number, payload: JournalUpdate): Observable<Journal> {
-    if (!navigator.onLine) {
-      const stub = this.enqueueOffline('PATCH', `${this.apiBase}/journals/${id}`, payload);
-      return of(this.normalizeQueuedOrJournal(stub, payload, id));
-    }
     return this.journalsApi.journalsJournalIdPatch(id, payload).pipe(
-      map((j: any) => this.normalizeQueuedOrJournal(j, payload, id)),
-      catchError((err) => {
-        if (err?.status === 0 || err?.status === 504) {
-          const stub = this.enqueueOffline('PATCH', `${this.apiBase}/journals/${id}`, payload);
-          return of(this.normalizeQueuedOrJournal(stub, payload, id));
-        }
-        return throwError(() => err);
-      })
+      map((j: any) => this.normalizeQueuedOrJournal(j, payload, id))
     );
   }
 
@@ -167,19 +143,8 @@ export class JournalService {
     journalId: number,
     payload: JournalEntryCreate
   ): Observable<JournalEntry> {
-    if (!navigator.onLine) {
-      const stub = this.enqueueOffline('POST', `${this.apiBase}/journals/${journalId}/entries`, payload);
-      return of(this.normalizeQueuedOrEntry(stub));
-    }
     return this.journalsApi.journalsJournalIdEntriesPost(journalId, payload).pipe(
-      map((e: any) => this.normalizeQueuedOrEntry(e)),
-      catchError((err) => {
-        if (err?.status === 0 || err?.status === 504) {
-          const stub = this.enqueueOffline('POST', `${this.apiBase}/journals/${journalId}/entries`, payload);
-          return of(this.normalizeQueuedOrEntry(stub));
-        }
-        return throwError(() => err);
-      })
+      map((e: any) => this.normalizeQueuedOrEntry(e))
     );
   }
 
@@ -188,19 +153,8 @@ export class JournalService {
     entryId: number,
     payload: JournalEntryUpdate
   ): Observable<JournalEntry> {
-    if (!navigator.onLine) {
-      const stub = this.enqueueOffline('PATCH', `${this.apiBase}/journals/${journalId}/entries/${entryId}`, payload);
-      return of(this.normalizeQueuedOrEntry(stub));
-    }
     return this.journalsApi.journalsJournalIdEntriesEntryIdPatch(journalId, entryId, payload).pipe(
-      map((e: any) => this.normalizeQueuedOrEntry(e)),
-      catchError((err) => {
-        if (err?.status === 0 || err?.status === 504) {
-          const stub = this.enqueueOffline('PATCH', `${this.apiBase}/journals/${journalId}/entries/${entryId}`, payload);
-          return of(this.normalizeQueuedOrEntry(stub));
-        }
-        return throwError(() => err);
-      })
+      map((e: any) => this.normalizeQueuedOrEntry(e))
     );
   }
 
@@ -222,23 +176,6 @@ export class JournalService {
       } as JournalEntry;
     }
     return this.normalizeEntry(entry as JournalEntryResponse);
-  }
-
-  private authHeaders(): HttpHeaders {
-    const token = localStorage.getItem('moody_access_token');
-    if (!token) return new HttpHeaders();
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
-  }
-
-  private enqueueOffline(method: string, url: string, body: any) {
-    const req = new HttpRequest(method, url, body, { headers: this.authHeaders() });
-    this.offlineQueue.enqueue(req);
-    return {
-      queued: true,
-      method,
-      url,
-      body,
-    };
   }
 
   private normalizeEntry(entry: JournalEntryResponse): JournalEntry {

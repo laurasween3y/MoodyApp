@@ -9,6 +9,7 @@ import { buildWeekRange, formatWeekRangeLabel, isDateIsoWithinRange, todayIso } 
 import { HabitDashboardView, decorateHabitForDashboard } from '../../utils/habit-utils';
 import { AffirmationService } from '../../core/affirmation.service';
 import { getApiErrorMessage } from '../../core/error-utils';
+import { MOOD_OPTIONS, MoodOption } from '../../utils/mood-options';
 
 const HABITS_CACHE_KEY = 'moody_cached_habits';
 const PLANNER_CACHE_KEY = 'moody_cached_planner';
@@ -33,20 +34,7 @@ export class HomePageComponent implements OnInit {
   loadingAffirmation = true;
   streaks?: StreakSummary;
 
-  moods = [
-    { key: 'happy', label: 'Happy', icon: 'assets/moods/happy.png' },
-    { key: 'sad', label: 'Sad', icon: 'assets/moods/sad.png' },
-    { key: 'angry', label: 'Angry', icon: 'assets/moods/angry.png' },
-    { key: 'excited', label: 'Excited', icon: 'assets/moods/excited.png' },
-    { key: 'sick', label: 'Sick', icon: 'assets/moods/sick.png' },
-    { key: 'tired', label: 'Tired', icon: 'assets/moods/tired.png' },
-    { key: 'loved', label: 'Loved', icon: 'assets/moods/loved.png' },
-    { key: 'anxious', label: 'Anxious', icon: 'assets/moods/anxious.png' },
-    { key: 'peaceful', label: 'Peaceful', icon: 'assets/moods/peaceful.png' },
-    { key: 'bored', label: 'Bored', icon: 'assets/moods/bored.png' },
-    { key: 'silly', label: 'Silly', icon: 'assets/moods/silly.png' },
-    { key: 'fine', label: 'Fine', icon: 'assets/moods/fine.png' },
-  ];
+  moods: MoodOption[] = MOOD_OPTIONS;
 
   private weekRange = buildWeekRange(0);
 
