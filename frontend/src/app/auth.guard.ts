@@ -1,14 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import { Observable, map } from 'rxjs';
 import { AuthService } from './services/auth.service';
 
-export const authGuard: CanActivateFn = (): boolean | UrlTree => {
+export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.isLoggedIn()) {
-    return true;
-  }
-
-  return router.createUrlTree(['/login']);
+  return auth.ensureSession().pipe(
+    map((isLoggedIn) => (isLoggedIn ? true : router.createUrlTree(['/login'])))
+  );
 };

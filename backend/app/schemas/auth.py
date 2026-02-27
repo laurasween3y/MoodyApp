@@ -24,4 +24,8 @@ class RegisterResponseSchema(Schema):
 
 
 class LoginResponseSchema(Schema):
-    access_token = fields.Str(dump_only=True)
+    message = fields.Str(dump_only=True)
+
+
+class LogoutResponseSchema(Schema):
+    message = fields.Str(dump_only=True)

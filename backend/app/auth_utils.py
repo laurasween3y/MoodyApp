@@ -7,11 +7,15 @@ from app.models import User
 
 
 def get_current_user() -> User:
-    auth_header = request.headers.get("Authorization", "")
-    if not auth_header.lower().startswith("bearer "):
-        abort(401, message="Authorization header missing or invalid")
+    cookie_name = current_app.config.get("JWT_COOKIE_NAME", "moody_access_token")
+    token = request.cookies.get(cookie_name)
 
-    token = auth_header.split()[1]
+    if not token:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.lower().startswith("bearer "):
+            token = auth_header.split()[1]
+        else:
+            abort(401, message="Authentication token missing")
     try:
         payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
     except jwt.ExpiredSignatureError:

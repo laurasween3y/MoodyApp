@@ -9,7 +9,7 @@ import { offlineQueueInterceptor } from './core/offline-queue.interceptor';
 import { OfflineQueueService } from './core/offline-queue.service';
 import { provideServiceWorker } from '@angular/service-worker';
 
-const apiConfigFactory = () => new Configuration({ basePath: 'http://localhost:5000' });
+const apiConfigFactory = () => new Configuration({ basePath: 'http://localhost:5000', withCredentials: true });
 
 export const appConfig: ApplicationConfig = {
   providers: [

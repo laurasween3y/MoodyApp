@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import jwt
-from flask import current_app
+from flask import current_app, make_response
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
@@ -10,6 +10,7 @@ from app.models import User
 from app.schemas.auth import (
     LoginSchema,
     LoginResponseSchema,
+    LogoutResponseSchema,
     RegisterResponseSchema,
     RegisterSchema,
 )
@@ -30,6 +31,25 @@ def _sign_jwt(user_id: int) -> str:
     }
     secret = current_app.config.get("SECRET_KEY")
     return jwt.encode(payload, secret, algorithm="HS256")
+
+def _set_auth_cookie(response, token: str) -> None:
+    response.set_cookie(
+        current_app.config.get("JWT_COOKIE_NAME", "moody_access_token"),
+        token,
+        httponly=True,
+        secure=current_app.config.get("JWT_COOKIE_SECURE", False),
+        samesite=current_app.config.get("JWT_COOKIE_SAMESITE", "Lax"),
+        max_age=current_app.config.get("JWT_COOKIE_MAX_AGE", 86400),
+        path="/",
+    )
+
+
+def _clear_auth_cookie(response) -> None:
+    response.delete_cookie(
+        current_app.config.get("JWT_COOKIE_NAME", "moody_access_token"),
+        path="/",
+        samesite=current_app.config.get("JWT_COOKIE_SAMESITE", "Lax"),
+    )
 
 
 def _commit_or_abort(message: str) -> None:
@@ -66,7 +86,7 @@ class LoginResource(MethodView):
     @blp.arguments(LoginSchema)
     @blp.response(200, LoginResponseSchema)
     def post(self, data):
-        """Authenticate and return a JWT."""
+        """Authenticate and set a JWT cookie."""
 
         email = data["email"].lower()
         user = User.query.filter_by(email=email).first()
@@ -74,4 +94,15 @@ class LoginResource(MethodView):
             abort(401, message="Invalid credentials")
 
         token = _sign_jwt(user.id)
-        return {"access_token": token}
+        response = make_response({"message": "Login successful"})
+        _set_auth_cookie(response, token)
+        return response
+
+
+@blp.route("/logout")
+class LogoutResource(MethodView):
+    @blp.response(200, LogoutResponseSchema)
+    def post(self):
+        response = make_response({"message": "Logged out"})
+        _clear_auth_cookie(response)
+        return response

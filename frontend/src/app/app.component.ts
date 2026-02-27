@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Observable, firstValueFrom } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { ToastComponent } from './shared/toast.component';
@@ -20,10 +20,10 @@ export class AppComponent {
 
   constructor(
     private auth: AuthService,
-    private router: Router,
     private browserNotifications: BrowserNotificationService
   ) {
     this.loggedIn$ = this.auth.isLoggedIn$();
+    this.auth.ensureSession().subscribe();
     this.loggedIn$.subscribe((loggedIn) => {
       if (loggedIn) {
         this.loadNotificationSettings();
@@ -45,7 +45,6 @@ export class AppComponent {
 
   logout() {
     this.auth.logout();
-    this.router.navigate(['/login']);
   }
 
   private async loadNotificationSettings() {
