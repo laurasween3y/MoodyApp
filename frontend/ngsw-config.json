@@ -26,5 +26,57 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-mood",
+      "urls": ["/moods/**", "http://localhost:5000/moods/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "api-habits",
+      "urls": ["/habits/**", "http://localhost:5000/habits/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "api-journals",
+      "urls": ["/journals/**", "http://localhost:5000/journals/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "api-planner",
+      "urls": ["/planner/**", "http://localhost:5000/planner/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "api-progress",
+      "urls": ["/progress/**", "http://localhost:5000/progress/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 20,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    }
   ]
 }
