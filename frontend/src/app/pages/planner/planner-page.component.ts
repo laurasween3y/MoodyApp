@@ -5,7 +5,8 @@ import { eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMont
 import { firstValueFrom } from 'rxjs';
 import { PlannerEventResponse, PlannerEventCreate, PlannerService } from '../../api';
 import { NotificationService } from '../../core/notification.service';
-import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { extractAwarded } from '../../utils/achievement-utils';
+import { AchievementCatalogService } from '../../services/achievement-catalog.service';
 import { BrowserNotificationService } from '../../services/notification.service';
 import { getApiErrorMessage } from '../../core/error-utils';
 
@@ -50,7 +51,8 @@ export class PlannerPageComponent implements OnInit {
   constructor(
     private plannerService: PlannerService,
     private notifications: NotificationService,
-    private browserNotifications: BrowserNotificationService
+    private browserNotifications: BrowserNotificationService,
+    private achievements: AchievementCatalogService
   ) {}
 
   ngOnInit(): void {
@@ -287,7 +289,7 @@ export class PlannerPageComponent implements OnInit {
 
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
-    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+    awarded.forEach((key) => this.notifications.show(this.achievements.buildToast(key)));
   }
 
   private saveCachedEvents(events: PlannerUiEvent[]) {

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 import jwt
-from flask import current_app, make_response, request
+from flask import after_this_request, current_app, request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
@@ -117,18 +117,26 @@ class LoginResource(MethodView):
             abort(401, message="Invalid credentials")
 
         token = _sign_jwt(user.id)
-        response = make_response({"message": "Login successful"})
-        _set_auth_cookie(response, token)
-        return response
+
+        @after_this_request
+        def _attach_cookie(response):
+            _set_auth_cookie(response, token)
+            return response
+
+        return {"message": "Login successful"}
 
 
 @blp.route("/logout")
 class LogoutResource(MethodView):
     @blp.response(200, LogoutResponseSchema)
     def post(self):
-        response = make_response({"message": "Logged out"})
         token = request.cookies.get(current_app.config.get("JWT_COOKIE_NAME", "moody_access_token"))
         if token:
             _revoke_token(token)
-        _clear_auth_cookie(response)
-        return response
+
+        @after_this_request
+        def _drop_cookie(response):
+            _clear_auth_cookie(response)
+            return response
+
+        return {"message": "Logged out"}

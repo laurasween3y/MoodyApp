@@ -39,8 +39,17 @@ def get_current_user() -> User:
     exp = payload.get("exp")
     if exp:
         now = datetime.utcnow()
-        expired_cutoff = datetime.utcfromtimestamp(int(exp))
-        if expired_cutoff <= now:
+        expired_cutoff = None
+        if isinstance(exp, (int, float)):
+            expired_cutoff = datetime.utcfromtimestamp(int(exp))
+        elif isinstance(exp, str):
+            try:
+                expired_cutoff = datetime.fromisoformat(exp)
+            except ValueError:
+                expired_cutoff = None
+        elif isinstance(exp, datetime):
+            expired_cutoff = exp
+        if expired_cutoff and expired_cutoff <= now:
             abort(401, message="Token expired")
 
     try:

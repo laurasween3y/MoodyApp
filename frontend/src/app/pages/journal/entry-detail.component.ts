@@ -14,7 +14,8 @@ import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Journal, JournalEntry, JournalPrompt, JournalService } from '../../services/journal.service';
 import { NotificationService } from '../../core/notification.service';
-import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { extractAwarded } from '../../utils/achievement-utils';
+import { AchievementCatalogService } from '../../services/achievement-catalog.service';
 import { getApiErrorMessage } from '../../core/error-utils';
 
 @Component({
@@ -83,7 +84,8 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private journalService: JournalService,
-    private notifications: NotificationService
+    private notifications: NotificationService,
+    private achievements: AchievementCatalogService
   ) {}
 
   ngOnInit(): void {
@@ -289,7 +291,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
-    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+    awarded.forEach((key) => this.notifications.show(this.achievements.buildToast(key)));
   }
 
   async fetchPrompt() {

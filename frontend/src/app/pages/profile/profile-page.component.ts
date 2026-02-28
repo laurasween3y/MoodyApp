@@ -6,7 +6,6 @@ import { firstValueFrom } from 'rxjs';
 
 import { ProfileService, Profile, StreakSummary, AchievementItem } from '../../services/profile.service';
 import { BrowserNotificationService, UserNotificationSettings } from '../../services/notification.service';
-import { getAchievementIcon } from '../../utils/achievement-utils';
 import { getApiErrorMessage } from '../../core/error-utils';
 
 @Component({
@@ -74,7 +73,7 @@ export class ProfilePageComponent implements OnInit {
       this.streaks = streaks;
       this.achievementsAll = achievements.all_possible.map((ach) => ({
         ...ach,
-        icon: getAchievementIcon(ach.key) ?? ach.icon,
+        icon: ach.icon,
       }));
 
       this.form.patchValue({

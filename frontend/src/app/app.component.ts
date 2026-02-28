@@ -5,6 +5,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { ToastComponent } from './shared/toast.component';
 import { BrowserNotificationService } from './services/notification.service';
+import { AchievementCatalogService } from './services/achievement-catalog.service';
 
 @Component({
   selector: 'app-root',
@@ -20,13 +21,15 @@ export class AppComponent {
 
   constructor(
     private auth: AuthService,
-    private browserNotifications: BrowserNotificationService
+    private browserNotifications: BrowserNotificationService,
+    private achievements: AchievementCatalogService
   ) {
     this.loggedIn$ = this.auth.isLoggedIn$();
     this.auth.ensureSession().subscribe();
     this.loggedIn$.subscribe((loggedIn) => {
       if (loggedIn) {
         this.loadNotificationSettings();
+        this.achievements.ensureLoaded().subscribe();
       } else {
         this.browserNotifications.clearAll();
       }

@@ -18,7 +18,8 @@ import {
 import { MoodResponse, MoodsService } from '../../api';
 import { NotificationService, AppNotification } from '../../core/notification.service';
 import { ProfileService, StreakSummary } from '../../services/profile.service';
-import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { extractAwarded } from '../../utils/achievement-utils';
+import { AchievementCatalogService } from '../../services/achievement-catalog.service';
 import { getApiErrorMessage } from '../../core/error-utils';
 import { filterMoodOptions, MOOD_OPTIONS, MoodOption } from '../../utils/mood-options';
 
@@ -58,7 +59,8 @@ export class MoodPageComponent implements OnInit {
   constructor(
     private moodsService: MoodsService,
     private notifications: NotificationService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private achievements: AchievementCatalogService
   ) {}
 
   ngOnInit(): void {
@@ -307,6 +309,6 @@ export class MoodPageComponent implements OnInit {
 
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
-    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+    awarded.forEach((key) => this.notifications.show(this.achievements.buildToast(key)));
   }
 }

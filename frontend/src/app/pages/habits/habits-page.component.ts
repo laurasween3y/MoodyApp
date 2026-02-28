@@ -7,7 +7,8 @@ import { calculateStreak, calculateWeeklyProgress, isHabitMet, normalizeTarget }
 import { todayIso } from '../../utils/date-utils';
 import { NotificationService } from '../../core/notification.service';
 import { ProfileService, StreakSummary } from '../../services/profile.service';
-import { buildAchievementToast, extractAwarded } from '../../utils/achievement-utils';
+import { extractAwarded } from '../../utils/achievement-utils';
+import { AchievementCatalogService } from '../../services/achievement-catalog.service';
 import { getApiErrorMessage } from '../../core/error-utils';
 
 @Component({
@@ -34,7 +35,8 @@ export class HabitsPageComponent implements OnInit {
   constructor(
     private habitsService: HabitService,
     private notifications: NotificationService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private achievements: AchievementCatalogService
   ) {}
 
   ngOnInit(): void {
@@ -220,7 +222,7 @@ export class HabitsPageComponent implements OnInit {
 
   private notifyAwards(awarded: string[] | undefined) {
     if (!awarded?.length) return;
-    awarded.forEach((key) => this.notifications.show(buildAchievementToast(key)));
+    awarded.forEach((key) => this.notifications.show(this.achievements.buildToast(key)));
   }
 
   private async loadStreaks() {
