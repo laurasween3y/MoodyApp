@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
+from uuid import uuid4
 
 import jwt
-from flask import current_app, make_response
+from flask import current_app, make_response, request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
 from app.extensions import db
-from app.models import User
+from app.models import TokenBlacklist, User
 from app.schemas.auth import (
     LoginSchema,
     LoginResponseSchema,
@@ -26,6 +27,7 @@ blp = Blueprint(
 def _sign_jwt(user_id: int) -> str:
     payload = {
         "sub": str(user_id),
+        "jti": str(uuid4()),
         "iat": datetime.utcnow(),
         "exp": datetime.utcnow() + timedelta(hours=24),
     }
@@ -50,6 +52,27 @@ def _clear_auth_cookie(response) -> None:
         path="/",
         samesite=current_app.config.get("JWT_COOKIE_SAMESITE", "Lax"),
     )
+
+
+def _revoke_token(token: str) -> None:
+    secret = current_app.config.get("SECRET_KEY")
+    try:
+        payload = jwt.decode(token, secret, algorithms=["HS256"], options={"verify_exp": False})
+    except jwt.InvalidTokenError:
+        return
+
+    jti = payload.get("jti")
+    exp = payload.get("exp")
+    if not jti or not exp:
+        return
+
+    expires_at = datetime.utcfromtimestamp(int(exp))
+    TokenBlacklist.query.filter(TokenBlacklist.expires_at <= datetime.utcnow()).delete(synchronize_session=False)
+    if TokenBlacklist.query.filter_by(jti=jti).first():
+        return
+
+    db.session.add(TokenBlacklist(jti=jti, expires_at=expires_at))
+    _commit_or_abort("Could not revoke token")
 
 
 def _commit_or_abort(message: str) -> None:
@@ -104,5 +127,8 @@ class LogoutResource(MethodView):
     @blp.response(200, LogoutResponseSchema)
     def post(self):
         response = make_response({"message": "Logged out"})
+        token = request.cookies.get(current_app.config.get("JWT_COOKIE_NAME", "moody_access_token"))
+        if token:
+            _revoke_token(token)
         _clear_auth_cookie(response)
         return response

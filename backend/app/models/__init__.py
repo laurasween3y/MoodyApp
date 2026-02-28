@@ -6,3 +6,4 @@ from .habit import Habit, HabitCompletion  # noqa: F401
 from .gamification import Streak, Achievement  # noqa: F401
 from .journal_prompt import JournalPrompt  # noqa: F401
 from .user_notification_settings import UserNotificationSettings  # noqa: F401
+from .token_blacklist import TokenBlacklist  # noqa: F401

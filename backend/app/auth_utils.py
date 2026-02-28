@@ -3,7 +3,9 @@ from functools import wraps
 from flask import current_app, request, g
 from flask_smorest import abort
 
-from app.models import User
+from datetime import datetime
+
+from app.models import TokenBlacklist, User
 
 
 def get_current_user() -> User:
@@ -26,6 +28,20 @@ def get_current_user() -> User:
     user_id = payload.get("sub")
     if not user_id:
         abort(401, message="Invalid token payload")
+
+    jti = payload.get("jti")
+    if not jti:
+        abort(401, message="Invalid token payload")
+
+    if TokenBlacklist.query.filter_by(jti=jti).first():
+        abort(401, message="Token revoked")
+
+    exp = payload.get("exp")
+    if exp:
+        now = datetime.utcnow()
+        expired_cutoff = datetime.utcfromtimestamp(int(exp))
+        if expired_cutoff <= now:
+            abort(401, message="Token expired")
 
     try:
         user_id = int(user_id)
