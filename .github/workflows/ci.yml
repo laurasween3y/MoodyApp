@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: moody_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d moody_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL_TEST: postgresql+psycopg2://postgres:postgres@localhost:5432/moody_test
+      SECRET_KEY: test-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+      - name: Backend lint (ruff)
+        run: |
+          pip install ruff
+          ruff check backend --select E9,F
+      - name: Run backend tests
+        run: |
+          cd backend
+          pytest
+      - name: Backend security audit (pip-audit)
+        continue-on-error: true
+        run: |
+          pip install pip-audit
+          pip-audit -r backend/requirements.txt
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    env:
+      CHROME_BIN: google-chrome
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm ci
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test -- --watch=false --browsers=ChromeHeadless
+      - name: Frontend build (production)
+        run: |
+          cd frontend
+          npm run build -- --configuration=production
+      - name: Frontend lint (if configured)
+        continue-on-error: true
+        run: |
+          cd frontend
+          if node -e "const fs=require('fs');const a=JSON.parse(fs.readFileSync('angular.json','utf8'));const p=a.projects&&a.projects.frontend;const has=p&&p.architect&&p.architect.lint;process.exit(has?0:1)" ; then\n            npx ng lint\n          else\n            echo \"Lint target not configured; skipping.\"\n          fi
+      - name: Frontend security audit (npm audit)
+        continue-on-error: true
+        run: |
+          cd frontend
+          npm audit --audit-level=high
