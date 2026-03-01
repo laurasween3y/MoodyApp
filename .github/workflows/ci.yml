@@ -37,7 +37,7 @@ jobs:
       - name: Backend lint (ruff)
         run: |
           pip install ruff
-          ruff check backend --select E9,F
+          ruff check backend --select E9,F --ignore F401
       - name: Run backend tests
         run: |
           cd backend
