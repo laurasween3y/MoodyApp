@@ -13,9 +13,16 @@ interface QueuedRequest {
 @Injectable({ providedIn: 'root' })
 export class OfflineQueueService {
   private readonly storageKey = 'moody_offline_queue_v1';
+  private readonly dbName = 'moody_offline_queue';
+  private readonly storeName = 'kv';
+  private readonly queueKey = 'queue';
   private draining = false;
+  private queue: QueuedRequest[] = [];
+  private initPromise: Promise<void>;
+  private dbPromise?: Promise<IDBDatabase>;
 
   constructor(private http: HttpClient, private notifications: NotificationService) {
+    this.initPromise = this.init();
     window.addEventListener('online', () => this.drain());
   }
 
@@ -25,23 +32,23 @@ export class OfflineQueueService {
       headers[k] = req.headers.get(k) ?? '';
     });
 
-    const stored: QueuedRequest[] = this.loadQueue();
-    stored.push({
+    this.queue.push({
       url: req.url,
       method: req.method,
       body: req.body,
       headers,
       withCredentials: req.withCredentials ?? false,
     });
-    localStorage.setItem(this.storageKey, JSON.stringify(stored));
+    void this.saveQueue(this.queue);
   }
 
   drain() {
     if (this.draining) return;
-    const queue = this.loadQueue();
-    if (!queue.length) return;
-    this.draining = true;
-    this.processNext(queue);
+    void this.initPromise.then(() => {
+      if (!this.queue.length) return;
+      this.draining = true;
+      this.processNext(this.queue);
+    });
   }
 
   private processNext(queue: QueuedRequest[]) {
@@ -67,12 +74,12 @@ export class OfflineQueueService {
     this.http.request(replayReq).subscribe({
       next: () => {
         queue.shift();
-        this.saveQueue(queue);
+        void this.saveQueue(queue);
         this.processNext(queue);
       },
       error: () => {
         // stop draining; will retry on next online event
-        this.saveQueue(queue);
+        void this.saveQueue(queue);
         this.notifications.show({
           type: 'error',
           title: 'Sync paused',
@@ -84,7 +91,70 @@ export class OfflineQueueService {
     });
   }
 
-  private loadQueue(): QueuedRequest[] {
+  private async init(): Promise<void> {
+    const stored = await this.loadQueue();
+    if (this.queue.length) {
+      this.queue = [...stored, ...this.queue];
+    } else {
+      this.queue = stored;
+    }
+    await this.saveQueue(this.queue);
+  }
+
+  private async loadQueue(): Promise<QueuedRequest[]> {
+    if (typeof indexedDB === 'undefined') {
+      return this.loadQueueFromLocalStorage();
+    }
+    try {
+      const db = await this.getDb();
+      return await new Promise((resolve) => {
+        const tx = db.transaction(this.storeName, 'readonly');
+        const store = tx.objectStore(this.storeName);
+        const req = store.get(this.queueKey);
+        req.onsuccess = () => resolve((req.result?.value as QueuedRequest[]) || []);
+        req.onerror = () => resolve([]);
+      });
+    } catch {
+      return this.loadQueueFromLocalStorage();
+    }
+  }
+
+  private async saveQueue(queue: QueuedRequest[]) {
+    if (typeof indexedDB === 'undefined') {
+      this.saveQueueToLocalStorage(queue);
+      return;
+    }
+    try {
+      const db = await this.getDb();
+      await new Promise<void>((resolve) => {
+        const tx = db.transaction(this.storeName, 'readwrite');
+        const store = tx.objectStore(this.storeName);
+        store.put({ key: this.queueKey, value: queue });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    } catch {
+      this.saveQueueToLocalStorage(queue);
+    }
+  }
+
+  private async getDb(): Promise<IDBDatabase> {
+    if (this.dbPromise) return this.dbPromise;
+    this.dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          db.createObjectStore(this.storeName, { keyPath: 'key' });
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    return this.dbPromise;
+  }
+
+  private loadQueueFromLocalStorage(): QueuedRequest[] {
     try {
       return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
     } catch {
@@ -92,7 +162,7 @@ export class OfflineQueueService {
     }
   }
 
-  private saveQueue(queue: QueuedRequest[]) {
+  private saveQueueToLocalStorage(queue: QueuedRequest[]) {
     localStorage.setItem(this.storageKey, JSON.stringify(queue));
   }
 }
