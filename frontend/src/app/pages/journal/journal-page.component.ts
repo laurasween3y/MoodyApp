@@ -47,6 +47,7 @@ export class JournalPageComponent implements OnInit {
     this.loading = true;
     try {
       if (!navigator.onLine) {
+        // Offline-first: show cached list so the page isn't empty.
         const cached = this.loadCachedJournals();
         if (cached.length) {
           this.journals = cached;
@@ -115,6 +116,7 @@ export class JournalPageComponent implements OnInit {
         this.journalsService.createJournal({ title: this.journalTitle.trim(), description: this.journalDescription || undefined })
       );
       if ((journal as any)?.queued) {
+        // Queued means we couldn't reach the API; keep local UI in sync.
         this.error = undefined;
       }
       if (this.journalCoverFile && !(journal as any)?.queued && journal.id > 0) {
@@ -163,6 +165,7 @@ export class JournalPageComponent implements OnInit {
         })
       );
       if ((updated as any)?.queued) {
+        // Offline update: avoid showing a hard error for a queued write.
         this.error = undefined;
       }
       if (this.journalCoverFile && !(updated as any)?.queued && updated.id > 0) {
@@ -220,6 +223,7 @@ export class JournalPageComponent implements OnInit {
   private async uploadCover(journalId: number, file: File) {
     try {
       const updated = await firstValueFrom(this.journalsService.uploadCover(journalId, file));
+      // Refresh local cache so cards show the new cover immediately.
       this.journals = this.journals.map(j => (j.id === updated.id ? updated : j));
       this.saveCachedJournals(this.journals);
       if (this.selectedJournalId === updated.id) {
@@ -239,6 +243,7 @@ export class JournalPageComponent implements OnInit {
     this.error = undefined;
     try {
       if (!navigator.onLine) {
+        // Offline: use cached entries for the selected journal if available.
         const cached = this.loadCachedEntries(this.selectedJournalId) || [];
         if (cached.length) {
           this.entries = cached;
@@ -284,6 +289,7 @@ export class JournalPageComponent implements OnInit {
 
   private saveCachedJournals(journals: Journal[]) {
     try {
+      // Keep cache bounded to avoid unbounded localStorage growth.
       const limited = journals.slice(0, 50);
       localStorage.setItem(JOURNALS_CACHE_KEY, JSON.stringify(limited));
     } catch {
@@ -302,6 +308,7 @@ export class JournalPageComponent implements OnInit {
 
   private saveCachedEntries(journalId: number, entries: JournalEntry[]) {
     try {
+      // Only keep recent entries; full history still lives on the server.
       const limited = entries.slice(-20);
       localStorage.setItem(`moody_cached_entries_${journalId}`, JSON.stringify(limited));
     } catch {

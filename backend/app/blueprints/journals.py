@@ -120,10 +120,12 @@ class JournalCoverResource(MethodView):
             abort(400, message="Empty filename")
 
         allowed_mimes = {"image/png", "image/jpeg", "image/webp"}
+        # Restrict to safe image types to limit upload abuse.
         if file.mimetype not in allowed_mimes:
             abort(415, message="Unsupported file type")
 
         max_bytes = 5 * 1024 * 1024  # 5MB limit
+        # Enforce size limits before saving to disk.
         file.stream.seek(0, os.SEEK_END)
         size = file.stream.tell()
         file.stream.seek(0)
@@ -131,11 +133,13 @@ class JournalCoverResource(MethodView):
             abort(413, message="File too large (max 5MB)")
 
         filename = secure_filename(file.filename or "cover")
+        # Store a predictable filename per journal/user for easy overwrite.
         name, ext = os.path.splitext(filename)
         final_name = f"journal_{journal_id}_{g.current_user.id}{ext}"
         upload_path = os.path.join(current_app.config["UPLOAD_FOLDER"], final_name)
         file.save(upload_path)
 
+        # Use the current request host so local/prod URLs stay correct.
         base_url = request.url_root.rstrip("/")
         journal.cover_url = f"{base_url}/uploads/{final_name}"
         db.session.commit()

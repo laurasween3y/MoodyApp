@@ -68,6 +68,7 @@ export class PlannerPageComponent implements OnInit {
       this.holidayEvents = this.buildHolidayEvents(this.currentMonth.getFullYear());
       this.buildCalendar();
       this.saveCachedEvents(this.events);
+      // Reminders are client-side only; reschedule after every refresh.
       this.browserNotifications.schedulePlannerReminders(this.events);
     } catch (err) {
       console.error(err);
@@ -105,6 +106,7 @@ export class PlannerPageComponent implements OnInit {
           this.plannerService.plannerEventsEventIdPut(this.editingId, payload)
         );
         if ((updated as any)?.queued) {
+          // Offline update: show a soft notice, keep UI state.
           this.notifications.show({ type: 'info', title: 'Saved offline', message: 'We will sync this update when online.' });
         } else {
           this.events = this.sortEvents(
@@ -115,6 +117,7 @@ export class PlannerPageComponent implements OnInit {
       } else {
         const created = await firstValueFrom(this.plannerService.plannerEventsPost(payload));
         if ((created as any)?.queued) {
+          // Offline create: keep local list, server will reconcile later.
           this.notifications.show({ type: 'info', title: 'Saved offline', message: 'We will sync this event when online.' });
         } else {
           this.events = this.sortEvents([created, ...this.events]);
@@ -224,6 +227,7 @@ export class PlannerPageComponent implements OnInit {
   private buildCalendar() {
     const start = startOfWeek(startOfMonth(this.currentMonth), { weekStartsOn: 0 });
     const end = endOfWeek(endOfMonth(this.currentMonth), { weekStartsOn: 0 });
+    // Build a full grid (leading/trailing days) for a consistent calendar layout.
     this.calendarDays = eachDayOfInterval({ start, end }).map(day => {
       const iso = format(day, 'yyyy-MM-dd');
       return {
@@ -257,11 +261,13 @@ export class PlannerPageComponent implements OnInit {
   private get plannerEvents(): PlannerUiEvent[] {
     const todayIso = format(new Date(), 'yyyy-MM-dd');
     const userDateSet = new Set((this.events || []).map(ev => ev.event_date || todayIso));
+    // Only show holidays on days the user already has events (avoids clutter).
     const holidaysOnUserDays = this.holidayEvents.filter(h => h.event_date && userDateSet.has(h.event_date));
     return this.sortEvents([...(this.events || []), ...holidaysOnUserDays]);
   }
 
   private buildHolidayEvents(year: number): PlannerUiEvent[] {
+    // Static templates: this is a lightweight list, not a full holiday engine.
     const fmt = (month: number, day: number) => format(new Date(year, month - 1, day), 'yyyy-MM-dd');
     const templates = [
       { title: "New Year's Day", month: 1, day: 1 },
@@ -294,6 +300,7 @@ export class PlannerPageComponent implements OnInit {
 
   private saveCachedEvents(events: PlannerUiEvent[]) {
     try {
+      // Keep cache bounded for localStorage limits.
       const limited = events.slice(0, 100);
       localStorage.setItem('moody_cached_planner', JSON.stringify(limited));
     } catch {

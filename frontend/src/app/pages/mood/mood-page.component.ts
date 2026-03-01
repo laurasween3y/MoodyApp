@@ -159,6 +159,7 @@ export class MoodPageComponent implements OnInit {
     try {
       this.allMoods = await firstValueFrom(this.moodsService.moodsGet());
       this.buildMoodMap();
+      // Cache a full list so calendar works offline.
       this.saveCachedMoods(this.allMoods);
     } catch (err) {
       console.error(err);
@@ -268,6 +269,7 @@ export class MoodPageComponent implements OnInit {
   private buildMoodMap() {
     this.moodByDate.clear();
     this.allMoods.forEach(m => {
+      // Normalize date values to ISO strings for consistent map keys.
       const iso = typeof m.date === 'string' ? m.date : format(m.date as any, 'yyyy-MM-dd');
       this.moodByDate.set(iso, m);
     });
@@ -275,6 +277,7 @@ export class MoodPageComponent implements OnInit {
 
   private saveCachedMoods(moods: MoodResponse[]) {
     try {
+      // Store raw list; filtering happens in memory on load.
       localStorage.setItem(this.cacheKey, JSON.stringify(moods));
     } catch (err) {
       console.warn('Unable to cache moods locally', err);
@@ -296,6 +299,7 @@ export class MoodPageComponent implements OnInit {
     const start = startOfWeek(startOfMonth(this.currentMonth), { weekStartsOn: 0 });
     const end = endOfWeek(endOfMonth(this.currentMonth), { weekStartsOn: 0 });
 
+    // Build a full grid for the calendar view, including adjacent month days.
     this.calendarDays = eachDayOfInterval({ start, end }).map(day => {
       const iso = format(day, 'yyyy-MM-dd');
       return {

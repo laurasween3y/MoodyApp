@@ -99,6 +99,7 @@ export class JournalService {
     idOverride?: number
   ): Journal {
     if (journal?.queued) {
+      // When offline queue intercepts the request, synthesize a local placeholder.
       const body = journal?.body ?? payload ?? {};
       return {
         id: journal?.journalId ?? idOverride ?? -1,
@@ -126,6 +127,7 @@ export class JournalService {
     };
 
     if (normalized.cover_url && normalized.cover_url.startsWith('/')) {
+      // API may return relative URLs; normalize for browser use.
       normalized.cover_url = `${this.apiBase}${normalized.cover_url}`;
     }
     return normalized;
@@ -164,6 +166,7 @@ export class JournalService {
 
   private normalizeQueuedOrEntry(entry: any): JournalEntry {
     if (entry?.queued) {
+      // Offline queue returns a light payload; fill required fields for UI.
       const body = entry?.body ?? {};
       return {
         id: entry?.entryId ?? entry?.id ?? -1,

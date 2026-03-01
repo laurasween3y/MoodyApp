@@ -18,7 +18,7 @@ def create_app() -> Flask:
     os.makedirs(upload_folder, exist_ok=True)
     app.config["UPLOAD_FOLDER"] = upload_folder
 
-    # Allow local dev frontend (Angular on 4200) to call the API
+    # Keep CORS tight to known dev origins; avoids wildcard in cookie auth.
     allowed_origins = [
         "http://localhost:4200",
         "http://127.0.0.1:4200",
@@ -34,6 +34,7 @@ def create_app() -> Flask:
         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     }
 
+    # Limit CORS to API routes that the frontend actually calls.
     cors_resources = {
         r"/moods/*": cors_rule,
         r"/auth/*": cors_rule,
@@ -49,7 +50,7 @@ def create_app() -> Flask:
     }
     CORS(app, resources=cors_resources, supports_credentials=True)
 
-    # Flask-Smorest / OpenAPI configuration
+    # OpenAPI config for local docs + client generation.
     app.config["API_TITLE"] = "Moody API"
     app.config["API_VERSION"] = "v1"
     app.config["OPENAPI_VERSION"] = "3.0.3"
@@ -86,6 +87,7 @@ def create_app() -> Flask:
     api.register_blueprint(JournalPromptsBlueprint)
     api.register_blueprint(NotificationSettingsBlueprint)
 
+    # Normalize error payloads so the frontend can show a single message field.
     @app.errorhandler(HTTPException)
     def handle_http_exception(err: HTTPException):
         payload = {"message": err.description or "Request failed"}

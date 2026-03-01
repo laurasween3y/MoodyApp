@@ -126,12 +126,13 @@ class HabitCompletionResource(MethodView):
         except IntegrityError:
             db.session.rollback()
             added = False
-            # Already exists, treat as idempotent success
+            # Unique constraint hit: treat as idempotent success.
         except Exception:
             db.session.rollback()
             abort(500, message="Could not update habit completion")
 
         if added:
+            # Only award streaks for new completions, not duplicates.
             awarded = evaluate_habit(g.current_user.id, completion_date)
             _commit_or_abort("Could not update habit streaks")
 
@@ -195,6 +196,7 @@ class HabitToggleResource(MethodView):
 
             awarded = []
             if not existing:
+                # Only award on create so repeated toggles don't inflate streaks.
                 awarded = evaluate_habit(g.current_user.id, completion_date)
                 _commit_or_abort("Could not update habit streaks")
 

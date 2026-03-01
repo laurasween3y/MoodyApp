@@ -25,6 +25,7 @@ blp = Blueprint(
 
 
 def _sign_jwt(user_id: int) -> str:
+    # jti enables server-side revocation; exp keeps sessions short-lived.
     payload = {
         "sub": str(user_id),
         "jti": str(uuid4()),
@@ -35,6 +36,7 @@ def _sign_jwt(user_id: int) -> str:
     return jwt.encode(payload, secret, algorithm="HS256")
 
 def _set_auth_cookie(response, token: str) -> None:
+    # HttpOnly cookie to reduce XSS risk; SameSite Lax works for typical SPA flows.
     response.set_cookie(
         current_app.config.get("JWT_COOKIE_NAME", "moody_access_token"),
         token,
@@ -67,6 +69,7 @@ def _revoke_token(token: str) -> None:
         return
 
     expires_at = datetime.utcfromtimestamp(int(exp))
+    # Cleanup expired rows to keep the blacklist small.
     TokenBlacklist.query.filter(TokenBlacklist.expires_at <= datetime.utcnow()).delete(synchronize_session=False)
     if TokenBlacklist.query.filter_by(jti=jti).first():
         return

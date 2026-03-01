@@ -24,9 +24,11 @@ def _touch_streak(user_id: int, module: str, action_date: dt.date) -> Streak:
         db.session.add(streak)
 
     if streak.last_action_date == action_date:
+        # Same-day actions shouldn't inflate streaks.
         return streak
 
     if streak.last_action_date == action_date - dt.timedelta(days=1):
+        # Consecutive day keeps the streak going; gaps reset to 1.
         streak.current_streak += 1
     else:
         streak.current_streak = 1
@@ -44,6 +46,7 @@ def _award(user_id: int, module: str, key: str, awarded: List[str]) -> None:
         achievement.module = module
         achievement.achievement_key = key
         db.session.add(achievement)
+        # Track newly awarded keys for the response payload.
         awarded.append(key)
 
 

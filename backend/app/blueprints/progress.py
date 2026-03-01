@@ -15,6 +15,7 @@ blp = Blueprint(
 )
 
 ALL_ACHIEVEMENTS = [
+    # Keep keys/titles in sync with gamification.evaluate_* and frontend badges.
     {
         "module": "mood",
         "key": "mood_first_log",
@@ -91,6 +92,7 @@ ALL_ACHIEVEMENTS = [
 
 
 def _aggregate_streaks(user_id: int):
+    # Only expose streaks currently shown on the dashboard.
     streaks = {m: {"current": 0, "longest": 0} for m in ["mood", "habit"]}
     rows = Streak.query.filter_by(user_id=user_id).all()
     for row in rows:
@@ -103,6 +105,7 @@ def _aggregate_streaks(user_id: int):
 
 
 def _safe_unlocked_at(row):
+    # Older rows may store unlocked_at as string; normalize for marshmallow.
     val = getattr(row, "unlocked_at", None)
     if isinstance(val, dt.datetime):
         return val
@@ -153,6 +156,7 @@ class AchievementsResource(MethodView):
                 "locked": db_row is None,
                 # keep as datetime for marshmallow to format
                 "unlocked_at": unlocked_at if unlocked_at else None,
+                # We only store unlocked state, so progress is a simple target/0.
                 "progress_current": progress_current if db_row else 0,
                 "progress_target": progress_target,
             }

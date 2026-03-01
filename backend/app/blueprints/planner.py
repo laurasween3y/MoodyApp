@@ -50,6 +50,7 @@ class PlannerEventsResource(MethodView):
         date_str = request.args.get("date")
         if date_str:
             try:
+                # Filter uses ISO date strings to keep client/simple URLs.
                 filter_date = dt_date.fromisoformat(date_str)
                 query = query.filter_by(event_date=filter_date)
             except ValueError:
@@ -72,6 +73,7 @@ class PlannerEventsResource(MethodView):
 
         db.session.add(event)
         _commit_or_abort("Could not create event")
+        # Award streaks only on create to avoid double-counting updates.
         awarded = evaluate_planner(g.current_user.id)
         _commit_or_abort("Could not update planner streaks")
         setattr(event, "awarded", awarded)

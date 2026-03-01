@@ -32,6 +32,7 @@ export class OfflineQueueService {
       headers[k] = req.headers.get(k) ?? '';
     });
 
+    // Store minimal request info for replay (including credentials for cookie auth).
     this.queue.push({
       url: req.url,
       method: req.method,
@@ -44,6 +45,7 @@ export class OfflineQueueService {
 
   drain() {
     if (this.draining) return;
+    // Only one drain at a time to avoid duplicate replays.
     void this.initPromise.then(() => {
       if (!this.queue.length) return;
       this.draining = true;
@@ -78,6 +80,7 @@ export class OfflineQueueService {
         this.processNext(queue);
       },
       error: () => {
+        // Stop on error; we'll retry when the app comes back online.
         // stop draining; will retry on next online event
         void this.saveQueue(queue);
         this.notifications.show({
@@ -94,6 +97,7 @@ export class OfflineQueueService {
   private async init(): Promise<void> {
     const stored = await this.loadQueue();
     if (this.queue.length) {
+      // Preserve any requests queued before init finishes.
       this.queue = [...stored, ...this.queue];
     } else {
       this.queue = stored;
@@ -103,6 +107,7 @@ export class OfflineQueueService {
 
   private async loadQueue(): Promise<QueuedRequest[]> {
     if (typeof indexedDB === 'undefined') {
+      // Some browsers (or private mode) block IndexedDB; fall back to localStorage.
       return this.loadQueueFromLocalStorage();
     }
     try {
@@ -115,6 +120,7 @@ export class OfflineQueueService {
         req.onerror = () => resolve([]);
       });
     } catch {
+      // IndexedDB can fail at runtime; localStorage is a simpler fallback.
       return this.loadQueueFromLocalStorage();
     }
   }
@@ -134,6 +140,7 @@ export class OfflineQueueService {
         tx.onerror = () => resolve();
       });
     } catch {
+      // If IndexedDB write fails, at least keep a localStorage copy.
       this.saveQueueToLocalStorage(queue);
     }
   }

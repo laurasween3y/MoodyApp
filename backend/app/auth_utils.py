@@ -13,6 +13,7 @@ def get_current_user() -> User:
     token = request.cookies.get(cookie_name)
 
     if not token:
+        # Fallback to Authorization header for tools like Swagger/Postman.
         auth_header = request.headers.get("Authorization", "")
         if auth_header.lower().startswith("bearer "):
             token = auth_header.split()[1]
@@ -33,11 +34,13 @@ def get_current_user() -> User:
     if not jti:
         abort(401, message="Invalid token payload")
 
+    # Tokens can be revoked on logout; deny if the jti is blacklisted.
     if TokenBlacklist.query.filter_by(jti=jti).first():
         abort(401, message="Token revoked")
 
     exp = payload.get("exp")
     if exp:
+        # Defensive expiry check in case exp isn't a standard int timestamp.
         now = datetime.utcnow()
         expired_cutoff = None
         if isinstance(exp, (int, float)):
@@ -67,6 +70,7 @@ def get_current_user() -> User:
 def jwt_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
+        # Allow CORS preflight through without auth.
         if request.method == "OPTIONS":
             return "", 200
         g.current_user = get_current_user()

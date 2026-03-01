@@ -140,6 +140,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async verifyJournal() {
     if (!navigator.onLine) {
+      // Offline: only allow entry editing if the journal is cached locally.
       try {
         const raw = localStorage.getItem('moody_cached_journals');
         const cached = raw ? (JSON.parse(raw) as Journal[]) : [];
@@ -171,6 +172,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.error = undefined;
     try {
       if (!navigator.onLine) {
+        // Try cached entries first so users can keep reading offline.
         const key = `moody_cached_entries_${this.journalId}`;
         const raw = localStorage.getItem(key);
         const cached = raw ? (JSON.parse(raw) as JournalEntry[]) : [];
@@ -216,6 +218,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     if (!navigator.onLine && this.journalId < 0) {
+      // New journals created offline don't exist on the server yet.
       this.error = 'Go online to add entries for a new journal.';
       return;
     }
@@ -278,6 +281,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       const key = `moody_cached_entries_${this.journalId}`;
       const raw = localStorage.getItem(key);
       const list = raw ? (JSON.parse(raw) as JournalEntry[]) : [];
+      // Keep a small local cache for offline access without blowing storage.
       const next = [entry, ...list].slice(0, 20);
       localStorage.setItem(key, JSON.stringify(next));
     } catch {
@@ -489,6 +493,7 @@ export class EntryDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     const gridSizePx = Math.round(this.fontSize * 1.5);
     const dotSizePx = gridSizePx;
     const baselinePx = Math.round(this.fontSize * 0.85); // slightly lower so text sits closer to lower guide
+    // Keep editor content and the background grid in sync with font settings.
     this.editor
       .chain()
       .focus()

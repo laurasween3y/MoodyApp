@@ -97,6 +97,7 @@ export class BrowserNotificationService {
       const start = new Date(`${eventDate}T${time}`);
       const reminderAt = start.getTime() - event.reminder_minutes_before * 60 * 1000;
       const delay = reminderAt - Date.now();
+      // Skip past reminders; this is a best-effort client-side scheduler.
       if (delay <= 0) return;
 
       const key = event.id ? String(event.id) : `${eventDate}-${time}-${event.title ?? ''}`;
@@ -127,6 +128,7 @@ export class BrowserNotificationService {
   }
 
   private canNotify(): boolean {
+    // Respect browser permissions; we don't attempt to request here.
     return this.permission === 'granted';
   }
 
@@ -166,6 +168,7 @@ export class BrowserNotificationService {
     const delay = nextRun.getTime() - Date.now();
     const timeoutId = window.setTimeout(() => {
       this.showReminder(title, body, icon);
+      // Reschedule daily to handle daylight/timezone shifts.
       this.scheduleDailyReminder(kind, timeStr, title, body, icon);
     }, delay);
     this.setDailyTimeout(kind, timeoutId);

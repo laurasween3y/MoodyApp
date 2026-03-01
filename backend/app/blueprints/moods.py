@@ -138,6 +138,7 @@ class MoodOptionsResource(MethodView):
 
 
 def _upsert_mood(mood_data):
+    # Upsert: one mood per day, and avoid duplicate streak awards.
     mood_date = mood_data.get("date") or date.today()
 
     existing = (

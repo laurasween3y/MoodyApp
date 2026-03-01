@@ -16,6 +16,7 @@ export const calculateStreak = (completions: string[]): number => {
   const completionSet = new Set(completions || []);
   let streak = 0;
   let cursor = new Date();
+  // Count consecutive days ending today; gaps stop the streak.
   while (true) {
     const iso = formatIso(cursor);
     if (completionSet.has(iso)) {
@@ -29,12 +30,14 @@ export const calculateStreak = (completions: string[]): number => {
 };
 
 export const normalizeTarget = (value: number): number => {
+  // Clamp to keep targets realistic and UI charts readable.
   if (!value || value < 1) return 1;
   if (value > 14) return 14;
   return Math.round(value);
 };
 
 export const completionsThisWeek = (completions: string[], weekStartsOn: WeekStart = 1): number => {
+  // Use ISO week ranges so dashboard math matches calendar views.
   const start = startOfWeek(new Date(), { weekStartsOn });
   const end = endOfWeek(new Date(), { weekStartsOn });
   return (completions || []).filter((dateStr) => {
@@ -54,6 +57,7 @@ export const calculateWeeklyProgress = (habit: Habit, weekStartsOn: WeekStart = 
 };
 
 export const isHabitMet = (habit: Habit, weekStartsOn: WeekStart = 1): boolean => {
+  // Daily habits only need today's completion; weekly habits use counts.
   if (habit.frequency === 'daily') return habit.completions.includes(todayIso());
   return completionsThisWeek(habit.completions, weekStartsOn) >= habit.target_per_week;
 };
@@ -66,10 +70,12 @@ export const decorateHabitForDashboard = (habit: Habit, range: WeekRange): Habit
   let remainingThisWeek = undefined as number | undefined;
 
   if (habit.frequency === 'daily' || habit.frequency === 'custom') {
+    // Daily/custom habits are due unless already completed today.
     dueToday = !isDoneToday;
   } else {
     const countThisWeek = completions.filter((d) => isDateIsoWithinRange(d, range)).length;
     remainingThisWeek = Math.max(habit.target_per_week - countThisWeek, 0);
+    // For weekly targets, "due" means still remaining and not done today.
     dueToday = remainingThisWeek > 0 && !isDoneToday;
   }
 

@@ -25,6 +25,7 @@ export class AchievementCatalogService {
     if (this.load$) {
       return this.load$;
     }
+    // Cache in-flight request so multiple subscribers don't refetch.
     this.load$ = this.progressApi.progressAchievementsGet().pipe(
       map((res) => {
         const next: Record<string, AchievementMeta> = {};
@@ -40,6 +41,7 @@ export class AchievementCatalogService {
         this.metaMap = next;
         return next;
       }),
+      // Fall back to any cached data to keep UI usable offline.
       catchError(() => of(this.metaMap)),
       finalize(() => {
         this.load$ = undefined;
@@ -52,6 +54,7 @@ export class AchievementCatalogService {
   buildToast(key: string): AppNotification {
     const meta = this.metaMap[key];
     if (!meta) {
+      // Default copy for unknown achievements (e.g., cache miss).
       return {
         type: 'achievement',
         title: 'New badge unlocked',
