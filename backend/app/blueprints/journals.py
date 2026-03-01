@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 
 from app.extensions import db
-from app.auth_utils import get_current_user
+from app.auth_utils import jwt_required
 from app.models import Journal, JournalEntry
 from app.services.gamification import evaluate_journal
 from app.schemas.journal import (
@@ -25,15 +25,9 @@ blp = Blueprint(
 )
 
 
-@blp.before_request
-def require_auth():
-    if request.method == "OPTIONS":
-        return None
-    g.current_user = get_current_user()
-
-
 @blp.route("/")
 class JournalsResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, JournalResponseSchema(many=True))
     def get(self):
         """List journals for the current user."""
@@ -67,6 +61,7 @@ class JournalsResource(MethodView):
 
 @blp.route("/<int:journal_id>")
 class JournalDetailResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, JournalResponseSchema)
     def get(self, journal_id):
         journal = Journal.query.filter_by(user_id=g.current_user.id, id=journal_id).first()
@@ -110,6 +105,7 @@ class JournalDetailResource(MethodView):
 
 @blp.route("/<int:journal_id>/cover")
 class JournalCoverResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, JournalResponseSchema)
     def post(self, journal_id):
         journal = Journal.query.filter_by(user_id=g.current_user.id, id=journal_id).first()
@@ -148,6 +144,7 @@ class JournalCoverResource(MethodView):
 
 @blp.route("/<int:journal_id>/entries")
 class JournalEntriesResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, JournalEntryResponseSchema(many=True))
     def get(self, journal_id):
         journal = Journal.query.filter_by(user_id=g.current_user.id, id=journal_id).first()
@@ -188,6 +185,7 @@ class JournalEntriesResource(MethodView):
 
 @blp.route("/<int:journal_id>/entries/<int:entry_id>")
 class JournalEntryDetailResource(MethodView):
+    decorators = [jwt_required]
     @blp.response(200, JournalEntryResponseSchema)
     def get(self, journal_id, entry_id):
         entry = self._get_entry(journal_id, entry_id)
