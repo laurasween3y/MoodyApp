@@ -29,17 +29,9 @@ export DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/mood
 export SECRET_KEY="change-me-to-a-long-random-string"
 ```
 
-Create tables from models (local dev only):
+Initialize the database with migrations:
 ```bash
-python3 - <<'PY'
-from app import create_app
-from app.extensions import db
-
-app = create_app()
-with app.app_context():
-    db.create_all()
-    print("DB tables created.")
-PY
+flask db upgrade
 ```
 
 Seed journal prompts (optional):
@@ -60,6 +52,24 @@ npm install
 npm start
 ```
 App runs at `http://localhost:4200`
+
+## Database migrations (Flask-Migrate)
+If you update models, generate a migration:
+```bash
+cd backend
+source .venv/bin/activate
+export DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/moody"
+export SECRET_KEY="change-me-to-a-long-random-string"
+
+flask db migrate -m "describe change"
+flask db upgrade
+```
+
+## Production notes (AWS)
+- Use PostgreSQL on AWS RDS and run `flask db upgrade` against the RDS `DATABASE_URL`.
+- Set `JWT_COOKIE_SECURE=true` and `JWT_COOKIE_SAMESITE=None` for HTTPS deployments.
+- Configure CORS to only allow your deployed frontend origin.
+- The PWA offline cache is read-only (cached GETs + queued writes while app is open).
 
 ## Regenerating API client
 After updating `backend/openapi.yaml`, regenerate the Angular client from `/frontend`:

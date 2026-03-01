@@ -2,6 +2,7 @@ flask
 flask-smorest
 marshmallow
 flask-sqlalchemy
+flask-migrate
 psycopg2-binary
 flask-cors
 bcrypt
