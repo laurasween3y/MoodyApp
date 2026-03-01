@@ -29,7 +29,7 @@ ALL_ACHIEVEMENTS = [
         "key": "mood_7_day",
         "title": "Mood Keeper",
         "description": "Log moods 7 days in a row",
-        "icon": "/assets/badges/mood_7_day.svg",
+        "icon": "/assets/achievements/moodkeeper.png",
         "target": 7,
     },
     {
@@ -37,7 +37,7 @@ ALL_ACHIEVEMENTS = [
         "key": "mood_30_day",
         "title": "Mood Maestro",
         "description": "Log moods for 30 days",
-        "icon": "/assets/badges/mood_30_day.svg",
+        "icon": "/assets/achievements/moodmaestro.png",
         "target": 30,
     },
     {
@@ -53,7 +53,7 @@ ALL_ACHIEVEMENTS = [
         "key": "habit_10",
         "title": "Habit Hero",
         "description": "Complete 10 habit check-ins",
-        "icon": "/assets/badges/habit_10.svg",
+        "icon": "/assets/achievements/habithero.png",
         "target": 10,
     },
     {
@@ -69,7 +69,7 @@ ALL_ACHIEVEMENTS = [
         "key": "journal_5",
         "title": "Storyteller",
         "description": "Write 5 journal entries",
-        "icon": "/assets/badges/journal_5.svg",
+        "icon": "/assets/achievements/storyteller.png",
         "target": 5,
     },
     {
@@ -85,7 +85,7 @@ ALL_ACHIEVEMENTS = [
         "key": "planner_7",
         "title": "Planner Pro",
         "description": "Complete 7 planner tasks",
-        "icon": "/assets/badges/planner_7.svg",
+        "icon": "/assets/achievements/plannerpro.png",
         "target": 7,
     },
 ]
