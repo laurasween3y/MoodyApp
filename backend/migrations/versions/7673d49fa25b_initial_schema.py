@@ -59,16 +59,16 @@ def downgrade():
         batch_op.create_index(batch_op.f('ix_token_blacklist_expires_at'), ['expires_at'], unique=False)
 
     with op.batch_alter_table('streaks', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='foreignkey')
+        batch_op.drop_constraint(None, type_='foreignkey')  # type: ignore[arg-type]
 
     with op.batch_alter_table('planner_events', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='foreignkey')
+        batch_op.drop_constraint(None, type_='foreignkey')  # type: ignore[arg-type]
 
     with op.batch_alter_table('moods', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='foreignkey')
+        batch_op.drop_constraint(None, type_='foreignkey')  # type: ignore[arg-type]
         batch_op.drop_index(batch_op.f('ix_moods_user_id'))
 
     with op.batch_alter_table('achievements', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='foreignkey')
+        batch_op.drop_constraint(None, type_='foreignkey')  # type: ignore[arg-type]
 
     # ### end Alembic commands ###

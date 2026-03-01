@@ -156,7 +156,7 @@ def test_journal_prompts_random(client, app):
     from app.models import JournalPrompt
 
     with app.app_context():
-        prompt = JournalPrompt(text="Reflect on a recent win", category="growth")
+        prompt = JournalPrompt(text="Reflect on a recent win", category="growth")  # type: ignore[call-arg]
         db.session.add(prompt)
         db.session.commit()
 

@@ -64,7 +64,7 @@ def test_revoked_token_rejected(client, app):
         }
         token = jwt.encode(payload, app.config["SECRET_KEY"], algorithm="HS256")
         db.session.add(
-            TokenBlacklist(jti="revoked-token", expires_at=datetime.now(timezone.utc) + timedelta(hours=1))
+            TokenBlacklist(jti="revoked-token", expires_at=datetime.now(timezone.utc) + timedelta(hours=1))  # type: ignore[call-arg]
         )
         db.session.commit()
 

@@ -74,7 +74,7 @@ def _revoke_token(token: str) -> None:
     if TokenBlacklist.query.filter_by(jti=jti).first():
         return
 
-    db.session.add(TokenBlacklist(jti=jti, expires_at=expires_at))
+    db.session.add(TokenBlacklist(jti=jti, expires_at=expires_at))  # type: ignore[call-arg]
     _commit_or_abort("Could not revoke token")
 
 
