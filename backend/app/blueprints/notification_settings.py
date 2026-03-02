@@ -1,6 +1,6 @@
 from flask import g
 from flask.views import MethodView
-from flask_smorest import Blueprint
+from flask_smorest import Blueprint, abort
 
 from app.auth_utils import jwt_required
 from app.extensions import db
@@ -22,7 +22,11 @@ def _get_or_create_settings(user_id: int) -> UserNotificationSettings:
     settings = UserNotificationSettings()
     settings.user_id = user_id
     db.session.add(settings)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        abort(500, message="Could not create notification settings")
     return settings
 
 
@@ -48,5 +52,9 @@ class NotificationSettingsResource(MethodView):
             settings.habit_reminder_time = data["habit_reminder_time"]
 
         db.session.add(settings)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            abort(500, message="Could not update notification settings")
         return settings

@@ -25,15 +25,31 @@ blp = Blueprint(
 )
 
 
+def _commit_or_abort(message: str) -> None:
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        abort(500, message=message)
+
+
 @blp.route("/")
 class JournalsResource(MethodView):
     decorators = [jwt_required]
     @blp.response(200, JournalResponseSchema(many=True))
     def get(self):
         """List journals for the current user."""
+
+        page = request.args.get("page", default=1, type=int)
+        page_size = request.args.get("page_size", default=50, type=int)
+        if page <= 0 or page_size <= 0 or page_size > 100:
+            abort(400, message="Invalid pagination parameters")
+
         journals = (
             Journal.query.filter_by(user_id=g.current_user.id)
             .order_by(Journal.created_at.desc())
+            .limit(page_size)
+            .offset((page - 1) * page_size)
             .all()
         )
         return journals
@@ -55,7 +71,7 @@ class JournalsResource(MethodView):
             abort(409, message="A journal with that title already exists")
 
         db.session.add(journal)
-        db.session.commit()
+        _commit_or_abort("Could not create journal")
         return journal
 
 
@@ -89,7 +105,7 @@ class JournalDetailResource(MethodView):
         if "cover_url" in data:
             journal.cover_url = data.get("cover_url")
 
-        db.session.commit()
+        _commit_or_abort("Could not update journal")
         return journal
 
     @blp.response(204)
@@ -99,7 +115,7 @@ class JournalDetailResource(MethodView):
             abort(404, message="Journal not found")
 
         db.session.delete(journal)
-        db.session.commit()
+        _commit_or_abort("Could not delete journal")
         return "", 204
 
 
@@ -142,7 +158,7 @@ class JournalCoverResource(MethodView):
         # Use the current request host so local/prod URLs stay correct.
         base_url = request.url_root.rstrip("/")
         journal.cover_url = f"{base_url}/uploads/{final_name}"
-        db.session.commit()
+        _commit_or_abort("Could not save journal cover")
         return journal
 
 
@@ -155,9 +171,16 @@ class JournalEntriesResource(MethodView):
         if journal is None:
             abort(404, message="Journal not found")
 
+        page = request.args.get("page", default=1, type=int)
+        page_size = request.args.get("page_size", default=50, type=int)
+        if page <= 0 or page_size <= 0 or page_size > 100:
+            abort(400, message="Invalid pagination parameters")
+
         entries = (
             JournalEntry.query.filter_by(user_id=g.current_user.id, journal_id=journal_id)
             .order_by(JournalEntry.entry_date.desc(), JournalEntry.created_at.desc())
+            .limit(page_size)
+            .offset((page - 1) * page_size)
             .all()
         )
         return entries
@@ -180,9 +203,9 @@ class JournalEntriesResource(MethodView):
         entry.entry_date = data.get("entry_date")
 
         db.session.add(entry)
-        db.session.commit()
+        _commit_or_abort("Could not create journal entry")
         awarded = evaluate_journal(g.current_user.id)
-        db.session.commit()
+        _commit_or_abort("Could not update journal achievements")
         setattr(entry, "awarded", awarded)
         return entry
 
@@ -213,7 +236,7 @@ class JournalEntryDetailResource(MethodView):
         if "entry_date" in data:
             entry.entry_date = data.get("entry_date")
 
-        db.session.commit()
+        _commit_or_abort("Could not update journal entry")
         return entry
 
     @blp.response(204)

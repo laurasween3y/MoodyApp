@@ -1,6 +1,6 @@
 from datetime import date
 
-from flask import g
+from flask import g, request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
@@ -39,11 +39,16 @@ class MoodsResource(MethodView):
     def get(self):
         """List all moods for the current user."""
 
-        moods = (
+        page = request.args.get("page", default=1, type=int)
+        page_size = request.args.get("page_size", default=50, type=int)
+        if page <= 0 or page_size <= 0 or page_size > 100:
+            abort(400, message="Invalid pagination parameters")
+
+        query = (
             Mood.query.filter_by(user_id=g.current_user.id)
             .order_by(Mood.date.desc(), Mood.id.desc())
-            .all()
         )
+        moods = query.limit(page_size).offset((page - 1) * page_size).all()
         return moods
 
     @blp.arguments(MoodCreateSchema)
