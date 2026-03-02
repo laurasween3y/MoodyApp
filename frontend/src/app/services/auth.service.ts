@@ -12,7 +12,8 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly _isLoggedIn$ = new BehaviorSubject<boolean>(false);
+  private readonly tokenKey = 'moody_access_token';
+  private readonly _isLoggedIn$ = new BehaviorSubject<boolean>(!!this.getToken());
   private sessionCheck$: Observable<boolean> | null = null;
 
   constructor(
@@ -31,7 +32,10 @@ export class AuthService {
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     return this.authApi.authLoginPost(payload).pipe(
-      tap(() => {
+      tap((res) => {
+        if ((res as any)?.access_token) {
+          this.setToken((res as any).access_token);
+        }
         this._isLoggedIn$.next(true);
       })
     );
@@ -68,8 +72,33 @@ export class AuthService {
 
   private clearSession(redirect: boolean): void {
     this._isLoggedIn$.next(false);
+    this.clearToken();
     if (redirect) {
       this.router.navigate(['/login']);
+    }
+  }
+
+  getToken(): string | null {
+    try {
+      return localStorage.getItem(this.tokenKey);
+    } catch {
+      return null;
+    }
+  }
+
+  private setToken(token: string): void {
+    try {
+      localStorage.setItem(this.tokenKey, token);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private clearToken(): void {
+    try {
+      localStorage.removeItem(this.tokenKey);
+    } catch {
+      /* ignore */
     }
   }
 }

@@ -14,4 +14,9 @@ export interface StreakSummary {
     mood_longest: number;
     habit_current: number;
     habit_longest: number;
+    journal_current: number;
+    journal_longest: number;
+    planner_current: number;
+    planner_longest: number;
 }
+

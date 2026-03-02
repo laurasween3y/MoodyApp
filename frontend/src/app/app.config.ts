@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, isDevMode } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
@@ -8,8 +8,10 @@ import { authInterceptor } from './auth.interceptor';
 import { offlineQueueInterceptor } from './core/offline-queue.interceptor';
 import { OfflineQueueService } from './core/offline-queue.service';
 import { provideServiceWorker } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
-const apiConfigFactory = () => new Configuration({ basePath: 'http://13.51.121.30', withCredentials: true });
+const apiConfigFactory = () =>
+  new Configuration({ basePath: environment.apiBaseUrl, withCredentials: false });
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     OfflineQueueService,
     provideServiceWorker('ngsw-worker.js', {
-        enabled: !isDevMode(),
+        enabled: environment.production,
         registrationStrategy: 'registerWhenStable:30000'
     })
 ]

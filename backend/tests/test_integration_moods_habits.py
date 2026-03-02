@@ -13,6 +13,8 @@ def _register_and_login(client, email="test@example.com", password="Password123!
         json={"email": email, "password": password},
     )
     assert login.status_code == 200
+    token = login.get_json().get("access_token")
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
 
 
 def test_mood_create_and_fetch_today(client):

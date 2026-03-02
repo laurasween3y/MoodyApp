@@ -17,5 +17,9 @@ export interface HabitResponse {
     readonly created_at?: string;
     readonly updated_at?: string;
     readonly completions?: any | null;
+    /**
+     * Newly awarded achievement keys
+     */
+    readonly awarded?: Array<string>;
 }
 

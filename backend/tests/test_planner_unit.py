@@ -6,6 +6,8 @@ def _register_and_login(client, email="planner@example.com", password="Password1
     assert register.status_code == 201
     login = client.post("/auth/login", json={"email": email, "password": password})
     assert login.status_code == 200
+    token = login.get_json().get("access_token")
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
 
 
 def test_planner_create_and_delete_event(client):

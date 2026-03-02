@@ -27,7 +27,13 @@ def create_app() -> Flask:
         "http://localhost:4300",
         "http://127.0.0.1:4300",
         "http://moody-frontend-laurasweeney.s3-website.eu-north-1.amazonaws.com",
+        "https://yourdomain.com",
     ]
+
+    # Allow a configurable production frontend origin when provided.
+    frontend_origin = os.environ.get("FRONTEND_ORIGIN")
+    if frontend_origin:
+        allowed_origins.append(frontend_origin)
 
     cors_rule = {
         "origins": allowed_origins,
@@ -49,7 +55,7 @@ def create_app() -> Flask:
         r"/notification-settings*": cors_rule,
         r"/uploads/*": cors_rule,
     }
-    CORS(app, resources=cors_resources, supports_credentials=True)
+    CORS(app, resources=cors_resources, supports_credentials=False)
 
     # OpenAPI config for local docs + client generation.
     app.config["API_TITLE"] = "Moody API"

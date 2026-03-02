@@ -20,5 +20,9 @@ export interface MoodResponse {
      */
     note?: string | null;
     readonly date?: string;
+    /**
+     * Newly awarded achievement keys
+     */
+    readonly awarded?: Array<string>;
 }
 

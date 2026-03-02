@@ -14,6 +14,8 @@ def _register_and_login(client, email="journaler@example.com", password="Passwor
         json={"email": email, "password": password},
     )
     assert login.status_code == 200
+    token = login.get_json().get("access_token")
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
 
 
 def test_profile_get_and_update(client):

@@ -19,5 +19,9 @@ export interface PlannerEventResponse {
     reminder_minutes_before?: number | null;
     created_at?: string;
     updated_at?: string;
+    /**
+     * Newly awarded achievement keys
+     */
+    readonly awarded?: Array<string>;
 }
 

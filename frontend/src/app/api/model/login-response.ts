@@ -10,5 +10,6 @@
 
 
 export interface LoginResponse { 
-    readonly message?: string;
+    readonly access_token?: string;
 }
+

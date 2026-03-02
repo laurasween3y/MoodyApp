@@ -9,16 +9,16 @@ from app.models import TokenBlacklist, User
 
 
 def get_current_user() -> User:
-    cookie_name = current_app.config.get("JWT_COOKIE_NAME", "moody_access_token")
-    token = request.cookies.get(cookie_name)
-
+    token = None
+    # Prefer Authorization header; fall back to cookie for legacy flows.
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        token = auth_header.split()[1]
     if not token:
-        # Fallback to Authorization header for tools like Swagger/Postman.
-        auth_header = request.headers.get("Authorization", "")
-        if auth_header.lower().startswith("bearer "):
-            token = auth_header.split()[1]
-        else:
-            abort(401, message="Authentication token missing")
+        cookie_name = current_app.config.get("JWT_COOKIE_NAME", "moody_access_token")
+        token = request.cookies.get(cookie_name)
+    if not token:
+        abort(401, message="Authentication token missing")
     try:
         payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
     except jwt.ExpiredSignatureError:

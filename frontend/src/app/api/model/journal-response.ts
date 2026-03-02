@@ -16,5 +16,9 @@ export interface JournalResponse {
     cover_url?: string | null;
     readonly created_at?: string;
     readonly updated_at?: string;
+    /**
+     * Newly awarded achievement keys
+     */
+    readonly awarded?: Array<string>;
 }
 
