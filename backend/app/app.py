@@ -19,7 +19,8 @@ def create_app() -> Flask:
     app.config["UPLOAD_FOLDER"] = upload_folder
 
     # Keep CORS tight to known dev origins; avoids wildcard in cookie auth.
-    allowed_origins = [
+    allowed_origins = [ 
+        "*",
         "http://localhost:4200",
         "http://127.0.0.1:4200",
         "http://localhost:8080",
@@ -27,7 +28,6 @@ def create_app() -> Flask:
         "http://localhost:4300",
         "http://127.0.0.1:4300",
         "http://moody-frontend-laurasweeney.s3-website.eu-north-1.amazonaws.com",
-        "https://yourdomain.com",
     ]
 
     # Allow a configurable production frontend origin when provided.
