@@ -26,6 +26,7 @@ def create_app() -> Flask:
         "http://127.0.0.1:8080",
         "http://localhost:4300",
         "http://127.0.0.1:4300",
+        "http://moody-frontend-laurasweeney.s3-website.eu-north-1.amazonaws.com",
     ]
 
     cors_rule = {
