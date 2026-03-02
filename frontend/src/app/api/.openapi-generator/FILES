@@ -30,6 +30,7 @@ model/journal-response.ts
 model/journal-update.ts
 model/login-request.ts
 model/login-response.ts
+model/logout-response.ts
 model/model-error.ts
 model/models.ts
 model/mood-create.ts

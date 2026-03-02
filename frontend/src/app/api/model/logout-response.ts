@@ -9,8 +9,7 @@
  */
 
 
-export interface LoginResponse { 
-    readonly access_token?: string;
+export interface LogoutResponse { 
     readonly message?: string;
 }
 

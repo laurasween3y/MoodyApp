@@ -13,6 +13,7 @@ export * from './journal-response';
 export * from './journal-update';
 export * from './login-request';
 export * from './login-response';
+export * from './logout-response';
 export * from './model-error';
 export * from './mood-create';
 export * from './mood-options';
