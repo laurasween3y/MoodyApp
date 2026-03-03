@@ -52,9 +52,9 @@ YEAR = dt.date.today().year  # anchor to current year
 # Cycle through these mood options/notes to keep data varied but deterministic.
 MOOD_SERIES: Sequence[tuple[str, str]] = [
     ("happy", "Started the day with a walk."),
-    ("neutral", "Steady, focused on tasks."),
+    ("sad", "Low energy, taking it easy."),
     ("tired", "Did not sleep great, kept it light."),
-    ("grateful", "Nice catch-up with a friend."),
+    ("peaceful", "Quiet evening and some reading."),
     ("anxious", "Busy schedule, practiced breathing."),
 ]
 
@@ -95,12 +95,20 @@ def pick(seq: Sequence, idx: int):
     return seq[idx % len(seq)]
 
 
-def build_content(text: str) -> dict:
-    """Minimal TipTap/ProseMirror JSON body."""
+LOREM_PARAGRAPHS = [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vel justo sit amet lacus viverra tincidunt. Donec posuere, arcu et interdum consequat, ligula neque efficitur neque, a gravida mi lorem nec erat.",
+    "Praesent feugiat augue id pulvinar suscipit. Aenean id imperdiet dui. Integer sed mauris et neque congue fermentum. Nam a nibh ut nisl varius pellentesque. Maecenas vel ultrices est, sed pretium sem.",
+]
+
+
+def build_content(text: str, variant: int = 0) -> dict:
+    """TipTap/ProseMirror JSON body with richer lorem text for demo entries."""
+    lorem = LOREM_PARAGRAPHS[variant % len(LOREM_PARAGRAPHS)]
     return {
         "type": "doc",
         "content": [
-            {"type": "paragraph", "content": [{"type": "text", "text": text}]}
+            {"type": "paragraph", "content": [{"type": "text", "text": text}]},
+            {"type": "paragraph", "content": [{"type": "text", "text": lorem}]},
         ],
     }
 
@@ -169,7 +177,8 @@ def seed_user(email: str, password: str, cover_urls: List[str]) -> None:
                 user_id=user.id,
                 title=f"{title} #{e_idx + 1}",
                 content_json=build_content(
-                    f"{title}: reflections on {entry_day.isoformat()}"
+                    f"{title}: reflections on {entry_day.isoformat()}",
+                    variant=e_idx,
                 ),
                 entry_date=entry_day,
                 background="lined",
