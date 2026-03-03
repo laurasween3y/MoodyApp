@@ -1,3 +1,7 @@
+"""Spin up the Flask app and plug in all API blueprints.
+Lives as the backend entry point the Angular client hits, so CORS,
+uploads, and OpenAPI docs are all configured here."""
+
 from flask import Flask, jsonify, send_from_directory
 from flask_smorest import Api
 from flask_cors import CORS
@@ -116,5 +120,10 @@ def create_app() -> Flask:
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):
         return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+    # Simple health check endpoint for load balancers and uptime monitoring.
+    @app.route("/healthz")
+    def health():
+        return jsonify({"status": "ok"}), 200
 
     return app

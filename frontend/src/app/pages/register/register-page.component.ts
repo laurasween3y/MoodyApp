@@ -1,3 +1,4 @@
+// Registration page for new accounts; minimal client-side validation.
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';

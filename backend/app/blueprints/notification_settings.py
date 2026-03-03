@@ -1,3 +1,5 @@
+"""Notification settings blueprint: manage reminder toggles/times per user."""
+
 from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort

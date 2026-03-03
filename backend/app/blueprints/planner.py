@@ -1,3 +1,5 @@
+"""Planner blueprint: CRUD for events + optional date filter and streak awards."""
+
 from datetime import date as dt_date
 
 from flask import g, request

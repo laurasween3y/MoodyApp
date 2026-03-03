@@ -1,3 +1,7 @@
+"""Mood endpoints for CRUD + streak logic.
+Everything here hangs off /moods and is consumed by the Angular client.
+Blueprint keeps mood-specific rules isolated from other feature routes."""
+
 from datetime import date
 
 from flask import g, request

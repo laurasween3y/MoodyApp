@@ -1,3 +1,5 @@
+"""Profile blueprint: fetch/update the logged-in user's account info."""
+
 from flask import g
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort

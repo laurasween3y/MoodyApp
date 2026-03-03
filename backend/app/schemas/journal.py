@@ -1,3 +1,5 @@
+"""Schemas for journal entries (create/update/response)."""
+
 from datetime import date
 
 from marshmallow import Schema, fields

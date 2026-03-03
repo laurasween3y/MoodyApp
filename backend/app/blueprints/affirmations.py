@@ -1,3 +1,5 @@
+"""Lightweight proxy to grab a random affirmation (with local fallback)."""
+
 from typing import Optional
 
 import requests

@@ -1,3 +1,5 @@
+"""App-wide configuration loaded from env."""
+
 import os
 
 

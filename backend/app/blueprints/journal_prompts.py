@@ -1,3 +1,5 @@
+"""Journal prompts blueprint (fetch a random prompt for the editor UI)."""
+
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 

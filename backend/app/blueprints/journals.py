@@ -1,3 +1,5 @@
+"""Journals blueprint: CRUD journals, upload covers, and add entries."""
+
 from flask import g, request, current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort

@@ -1,3 +1,5 @@
+"""Schemas for notification settings stored per user."""
+
 from marshmallow import Schema, fields
 
 

@@ -1,3 +1,5 @@
+"""Schemas for user affirmations (add/list)."""
+
 from marshmallow import Schema, fields
 
 

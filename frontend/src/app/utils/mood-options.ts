@@ -1,3 +1,4 @@
+// Shared enum-like list for mood dropdowns;
 export type MoodOption = {
   key: string;
   label: string;

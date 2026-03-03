@@ -1,3 +1,5 @@
+"""Progress blueprint: exposes streak summaries and unlocked achievements."""
+
 import datetime as dt
 from flask import g
 from flask.views import MethodView

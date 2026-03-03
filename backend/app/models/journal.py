@@ -1,3 +1,5 @@
+"""Journal model + entries; journals can have multiple dated entries."""
+
 from datetime import datetime, date
 
 from app.extensions import db

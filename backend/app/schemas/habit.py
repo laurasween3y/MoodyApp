@@ -1,3 +1,5 @@
+"""Schemas for habit creation/toggles used by the habits blueprint."""
+
 from datetime import date
 
 from marshmallow import Schema, fields, validate, validates, ValidationError

@@ -1,3 +1,5 @@
+"""User model with password helpers; keeps hashing centralized."""
+
 from datetime import datetime
 
 import bcrypt

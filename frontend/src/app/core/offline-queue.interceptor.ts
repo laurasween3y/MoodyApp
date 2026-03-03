@@ -1,3 +1,5 @@
+// Intercepts writes while offline and stores them for later replay.
+// Keeps UX friendly by returning a 202 stub immediately with ids for UI updates.
 import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, of, catchError, throwError } from 'rxjs';

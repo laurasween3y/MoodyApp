@@ -1,3 +1,5 @@
+"""Schemas for auth endpoints to keep request/response payloads predictable."""
+
 from marshmallow import Schema, fields, validate, EXCLUDE
 
 

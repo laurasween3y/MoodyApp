@@ -1,3 +1,4 @@
+// Helpers for habit dashboard stats and streak math used by the UI.
 import { endOfWeek, format, isSameWeek, startOfWeek } from 'date-fns';
 import { Habit } from '../services/habit.service';
 import { isDateIsoWithinRange, todayIso, WeekRange } from './date-utils';
@@ -57,7 +58,7 @@ export const calculateWeeklyProgress = (habit: Habit, weekStartsOn: WeekStart = 
 };
 
 export const isHabitMet = (habit: Habit, weekStartsOn: WeekStart = 1): boolean => {
-  // Daily habits only need today's completion; weekly habits use counts.
+  // Daily habits only need today's completion, weekly habits use counts.
   if (habit.frequency === 'daily') return habit.completions.includes(todayIso());
   return completionsThisWeek(habit.completions, weekStartsOn) >= habit.target_per_week;
 };

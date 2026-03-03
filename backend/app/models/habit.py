@@ -1,3 +1,5 @@
+"""Habit model + completion join table; tracks daily/weekly targets."""
+
 from datetime import datetime, date
 
 from app.extensions import db

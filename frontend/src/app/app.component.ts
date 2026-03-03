@@ -1,3 +1,5 @@
+// Root shell for the Angular app. Handles auth state, nav, and toast outlet.
+// Also bootstraps browser notifications + achievements once a session is active.
 import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';

@@ -1,3 +1,5 @@
+"""Schemas for profile endpoints (get/update)."""
+
 from marshmallow import Schema, fields
 
 

@@ -1,3 +1,5 @@
+"""Habits blueprint: CRUD plus completion toggles/streak awards."""
+
 from datetime import date
 
 from flask import g

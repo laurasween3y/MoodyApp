@@ -1,3 +1,5 @@
+"""Schemas for mood endpoints (validate + shape API responses)."""
+
 from datetime import date
 
 from marshmallow import Schema, fields, validate

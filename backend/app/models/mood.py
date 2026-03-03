@@ -1,3 +1,5 @@
+"""SQLAlchemy model for moods; enforces one mood per user per day."""
+
 from datetime import date
 
 from app.extensions import db

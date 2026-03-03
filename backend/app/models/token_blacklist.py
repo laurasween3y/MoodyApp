@@ -1,3 +1,5 @@
+"""Blacklist table for revoked JWTs (stores jti + expiry)."""
+
 from datetime import datetime
 
 from app.extensions import db

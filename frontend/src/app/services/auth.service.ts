@@ -1,3 +1,5 @@
+// Auth wrapper that sits between UI components and the generated API client.
+// Central place for token storage and session checks
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, finalize, map, of, tap } from 'rxjs';
@@ -56,9 +58,18 @@ export class AuthService {
     if (this._isLoggedIn$.value) {
       return of(true);
     }
+
+    // If there is no stored token, short‑circuit to avoid a noisy /profile call
+    const token = this.getToken();
+    if (!token) {
+      this._isLoggedIn$.next(false);
+      return of(false);
+    }
+
     if (this.sessionCheck$) {
       return this.sessionCheck$;
     }
+
     this.sessionCheck$ = this.profileApi.profileGet().pipe(
       map(() => true),
       catchError(() => of(false)),
@@ -67,6 +78,7 @@ export class AuthService {
         this.sessionCheck$ = null;
       })
     );
+
     return this.sessionCheck$;
   }
 

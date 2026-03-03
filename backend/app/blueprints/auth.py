@@ -1,8 +1,11 @@
+"""Auth endpoints (register/login/logout) exposed at /auth.
+Uses short-lived JWTs with server-side revocation to support logout semantics."""
+
 from datetime import datetime, timedelta
 from uuid import uuid4
 
 import jwt
-from flask import current_app, request
+from flask import current_app, request, make_response
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
@@ -101,8 +104,26 @@ class LoginResource(MethodView):
 
         token = _sign_jwt(user.id)
 
-        # Return token for Authorization: Bearer usage; cookies are not set in this mode.
-        return {"message": "Login successful", "access_token": token}
+        # Issue the token both in the JSON body and as an HttpOnly cookie so
+        # browser-style clients (and our tests) automatically send it on
+        # subsequent requests without hand-adding Authorization headers.
+        cookie_name = current_app.config.get("JWT_COOKIE_NAME", "moody_access_token")
+        secure = current_app.config.get("JWT_COOKIE_SECURE", False)
+        same_site = current_app.config.get("JWT_COOKIE_SAMESITE", "Lax")
+        max_age = current_app.config.get("JWT_COOKIE_MAX_AGE", 86400)
+
+        payload = {"message": "Login successful", "access_token": token}
+        response = make_response(payload, 200)
+        response.set_cookie(
+            cookie_name,
+            token,
+            httponly=True,
+            secure=secure,
+            samesite=same_site,
+            max_age=max_age,
+            path="/",
+        )
+        return response
 
 
 @blp.route("/logout")

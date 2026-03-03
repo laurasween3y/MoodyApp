@@ -1,3 +1,4 @@
+// Date helpers used across planner/habit UI. Keeps formatting logic out of components.
 import { addDays, endOfWeek, format, isWithinInterval, parseISO, startOfWeek } from 'date-fns';
 
 type WeekStart = 0 | 1 | 2 | 3 | 4 | 5 | 6;

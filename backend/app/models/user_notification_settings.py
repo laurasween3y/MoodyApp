@@ -1,3 +1,5 @@
+"""Per-user notification settings (times + toggles for reminders)."""
+
 from app.extensions import db
 
 

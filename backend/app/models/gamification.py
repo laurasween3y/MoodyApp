@@ -1,3 +1,5 @@
+"""Streaks and achievements tracked per user/module (mood/habit/etc)."""
+
 from datetime import date, datetime
 
 from app.extensions import db

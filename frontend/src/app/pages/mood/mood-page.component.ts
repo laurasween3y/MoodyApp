@@ -1,3 +1,4 @@
+// Mood tracker page: submit daily mood, browse calendar, and see streaks.
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';

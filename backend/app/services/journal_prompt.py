@@ -1,3 +1,5 @@
+"""Tiny service to pick a random journal prompt for the UI."""
+
 from sqlalchemy import func
 
 from app.models import JournalPrompt

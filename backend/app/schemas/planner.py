@@ -1,3 +1,5 @@
+"""Schemas for planner events (create/update) used by planner blueprint."""
+
 from datetime import date, time
 
 from marshmallow import Schema, fields, validate, validates_schema, ValidationError, pre_load

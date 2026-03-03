@@ -1,3 +1,5 @@
+"""Schemas for exposing achievements and streak summaries."""
+
 from marshmallow import Schema, fields
 
 

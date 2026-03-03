@@ -1,3 +1,5 @@
+"""Planner events model; stores per-user calendar items with optional times."""
+
 from datetime import datetime, date, time
 
 from app.extensions import db

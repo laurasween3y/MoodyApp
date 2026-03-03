@@ -1,3 +1,4 @@
+// Small helpers for journal editing and previews.
 export const extractTextFromContent = (node: any): string => {
   if (!node) return '';
   if (typeof node === 'string') return node;
