@@ -122,5 +122,91 @@ jobs:
           if [ -z "$S3_BUCKET" ]; then
             echo "S3_BUCKET is not set (define in repo secrets or variables)"; exit 1;
           fi
-          aws s3 sync frontend/dist/frontend s3://$S3_BUCKET --delete --cache-control "max-age=300"
-          aws s3 cp frontend/dist/frontend/index.html s3://$S3_BUCKET/index.html --cache-control "no-cache"
+          BUILD_DIR=frontend/dist/frontend/browser
+          if [ ! -f "$BUILD_DIR/index.html" ]; then
+            echo "Build output not found at $BUILD_DIR (did the Angular build succeed?)"; exit 1;
+          fi
+          aws s3 sync "$BUILD_DIR" s3://$S3_BUCKET --delete --cache-control "max-age=300"
+          aws s3 cp "$BUILD_DIR/index.html" s3://$S3_BUCKET/index.html --cache-control "no-cache"
+
+  build-backend-image:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION || vars.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID || vars.AWS_ACCOUNT_ID }}
+      ECR_REPO: ${{ secrets.ECR_REPO || vars.ECR_REPO }}
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME || vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push backend image
+        run: |
+          if [ -z "$AWS_ACCOUNT_ID" ] || [ -z "$ECR_REPO" ] || [ -z "$AWS_REGION" ]; then
+            echo "AWS_ACCOUNT_ID, ECR_REPO, or AWS_REGION is not set"; exit 1;
+          fi
+          IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
+          docker build -t $IMAGE_URI backend
+          docker push $IMAGE_URI
+          docker tag $IMAGE_URI ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:latest
+          docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:latest
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: [build-backend-image]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION || vars.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID || vars.AWS_ACCOUNT_ID }}
+      ECR_REPO: ${{ secrets.ECR_REPO || vars.ECR_REPO }}
+      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID || vars.EC2_INSTANCE_ID }}
+      CONTAINER_NAME: ${{ secrets.BACKEND_CONTAINER_NAME || vars.BACKEND_CONTAINER_NAME || 'moody-backend' }}
+      PORT: ${{ secrets.BACKEND_PORT || vars.BACKEND_PORT || '5000' }}
+      DB_URL: ${{ secrets.DB_URL }}
+      SECRET_KEY_VALUE: ${{ secrets.SECRET_KEY_VALUE }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME || vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Trigger SSM deploy on EC2
+        run: |
+          if [ -z "$EC2_INSTANCE_ID" ]; then
+            echo "EC2_INSTANCE_ID not set"; exit 1;
+          fi
+          if [ -z "$DB_URL" ] || [ -z "$SECRET_KEY_VALUE" ]; then
+            echo "DB_URL or SECRET_KEY_VALUE not set"; exit 1;
+          fi
+          IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:latest
+          aws ssm send-command \
+            --instance-ids "$EC2_INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Pull and restart backend container" \
+            --parameters commands="[
+              \"aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com\",
+              \"docker pull ${IMAGE_URI}\",
+              \"docker stop ${CONTAINER_NAME} || true\",
+              \"docker rm ${CONTAINER_NAME} || true\",
+              \"docker run -d --name ${CONTAINER_NAME} -p ${PORT}:5000 -e DATABASE_URL=\\\"${DB_URL}\\\" -e SECRET_KEY=\\\"${SECRET_KEY_VALUE}\\\" ${IMAGE_URI}\"
+            ]" \
+            --output text
