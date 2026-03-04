@@ -10,6 +10,7 @@ import { HabitDashboardView, decorateHabitForDashboard } from '../../utils/habit
 import { AffirmationService } from '../../core/affirmation.service';
 import { getApiErrorMessage } from '../../core/error-utils';
 import { MOOD_OPTIONS, MoodOption } from '../../utils/mood-options';
+import { JournalEntry, JournalService } from '../../services/journal.service';
 
 const HABITS_CACHE_KEY = 'moody_cached_habits';
 const PLANNER_CACHE_KEY = 'moody_cached_planner';
@@ -33,6 +34,7 @@ export class HomePageComponent implements OnInit {
   affirmation = '';
   loadingAffirmation = true;
   streaks?: StreakSummary;
+  latestEntry?: JournalEntry;
 
   moods: MoodOption[] = MOOD_OPTIONS;
 
@@ -43,7 +45,8 @@ export class HomePageComponent implements OnInit {
     private plannerService: PlannerService,
     private habitService: HabitService,
     private affirmationService: AffirmationService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private journalService: JournalService
   ) {}
 
   ngOnInit(): void {
@@ -55,7 +58,7 @@ export class HomePageComponent implements OnInit {
     this.loading = true;
     this.error = undefined;
     try {
-      await Promise.all([this.loadMood(), this.loadEvents(), this.loadHabits(), this.loadStreaks()]);
+      await Promise.all([this.loadMood(), this.loadEvents(), this.loadHabits(), this.loadStreaks(), this.loadLatestEntry()]);
     } catch (err) {
       console.error(err);
       this.error = getApiErrorMessage(err, 'Unable to refresh dashboard right now');
@@ -105,6 +108,21 @@ export class HomePageComponent implements OnInit {
       this.streaks = await firstValueFrom(this.profileService.getStreaks());
     } catch {
       this.streaks = undefined;
+    }
+  }
+
+  private async loadLatestEntry() {
+    try {
+      const journals = await firstValueFrom(this.journalService.getJournals());
+      if (!journals.length) {
+        this.latestEntry = undefined;
+        return;
+      }
+      const newestJournal = journals[0];
+      const entries = await firstValueFrom(this.journalService.getEntries(newestJournal.id));
+      this.latestEntry = entries[0];
+    } catch {
+      this.latestEntry = undefined;
     }
   }
 

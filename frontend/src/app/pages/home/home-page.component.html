@@ -170,11 +170,21 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="snippet snippet--journal">
-          <div class="snippet-content">
-            <p class="muted">No recent entry. Start a new page to capture your thoughts.</p>
+        <ng-container *ngIf="latestEntry; else noEntry">
+          <div class="snippet snippet--journal">
+            <div class="snippet-content">
+              <div class="label">{{ latestEntry.title || 'Untitled entry' }}</div>
+              <div class="item-meta">{{ latestEntry.entry_date | date:'EEE, MMM d' }}</div>
+            </div>
           </div>
-        </div>
+        </ng-container>
+        <ng-template #noEntry>
+          <div class="snippet snippet--journal">
+            <div class="snippet-content">
+              <p class="muted">No recent entry. Start a new page to capture your thoughts.</p>
+            </div>
+          </div>
+        </ng-template>
       </div>
       <div class="card-footer">
         <a class="btn" routerLink="/journal">Write now</a>
