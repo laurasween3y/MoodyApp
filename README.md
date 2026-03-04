@@ -113,7 +113,6 @@ Hosting: Frontend on S3; backend Docker on EC2 (container port 5000)
 - Regenerate client after API changes: `cd frontend && npm run generate:api` (uses `backend/openapi.yaml`).
 
 ## Academic Integrity & AI Use Declaration
-- Original work: application code is authored by the project team; third-party libraries are acknowledged in dependency lists. External content (e.g., prompts) is seeded via `seeds/journal_prompt_seed.py`.
 - AI assistance: this README was refined with OpenAI ChatGPT (GPT-5 via Codex) on 2026-03-03. GitHub Copilot was used for IDE suggestions during debugging and writing unit tests; all suggestions were reviewed and corrected by me.
 - Code generation: the Angular API client is generated with OpenAPI Generator from `backend/openapi.yaml`.
 
