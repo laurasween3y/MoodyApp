@@ -39,7 +39,8 @@ def create_app() -> Flask:
 
     cors_rule = {
         "origins": allowed_origins,
-        "allow_headers": ["Authorization", "Content-Type"],
+        # Include offline replay header so queued requests don't fail preflight.
+        "allow_headers": ["Authorization", "Content-Type", "X-Offline-Replay"],
         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     }
 
