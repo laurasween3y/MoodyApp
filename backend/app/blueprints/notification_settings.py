@@ -1,4 +1,4 @@
-"""Notification settings blueprint: manage reminder toggles/times per user."""
+"""Notification settings CRUD for reminder toggles/times."""
 
 from flask import g
 from flask.views import MethodView

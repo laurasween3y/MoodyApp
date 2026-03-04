@@ -1,4 +1,4 @@
-"""User model with password helpers; keeps hashing centralized."""
+"""User model with password helpers."""
 
 from datetime import datetime
 

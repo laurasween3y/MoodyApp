@@ -1,5 +1,4 @@
-"""Streak + achievement helpers shared by mood/habit/journal/planner routes.
-Kept framework-free so it can be reused in tests and services without Flask context."""
+"""Helpers for streaks and achievements across modules."""
 
 import datetime as dt
 from typing import List

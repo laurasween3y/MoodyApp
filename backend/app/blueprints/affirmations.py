@@ -1,4 +1,4 @@
-"""Lightweight proxy to grab a random affirmation (with local fallback)."""
+"""Fetch a random affirmation with a fallback string."""
 
 from typing import Optional
 

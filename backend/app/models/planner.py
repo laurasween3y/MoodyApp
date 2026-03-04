@@ -1,4 +1,4 @@
-"""Planner events model; stores per-user calendar items with optional times."""
+"""Planner events model."""
 
 from datetime import datetime, date, time
 

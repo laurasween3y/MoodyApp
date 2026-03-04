@@ -1,4 +1,4 @@
-"""Journals blueprint: CRUD journals, upload covers, and add entries."""
+"""Journals: CRUD, covers, and entries."""
 
 from flask import g, request, current_app
 from flask.views import MethodView

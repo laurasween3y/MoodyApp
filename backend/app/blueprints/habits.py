@@ -1,4 +1,4 @@
-"""Habits blueprint: CRUD plus completion toggles/streak awards."""
+"""Habits CRUD, toggle completions, and streaks."""
 
 from datetime import date
 

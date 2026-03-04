@@ -1,4 +1,4 @@
-"""Tiny service to pick a random journal prompt for the UI."""
+"""Select a random journal prompt."""
 
 from sqlalchemy import func
 

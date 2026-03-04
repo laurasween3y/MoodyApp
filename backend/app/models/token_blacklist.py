@@ -1,4 +1,4 @@
-"""Blacklist table for revoked JWTs (stores jti + expiry)."""
+"""Blacklist table for revoked JWTs."""
 
 from datetime import datetime
 

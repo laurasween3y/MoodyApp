@@ -1,6 +1,4 @@
-"""Mood endpoints for CRUD + streak logic.
-Everything here hangs off /moods and is consumed by the Angular client.
-Blueprint keeps mood-specific rules isolated from other feature routes."""
+"""Mood CRUD and streak logic under /moods."""
 
 from datetime import date
 

@@ -1,5 +1,4 @@
-// Stores failed write requests while offline and replays them when back online.
-// Kept minimal and uses IndexedDB with a localStorage fallback to avoid data loss.
+// Store failed writes while offline and replay when back online.
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { NotificationService } from './notification.service';

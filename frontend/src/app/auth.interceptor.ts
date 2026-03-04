@@ -1,5 +1,4 @@
-// Lightweight HTTP interceptor to attach the JWT to API calls.
-// Lives at app root so every generated OpenAPI service goes through here.
+// Attach JWT to API calls.
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from './services/auth.service';

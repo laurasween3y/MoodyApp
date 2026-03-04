@@ -1,4 +1,4 @@
-"""Streaks and achievements tracked per user/module (mood/habit/etc)."""
+"""Streaks and achievements per user/module."""
 
 from datetime import date, datetime
 

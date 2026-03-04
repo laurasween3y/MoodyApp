@@ -1,4 +1,4 @@
-"""Planner blueprint: CRUD for events + optional date filter and streak awards."""
+"""Planner events CRUD with optional date filter."""
 
 from datetime import date as dt_date
 

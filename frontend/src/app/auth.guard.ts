@@ -1,5 +1,4 @@
-// Route guard to block anon users from feature pages.
-// Relies on a session check instead of trusting localStorage blindly.
+// Route guard using a session check instead of stored token only.
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { Observable, map } from 'rxjs';

@@ -1,4 +1,4 @@
-"""Progress blueprint: exposes streak summaries and unlocked achievements."""
+"""Progress endpoints for streaks and achievements."""
 
 import datetime as dt
 from flask import g

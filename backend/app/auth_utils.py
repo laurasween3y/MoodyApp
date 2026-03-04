@@ -1,6 +1,4 @@
-"""Auth helpers that sit between Flask routes and JWT tokens.
-Used by blueprints to resolve the current user and block revoked tokens.
-Keeps token parsing in one place so CORS/auth flows stay consistent."""
+"""Auth helpers shared by blueprints."""
 
 import jwt
 from functools import wraps
@@ -15,7 +13,7 @@ from app.models import TokenBlacklist, User
 def get_current_user() -> User:
     token = None
 
-    # Prefer HttpOnly cookie (browser-style client) and fall back to Authorization header.
+    # Try cookie first, then Authorization header.
     cookie_name = current_app.config.get("JWT_COOKIE_NAME", "moody_access_token")
     token = request.cookies.get(cookie_name)
     if not token:

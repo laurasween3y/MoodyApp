@@ -1,4 +1,4 @@
-// In-app notification bus. Components push here, toast component subscribes.
+// In-app notification bus.
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 

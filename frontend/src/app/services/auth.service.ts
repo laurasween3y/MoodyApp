@@ -1,5 +1,4 @@
-// Auth wrapper that sits between UI components and the generated API client.
-// Central place for token storage and session checks
+// Auth helper between UI and generated API client; stores token and checks session.
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, finalize, map, of, tap } from 'rxjs';

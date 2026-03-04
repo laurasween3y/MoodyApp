@@ -1,4 +1,4 @@
-"""Static journal prompts grouped by category."""
+"""Journal prompts grouped by category."""
 
 from app.extensions import db
 

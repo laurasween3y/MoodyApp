@@ -1,5 +1,4 @@
-"""Auth endpoints (register/login/logout) exposed at /auth.
-Uses short-lived JWTs with server-side revocation to support logout semantics."""
+"""Auth endpoints for register/login/logout."""
 
 from datetime import datetime, timedelta
 from uuid import uuid4

@@ -1,4 +1,4 @@
-// Login screen for existing users. Minimal validation before hitting the API.
+// Login screen for existing users.
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';

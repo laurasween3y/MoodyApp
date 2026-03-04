@@ -1,6 +1,4 @@
-"""Spin up the Flask app and plug in all API blueprints.
-Lives as the backend entry point the Angular client hits, so CORS,
-uploads, and OpenAPI docs are all configured here."""
+"""Flask app factory: wires configs, extensions, and blueprints."""
 
 from flask import Flask, jsonify, send_from_directory
 from flask_smorest import Api
@@ -22,7 +20,7 @@ def create_app() -> Flask:
     os.makedirs(upload_folder, exist_ok=True)
     app.config["UPLOAD_FOLDER"] = upload_folder
 
-    # Keep CORS tight to known dev origins; avoids wildcard in cookie auth.
+    # Allow only known dev/prod origins; avoid a wide wildcard.
     allowed_origins = [ 
         "*",
         "http://localhost:4200",
