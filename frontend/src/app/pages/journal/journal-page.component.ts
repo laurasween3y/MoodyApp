@@ -112,7 +112,7 @@ export class JournalPageComponent implements OnInit {
     if (!this.journalTitle.trim()) return;
     this.loading = true;
     try {
-      const journal = await firstValueFrom(
+      let journal = await firstValueFrom(
         this.journalsService.createJournal({ title: this.journalTitle.trim(), description: this.journalDescription || undefined })
       );
       if ((journal as any)?.queued) {
@@ -120,7 +120,7 @@ export class JournalPageComponent implements OnInit {
         this.error = undefined;
       }
       if (this.journalCoverFile && !(journal as any)?.queued && journal.id > 0) {
-        await this.uploadCover(journal.id, this.journalCoverFile);
+        journal = await this.uploadCover(journal.id, this.journalCoverFile);
       }
       this.journals.unshift(journal);
       this.saveCachedJournals(this.journals);
@@ -229,8 +229,10 @@ export class JournalPageComponent implements OnInit {
       if (this.selectedJournalId === updated.id) {
         this.selectedJournalId = updated.id; // trigger getter use
       }
+      return updated;
     } catch (err) {
       console.error('Cover upload failed', err);
+      throw err;
     }
   }
 
